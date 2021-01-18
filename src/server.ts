@@ -1,10 +1,40 @@
 import dotenv from "dotenv";
 import express from "express";
+import mongoose from "mongoose";
 import path from "path";
 import * as Routes from "./routes";
 import express_compression from "compression";
 import { altairExpress } from "altair-express-middleware";
-import { expressErrorLogger, expressLogger } from "./utils/logger";
+import { expressErrorLogger, expressLogger, logger } from "./utils/logger";
+import { capitalizeIt } from "./utils/toolbox";
+
+let mongouri = process.env.MONGODB_URI;
+if (typeof mongouri === "string" && mongouri.endsWith("/")) {
+    mongouri = mongouri.slice(0, -1);
+}
+
+let MONGO_VERSIONING = {
+    "type": "Unknown",
+    "version": "X.XX.XX",
+};
+
+logger.info("Connecting to database...");
+mongoose.connect(`${mongouri}/${process.env.MONGODB_DBNAME}`, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false});
+
+mongoose.connection.on("open", () => {
+    logger.info("Connected to VTubers Database!");
+    let admin = mongoose.connection.db.admin();
+    admin.serverInfo((err, info) => {
+        MONGO_VERSIONING["version"] = info.version;
+        let modules = info.modules;
+        if (modules.length > 0) {
+            MONGO_VERSIONING["type"] = modules[0];
+            MONGO_VERSIONING["type"] = capitalizeIt(MONGO_VERSIONING["type"]);
+        } else {
+            MONGO_VERSIONING["type"] = "Community";
+        }
+    })
+})
 
 dotenv.config();
 const app = express();

@@ -33,6 +33,16 @@ export function isNone(key: any, checkEmpty: boolean = false): boolean {
 }
 
 /**
+ * Capitalize a string.
+ * @param { string } text - text that need capitalizing.
+ * @returns { string } capitalized string
+ */
+export function capitalizeIt(text: string): string {
+    if (isNone(text)) {return text};
+    return text.slice(0, 1).toUpperCase() + text.slice(1);
+}
+
+/**
  * Convert a string/number to a number using fallback if it's NaN (Not a number).
  * If fallback is not specified, it will return to_convert.
  * @param cb parseFloat or parseInt function that will be run
