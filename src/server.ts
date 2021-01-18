@@ -8,6 +8,8 @@ import { altairExpress } from "altair-express-middleware";
 import { expressErrorLogger, expressLogger, logger } from "./utils/logger";
 import { capitalizeIt } from "./utils/toolbox";
 
+dotenv.config({path: path.join(__dirname, "..", ".env")});
+
 let mongouri = process.env.MONGODB_URI;
 if (typeof mongouri === "string" && mongouri.endsWith("/")) {
     mongouri = mongouri.slice(0, -1);
@@ -36,7 +38,6 @@ mongoose.connection.on("open", () => {
     })
 })
 
-dotenv.config();
 const app = express();
 
 app.use(expressLogger);
