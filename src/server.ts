@@ -98,8 +98,7 @@ app.use("/playground", altairExpress({
 app.use(expressErrorLogger);
 
 app.use(function (req, res, next) {
-    let current_utc = Date.now();
-    res.status(404).json({"time": current_utc, "status": 404, "message": `path '${req.path}' not found.`});
+    res.status(404).render("404_page", {"path": req.path});
 });
 
 const listener = app.listen(7200, () => {
