@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 import path from "path";
 import * as Routes from "./routes";
 import express_compression from "compression";
+// @ts-ignore
+import htmlMinifier from "express-minify-html-2";
 import { altairExpress } from "altair-express-middleware";
 import { expressErrorLogger, expressLogger, logger } from "./utils/logger";
 import { capitalizeIt } from "./utils/toolbox";
@@ -39,6 +41,14 @@ mongoose.connection.on("open", () => {
 })
 
 const app = express();
+app.use(htmlMinifier({
+    override: true,
+    htmlMinifier: {
+        removeComments: false,
+        removeAttributeQuotes: false,
+        minifyJS: true,
+    }
+}))
 
 app.use("/robots.txt", (_q, res) => {
     res.send(`
@@ -92,7 +102,7 @@ app.use(function (req, res, next) {
 });
 
 const listener = app.listen(7200, () => {
-    console.log("🚀 Server is up and running!");
+    console.log("\n🚀 Server is up and running!");
     // @ts-ignore
     console.log("http://127.0.0.1:" + listener.address().port + "\n");
 })
