@@ -36,102 +36,57 @@
         onload="this.onload=null;this.rel='stylesheet'">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.0.0/mdb.min.css" as="style"
         onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="/assets/css/ihaiconsv2.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/assets/css/ihaiconsv2.3.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <!-- Fallback -->
     <noscript>
         <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
         <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.0.0/mdb.min.css" rel="stylesheet" />
-        <link href="/assets/css/ihaiconsv2.css" rel="stylesheet">
+        <link href="/assets/css/ihaiconsv2.3.css" rel="stylesheet">
     </noscript>
-
     <style type="text/css">
-        .border-twitch {
-            border-color: #8E42FE !important;
-        }
-
-        .bg-darkgrey,
-        .btn-darkgrey {
-            background-color: #2a2d2f !important;
-        }
-
-        .btn-darkgrey:hover,
-        .btn-darkgrey:active,
-        .btn-darkgrey:focus {
-            background-color: #35383a !important;
-        }
-
-        .text-darkgrey {
-            color: #2a2d2f !important;
-        }
-
-        .text-twitch {
-            color: #8E42FE !important;
-        }
-
-        .text-twcast {
-            color: #027AF8 !important;
-        }
-
-        .border-twcast {
-            border-color: #027AF8 !important;
-        }
-
-        .floating-btn {
-            position: fixed;
-            width: 60px;
-            height: 60px;
-            bottom: 40px;
-            right: 40px;
-            background-color: #c50909;
-            color: #FFF;
-            border-radius: 50px;
-            text-align: center;
-            box-shadow: 0px 0px 5px 0px #2A2D2F;
-            border-color: transparent;
-            z-index: 999;
-        }
+        .bg-darkgrey,.btn-darkgrey{background-color:#2a2d2f!important}.btn-darkgrey:active,.btn-darkgrey:focus,.btn-darkgrey:hover{background-color:#35383a!important}.text-darkgrey{color:#2a2d2f!important}.text-twitch{color:#8e42fe!important}.text-twcast{color:#027af8!important}.text-bili2{color:#00a1d6!important}.text-mildom{color:#38cce3!important}.border-twitch{border-color:#8e42fe!important}.border-twcast{border-color:#027af8!important}.border-bili2{border-color:#00a1d6!important}.border-mildom{border-color:#38cce3!important}.floating-btn{position:fixed;width:60px;height:60px;bottom:40px;right:40px;background-color:#c50909;color:#fff;border-radius:50px;text-align:center;box-shadow:0 0 5px 0 #2a2d2f;border-color:transparent;z-index:999}
     </style>
     <style type="text/css">
         ::-webkit-scrollbar {
             width: 6px;
-            height: 6px;
+            height: 6px
         }
 
         ::-webkit-scrollbar-button {
-            width: 0px;
-            height: 0px;
+            width: 0;
+            height: 0
         }
 
         ::-webkit-scrollbar-thumb {
             background: #4d4d4d;
-            border: 3px none #808080;
-            border-radius: 50px;
+            border: 3px none grey;
+            border-radius: 50px
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #7a7a7a;
+            background: #7a7a7a
         }
 
         ::-webkit-scrollbar-thumb:active {
-            background: #2e2e2e;
+            background: #2e2e2e
         }
 
         ::-webkit-scrollbar-track {
             background: #707070;
-            border: 0px none #ffffff;
-            border-radius: 100px;
+            border: 0 none #fff;
+            border-radius: 100px
         }
 
         ::-webkit-scrollbar-track:hover {
-            background: #666666;
+            background: #666
         }
 
         ::-webkit-scrollbar-track:active {
-            background: #666666;
+            background: #666
         }
 
         ::-webkit-scrollbar-corner {
-            background: transparent;
+            background: 0 0
         }
     </style>
 </head>
@@ -228,6 +183,11 @@
                 <label class="form-check-label" for="twcastPlatFilter"><i
                         class="ihaicon text-twcast fs-4">twitcasting_icon</i></label>
             </div>
+            <div class="form-check form-check-inline form-switch">
+                <input class="form-check-input" type="checkbox" name="inlineRadioOptions" id="mildomPlatFilter"
+                    value="mildom" checked disabled>
+                <label class="form-check-label" for="mildomPlatFilter"><i class="ihaicon text-mildom fs-4">mildom_sicon</i></label>
+            </div>
         </div>
         <hr>
         <div id="loading-signal" class="text-center">
@@ -295,11 +255,12 @@
         const YOUTUBE_RE = /(?:(?:http?s):\/\/)?(?:www\.)?youtube\.com\/(?:channel|user)\/([a-zA-Z0-9\-\_]+)/mi;
         const TWITCH_RE = /(?:(?:http?s):\/\/)?(?:www\.)?twitch\.tv\/([a-zA-Z0-9\-]+)/mi;
         const TWITCASTING_RE = /(?:(?:http?s):\/\/)?(?:www\.)?twitcasting\.tv\/([a-zA-Z0-9\-]+)/mi;
+        const MILDOM_RE = /(?:(?:http?s):\/\/)?(?:www\.)?mildom\.com\/(?:profile\/)?([0-9]+)/mi;
         var fetchedPage = 0;
 
         let gqlSchemas = `query VTuberChannel($cursor:String) {
             vtuber {
-                channels(platforms:[youtube,twitch,twitcasting],cursor:$cursor,limit:75) {
+                channels(platforms:[youtube,twitch,twitcasting,mildom],cursor:$cursor,limit:75) {
                     _total
                     items {
                         id
@@ -507,7 +468,7 @@
             // console.log(channelInfo);
             let $chanCol = $(
                 `<div id="${channelInfo.id}-${channelInfo.platform}" class="col vtubers-card" data-search="${channelInfo.name}" data-hidden="false" />`
-                );
+            );
             let $cardMain, border;
             if (channelInfo.platform === "youtube") {
                 border = "border-danger";
@@ -518,6 +479,9 @@
             } else if (channelInfo.platform === "twitcasting") {
                 border = "border-twcast";
                 $cardMain = $(`<div class="card border border-twcast text-white bg-dark" />`);
+            } else if (channelInfo.platform === "mildom") {
+                $cardMain = $(`<div class="card border border-mildom text-white bg-dark" />"`);
+                border = "border-mildom";
             }
             $cardMain.append($(`<img class="card-img-top lazy" />`).attr("data-src", channelInfo.image).attr("alt",
                 "Profile Picture").attr("src", PLACEHOLDER_IMG));
@@ -531,6 +495,9 @@
             } else if (channelInfo.platform === "twitcasting") {
                 $titleCard.append($(`<i class="ihaicon mx-1 text-twcast" />`).text("twitcasting_icon"));
                 $titleCard.append($(`<span />`).text("Twitcasting"));
+            } else if (channelInfo.platform === "mildom") {
+                $titleCard.append($(`<i class="ihaicon mx-1 text-mildom" />`).text("mildom_sicon"));
+                $titleCard.append($(`<span />`).text("Mildom"));
             }
 
             $titleCard.append($(`<h5 class="card-title" />`).text(channelInfo.name));
@@ -538,7 +505,7 @@
             let $statsCard = $(`<ul class="list-group list-group-flush ${border}" />`)
                 .append($(`<li class="list-group-item bg-dark text-white ${border}" />`).text(
                     `Subscribers: ${chanStats.subscriberCount.toLocaleString()}`));
-            if (channelInfo.platform !== "twitcasting") {
+            if (!["mildom", "twitcasting"].includes(channelInfo.platform)) {
                 $statsCard.append($(`<li class="list-group-item bg-dark text-white ${border}" />`).text(
                     `Views: ${chanStats.viewCount.toLocaleString()}`));
             }
@@ -550,6 +517,8 @@
                 channelLink = `https://twitch.tv/${channelInfo.id}`;
             } else if (channelInfo.platform === "twitcasting") {
                 channelLink = `https://twitcasting.tv/${channelInfo.id}`;
+            } else if (channelInfo.platform === "mildom") {
+                channelLink = `https://www.mildom.com/profile/${channelInfo.id}`;
             }
             let $linkCard = $(`<div class="card-body text-center" />`)
                 .append($(`<a class="btn btn-primary mx-1" rel="noopener" target="_blank" />`)
@@ -570,11 +539,13 @@
             let $groupRowsYT = $(`<div class="row row-cols-1 row-cols-md-5 g-4 mb-2" />`);
             let $groupRowsTTV = $(`<div class="row row-cols-1 row-cols-md-5 g-4 mb-2" />`);
             let $groupRowsTW = $(`<div class="row row-cols-1 row-cols-md-5 g-4 mb-2" />`);
+            let $groupRowsMD = $(`<div class="row row-cols-1 row-cols-md-5 g-4 mb-2" />`);
             let groupedByPlatform = groupBy(groupData, "platform");
 
             let ytCards = sortBy(get(groupedByPlatform, "youtube", []), "publishedAt").map(createCard);
             let ttvCards = sortBy(get(groupedByPlatform, "twitch", []), "publishedAt").map(createCard);
             let twCards = sortBy(get(groupedByPlatform, "twitcasting", []), "publishedAt").map(createCard);
+            let mildomCards = sortBy(get(groupedByPlatform, "mildom", []), "publishedAt").map(createCard);
             if (ytCards.length > 0) {
                 ytCards.forEach(($card) => {
                     $groupRowsYT.append($card);
@@ -592,6 +563,12 @@
                     $groupRowsTW.append($card);
                 })
                 $topDiv.append($groupRowsTW);
+            }
+            if (mildomCards.length > 0) {
+                mildomCards.forEach(($card) => {
+                    $groupRowsMD.append($card);
+                });
+                $topDiv.append($groupRowsMD);
             }
             return $topDiv;
         }
@@ -640,6 +617,7 @@
             $("#ytPlatFilter").attr("disabled", false);
             $("#ttvPlatFilter").attr("disabled", false);
             $("#twcastPlatFilter").attr("disabled", false);
+            $("#mildomPlatFilter").attr("disabled", false);
         })();
 
         async function removeVTuber(channelId, platform) {
@@ -714,10 +692,13 @@
             } else if (TWITCH_RE.test(channelUrl)) {
                 let channelId = forceMatchChannel(channelUrl, TWITCH_RE);
                 await addNewVTuber(channelId, selGroup, "twitch", englishName);
+            } else if (MILDOM_RE.test(channelUrl)) {
+                let channelId = forceMatchChannel(channelUrl, MILDOM_RE);
+                await addNewVTuber(channelId, selGroup, "mildom", englishName);
             } else {
                 $("#error-modal-text").text(
                     "Failed to validate channel URL, please provide proper Youtube/Twitch/Twitcasting Channel URL."
-                    );
+                );
                 errorModal.show();
             }
             $("#btnAddNewSpinner").addClass("visually-hidden");
@@ -815,6 +796,38 @@
             } else {
                 let hiddenThings = [];
                 $(".vtubers-card > .border-twcast").each(function (i, elem) {
+                    let $elem = $(elem);
+                    let $fp = $elem.parent();
+                    $fp.attr("data-hidden", "true");
+                    let fpId = $fp.parent().parent().attr("id");
+                    if (!hiddenThings.includes(fpId)) {
+                        hiddenThings.push(fpId);
+                        $fp.parent().fadeOut();
+                    }
+                    $elem.fadeOut();
+                });
+            }
+            doReadjustAfterFilter();
+        });
+
+        $("#mildomPlatFilter").change(function () {
+            let is_checked = $(this).prop("checked");
+            if (is_checked) {
+                let showedThings = [];
+                $(".vtubers-card > .border-mildom").each(function (i, elem) {
+                    let $elem = $(elem);
+                    let $fp = $elem.parent();
+                    $fp.attr("data-hidden", "false");
+                    let fpId = $fp.parent().parent().attr("id");
+                    if (!showedThings.includes(fpId)) {
+                        showedThings.push(fpId);
+                        $fp.parent().fadeIn();
+                    }
+                    $elem.fadeIn();
+                });
+            } else {
+                let hiddenThings = [];
+                $(".vtubers-card > .border-mildom").each(function (i, elem) {
                     let $elem = $(elem);
                     let $fp = $elem.parent();
                     $fp.attr("data-hidden", "true");

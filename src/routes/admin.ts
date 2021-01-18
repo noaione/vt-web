@@ -8,6 +8,9 @@ import { ensureLoggedIn } from "connect-ensure-login";
 import { Strategy as LocalStrategy } from "passport-local";
 import { logger as TopLogger } from "../utils/logger";
 import { generateCustomString, isNone } from "../utils/toolbox";
+import { TwitchHelix } from "../utils/twitchapi";
+import { youtubeChannelDataset, ttvChannelDataset, twcastChannelsDataset, mildomChannelsDataset, vtapiRemoveVTuber } from "../utils/vtadmin";
+import { MildomAPI } from "../utils/mildomapi";
 
 const MainLogger = TopLogger.child({cls: "Routes.AdminRoutes"});
 
@@ -22,6 +25,14 @@ passport.use(new LocalStrategy({
         return done(null, user);
     }
 ));
+
+var TTVAPI: TwitchHelix;
+if (!isNone(process.env.TWITCH_API_CLIENT) && !isNone(process.env.TWITCH_API_SECRET)) {
+    // @ts-ignore
+    TTVAPI = new TwitchHelix(process.env.TWITCH_API_CLIENT, process.env.TWITCH_API_SECRET);
+}
+
+const MDAPI = new MildomAPI();
 
 passport.serializeUser(function(user, cb) {
     cb(null, user);
@@ -63,7 +74,7 @@ AdminRoutes.get("/access", csrfProtected, (req, res) => {
     }
 })
 
-AdminRoutes.post("/access", passport.authenticate("local", {failureRedirect: "/admin/access", failureFlash: true}), (req, res) => {
+AdminRoutes.post("/access", passport.authenticate("local", {failureRedirect: "/admin/access", failureFlash: true}), (_q, res) => {
     res.redirect("/admin");
 })
 
@@ -75,7 +86,7 @@ AdminRoutes.get("/logout", (req, res) => {
 AdminRoutes.use(express.json());
 
 // CRUD
-AdminRoutes.post("/admin/add", ensureLoggedIn("/admin/access"), async (req, res, next) => {
+AdminRoutes.post("/admin/add", ensureLoggedIn("/admin/access"), async (req, res) => {
     const logger = MainLogger.child({fn: "AdminAdd"});
     let jsonBody = req.body;
     let channelId = _.get(jsonBody, "channel", undefined);
@@ -94,10 +105,56 @@ AdminRoutes.post("/admin/add", ensureLoggedIn("/admin/access"), async (req, res,
     if (isNone(en_name, true)) {
         return res.status(400).json({"success": 0, "error": "Missing Romanized Name"});
     }
-    if (!["youtube", "twitch", "twitcasting"].includes(platform)) {
+    if (!["youtube", "twitch", "twitcasting", "mildom"].includes(platform)) {
         return res.status(400).json({"success": 0, "error": `Unknown "${platform}" platform.`});
     }
     logger.info(`Request received, adding ${channelId} (${group}) to ${platform} data`);
+    try {
+        // @ts-ignore
+        let success, error;
+        if (platform === "youtube") {
+            [success, error] = await youtubeChannelDataset(channelId, group, en_name);
+        } else if (platform === "twitch") {
+            if (isNone(TTVAPI)) {
+                success = false;
+                error = "Web Admin doesn't give a Twitch API Information to use in the environment table."
+            } else {
+                [success, error] = await ttvChannelDataset(channelId, group, en_name, TTVAPI);
+            }
+        } else if (platform === "twitcasting") {
+            [success, error] = await twcastChannelsDataset(channelId, group, en_name);
+        } else if (platform === "mildom") {
+            [success, error] = await mildomChannelsDataset(channelId, group, en_name, MDAPI);
+        }
+        res.json({"success": success ? 1 : 0, "error": error});
+    } catch (error) {
+        res.status(500).json({"success": 0, "error": error.toString()});
+    }
+})
+
+AdminRoutes.post("/admin/delete", ensureLoggedIn("/admin/access"), async (req, res) => {
+    const logger = MainLogger.child({fn: "AdminRemove"});
+    let jsonBody = req.body;
+    let channelId = _.get(jsonBody, "channel", undefined);
+    let platform = _.get(jsonBody, "platform", undefined);
+    if (isNone(channelId)) {
+        return res.status(400).json({"success": 0, "error": "Missing Channel ID"});
+    }
+    if (isNone(platform)) {
+        return res.status(400).json({"success": 0, "error": "Missing Platform"});
+    }
+    if (!["youtube", "twitch", "twitcasting", "mildom"].includes(platform)) {
+        return res.status(400).json({"success": 0, "error": `Unknown "${platform}" platform.`});
+    }
+    try {
+        // @ts-ignore
+        logger.info(`Request received, removing ${channelId} from ${platform} data`);
+        let [success, error] = await vtapiRemoveVTuber(channelId, platform);
+        logger.info(`Request finished, ${channelId} from ${platform} data have been removed`);
+        res.json({"success": success ? 1 : 0, "error": error});
+    } catch (error) {
+        res.status(500).json({"success": 0, "error": error.toString()});
+    }
 })
 
 export { AdminRoutes };

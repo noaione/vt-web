@@ -36,95 +36,18 @@
         onload="this.onload=null;this.rel='stylesheet'">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.0.0/mdb.min.css" as="style"
         onload="this.onload=null;this.rel='stylesheet'">
-    <link rel="preload" href="/assets/css/ihaiconsv2.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/assets/css/ihaiconsv2.3.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <!-- Fallback -->
     <noscript>
         <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
         <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.0.0/mdb.min.css" rel="stylesheet" />
-        <link href="/assets/css/ihaiconsv2.css" rel="stylesheet">
+        <link href="/assets/css/ihaiconsv2.3.css" rel="stylesheet">
     </noscript>
-
-    <style>
-        .border-twitch {
-            border-color: #8E42FE !important;
-        }
-
-        .bg-darkgrey,
-        .btn-darkgrey {
-            background-color: #2a2d2f !important;
-        }
-
-        .btn-darkgrey:hover,
-        .btn-darkgrey:active,
-        .btn-darkgrey:focus {
-            background-color: #35383a !important;
-        }
-
-        .text-darkgrey {
-            color: #2a2d2f !important;
-        }
-
-        .text-twitch {
-            color: #8E42FE !important;
-        }
-
-        .text-twcast {
-            color: #027AF8 !important;
-        }
-
-        .border-twcast {
-            border-color: #027AF8 !important;
-        }
-
-        .floating-btn {
-            position: fixed;
-            width: 60px;
-            height: 60px;
-            bottom: 40px;
-            right: 40px;
-            background-color: #c50909;
-            color: #FFF;
-            border-radius: 50px;
-            text-align: center;
-            box-shadow: 0px 0px 5px 0px #2A2D2F;
-            border-color: transparent;
-            z-index: 999;
-        }
+    <style type="text/css">
+        .bg-darkgrey,.btn-darkgrey{background-color:#2a2d2f!important}.btn-darkgrey:active,.btn-darkgrey:focus,.btn-darkgrey:hover{background-color:#35383a!important}.text-darkgrey{color:#2a2d2f!important}.text-twitch{color:#8e42fe!important}.text-twcast{color:#027af8!important}.text-bili2{color:#00a1d6!important}.text-mildom{color:#38cce3!important}.border-twitch{border-color:#8e42fe!important}.border-twcast{border-color:#027af8!important}.border-bili2{border-color:#00a1d6!important}.border-mildom{border-color:#38cce3!important}.floating-btn{position:fixed;width:60px;height:60px;bottom:40px;right:40px;background-color:#c50909;color:#fff;border-radius:50px;text-align:center;box-shadow:0 0 5px 0 #2a2d2f;border-color:transparent;z-index:999}
     </style>
     <style type="text/css">
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-button {
-            width: 0px;
-            height: 0px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #4d4d4d;
-            border: 3px none #808080;
-            border-radius: 50px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #7a7a7a;
-        }
-        ::-webkit-scrollbar-thumb:active {
-            background: #2e2e2e;
-        }
-        ::-webkit-scrollbar-track {
-            background: #707070;
-            border: 0px none #ffffff;
-            border-radius: 100px;
-        }
-        ::-webkit-scrollbar-track:hover {
-            background: #666666;
-        }
-        ::-webkit-scrollbar-track:active {
-            background: #666666;
-        }
-        ::-webkit-scrollbar-corner {
-            background: transparent;
-        }
+        ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-button{width:0;height:0}::-webkit-scrollbar-thumb{background:#4d4d4d;border:3px none grey;border-radius:50px}::-webkit-scrollbar-thumb:hover{background:#7a7a7a}::-webkit-scrollbar-thumb:active{background:#2e2e2e}::-webkit-scrollbar-track{background:#707070;border:0 none #fff;border-radius:100px}::-webkit-scrollbar-track:hover{background:#666}::-webkit-scrollbar-track:active{background:#666}::-webkit-scrollbar-corner{background:0 0}
     </style>
 </head>
 
@@ -385,6 +308,9 @@
             } else if (channelInfo.platform === "twitcasting") {
                 $cardMain = $(`<div class="card border border-twcast text-white bg-dark" />`);
                 watchUrl = `https://twitcasting.tv/${channelInfo.channel.id}`;
+            } else if (channelInfo.platform === "mildom") {
+                $cardMain = $(`<div class="card border border-mildom text-white bg-dark />"`);
+                watchUrl = `https://www.mildom.com/${channelInfo.channel.id}`;
             }
             let $linkClick = $(`<a href="${watchUrl}" target="_blank" rel="noopener" />`)
                 .append($(`<img class="card-img-top lazy" />`).attr("data-src", channelInfo.thumbnail).attr("alt",
@@ -412,6 +338,9 @@
                 $cardMainBody.append($(`<i class="ihaicon mx-1 text-twcast" />`).text("twitcasting_icon"));
                 $cardMainBody.append($(`<span />`).text(is_member ? "Twitcasting (Member-only)" :
                     "Twitcasting"));
+            } else if (channelInfo.platform === "mildom") {
+                $cardMainBody.append($(`<i class="ihaico-mildom"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span><span class="path7"></span><span class="path8"></span><span class="path9"></span><span class="path10"></span><span class="path11"></span></i>`));
+                $cardMainBody.append($(`<span />`).text("Mildom"));
             }
 
             $cardMainBody.append($(`<h5 class="card-title" />`).text(channelInfo.title));
@@ -420,14 +349,14 @@
                 zone: "UTC"
             }).setZone(localZone);
             let startTimeTXT = startTimeTZ.toFormat("EEE, dd MMM yyyy HH:mm:ss ZZZZ");
-			let viewers = channelInfo.viewers,
-				peakViewers = channelInfo.peakViewers;
-			if (viewers === null) {
-				viewers = "Unknown";
-			}
-			if (peakViewers === null) {
-				peakViewers = "Unknown";
-			}			
+            let viewers = channelInfo.viewers,
+                peakViewers = channelInfo.peakViewers;
+            if (viewers === null) {
+                viewers = "Unknown";
+            }
+            if (peakViewers === null) {
+                peakViewers = "Unknown";
+            }			
             let $statsCard = $(
                 `<p class="card-text"><b>Start:</b> ${startTimeTXT}<br /><b>Viewers:</b> ${viewers.toLocaleString()} | <b>Peak Viewers:</b> ${peakViewers.toLocaleString()}</p>`
             );

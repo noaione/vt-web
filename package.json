@@ -9,9 +9,9 @@
     "tsc": "tsc",
     "build": "npm-run-all clean tsc copy-assets",
     "dev:start": "npm-run-all build start",
-    "dev": "nodemon --watch src -e ts,ejs,css",
+    "dev": "nodemon --watch src -e ts",
     "prod": "npm-run-all build prod:start",
-    "prod:start": "nodemon dist/server.js --watch dist -e ts,ejs,css",
+    "prod:start": "nodemon dist/server.js --watch dist -e js",
     "start": "node .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

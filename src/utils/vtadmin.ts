@@ -1,10 +1,11 @@
 import axios from "axios";
 import _ from "lodash";
 import moment from "moment-timezone";
-import { TwitcastingChannel, TwitchChannel, YoutubeChannel, YTChannelProps } from "./mongoose";
+import { MildomChannel, TwitcastingChannel, TwitchChannel, YoutubeChannel, YTChannelProps } from "./mongoose";
 import { logger as MainLogger } from "./logger";
 import { fallbackNaN, isNone } from "./toolbox";
 import { TwitchHelix } from "./twitchapi";
+import { MildomAPI } from "./mildomapi";
 
 const CHROME_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36";
 
@@ -331,6 +332,67 @@ export async function ttvChannelDataset(channelId: string, group: string, en_nam
     }
 }
 
+export async function mildomChannelsDataset(channelId: string, group: string, en_name: string, mildomAPI: MildomAPI) {
+    const logger = MainLogger.child({fn: "mildomChannelsDataset"});
+    let channels = await MildomChannel.findOne({"id": {"$eq": channelId}}).catch((err: any) => {
+        return {};
+    });
+    if (_.get(channels, "id")) {
+        return [false, "Channel already exist on database"];
+    }
+    logger.info("fetching to API...");
+    let mildom_results = await mildomAPI.fetchUser(channelId);
+    if (typeof mildom_results === "undefined") {
+        logger.warn("can't find the channel.")
+        return [false, "Cannot find that Mildom Channel"];
+    }
+    logger.info(`parsing API results...`);
+    let insertData = [];
+    let currentTimestamp = moment.tz("UTC").unix();
+    for (let i = 0; i < [mildom_results].length; i++) {
+        let result = mildom_results;
+        logger.info(`parsing and fetching followers and videos ${result["id"]}`);
+        let videosData = await mildomAPI.fetchVideos(result["id"]);
+        let historyData: any[] = [];
+        historyData.push({
+            timestamp: currentTimestamp,
+            followerCount: result["followerCount"],
+            level: result["level"],
+            videoCount: videosData.length,
+        })
+        // @ts-ignore
+        let mappedNew: MildomChannelProps = {
+            "id": result["id"],
+            "name": result["name"],
+            "en_name": en_name,
+            "description": result["description"],
+            "thumbnail": result["thumbnail"],
+            "followerCount": result["followerCount"],
+            "videoCount": videosData.length,
+            "level": result["level"],
+            "group": group,
+            "platform": "mildom",
+            "history": historyData
+        }
+        insertData.push(mappedNew);
+    }
+
+    var commitFail = false;
+    if (insertData.length > 0) {
+        logger.info(`committing new data...`);
+        await MildomChannel.insertMany(insertData).catch((err) => {
+            logger.error(`failed to insert new data, ${err.toString()}`);
+            commitFail = true;
+        });
+        if (commitFail) {
+            return [false, "Failed to insert new VTuber to Twitch database, please try again later or contact the Web Admin"];
+        }
+        return [true, "Success"];
+    } else {
+        return [false, "Cannot find that Mildom Channel"];
+    }
+}
+
 export async function vtapiRemoveVTuber(channelId: string, platform: string) {
     const logger = MainLogger.child({fn: `vtapiRemoveVTuber(${platform})`});
     if (platform === "youtube") {
@@ -380,6 +442,24 @@ export async function vtapiRemoveVTuber(channelId: string, platform: string) {
         let success = true;
         logger.info(`removing ${channelId} channel`)
         await TwitcastingChannel.deleteMany({"id": {"$eq": channelId}}).catch((err: any) => {
+            logger.error(`failed to remove channel ${channelId}, ${err.toString()}`);
+            success = false;
+        })
+        if (success) {
+            return [true, "Success"];
+        }
+        return [false, "Failed to remove channel from database, please try again later or contact the Web Admin"];
+    } else if (platform === "mildom") {
+        logger.info(`finding ${channelId} channel`)
+        let channel = await MildomChannel.findOne({"id": {"$eq": channelId}}).catch((_e: any) => {
+            return {};
+        });
+        if (!_.get(channel, "id")) {
+            return [false, "Channel doesn't exist on the database."];
+        }
+        let success = true;
+        logger.info(`removing ${channelId} channel`)
+        await MildomChannel.deleteMany({"id": {"$eq": channelId}}).catch((err: any) => {
             logger.error(`failed to remove channel ${channelId}, ${err.toString()}`);
             success = false;
         })

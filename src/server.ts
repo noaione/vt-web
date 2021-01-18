@@ -63,10 +63,11 @@ app.use(express_compression());
 app.set("views", path.join(__dirname, "views"))
 app.set("view engine", "ejs");
 
-app.use("/", Routes.UserRoutes);
 app.use("/assets", express.static(path.join(__dirname, "assets"), {
     maxAge: 1296000 // 15 days
 }));
+
+app.use("/", Routes.UserRoutes);
 app.use("/admin", Routes.AdminRoutes);
 
 let initialQuery = `query VTuberLives {
