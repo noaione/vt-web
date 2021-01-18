@@ -15,6 +15,7 @@ import { MildomAPI } from "../utils/mildomapi";
 const MainLogger = TopLogger.child({cls: "Routes.AdminRoutes"});
 
 const AdminRoutes = express.Router();
+
 passport.use(new LocalStrategy({
     usernameField: "_token"
     },
@@ -52,10 +53,6 @@ AdminRoutes.use(require("flash")());
 AdminRoutes.use(passport.initialize());
 AdminRoutes.use(passport.session());
 
-AdminRoutes.get("/", ensureLoggedIn("/admin/access"), (_q, res) => {
-    res.render("admin_dashboard");
-});
-
 AdminRoutes.get("/access", csrfProtected, (req, res) => {
     let err_msg = null;
     // @ts-ignore
@@ -83,10 +80,14 @@ AdminRoutes.get("/logout", (req, res) => {
     res.redirect("/");
 })
 
+AdminRoutes.get("/", ensureLoggedIn("/admin/access"), (_q, res) => {
+    res.render("admin_dashboard");
+});
+
 AdminRoutes.use(express.json());
 
 // CRUD
-AdminRoutes.post("/admin/add", ensureLoggedIn("/admin/access"), async (req, res) => {
+AdminRoutes.post("/add", ensureLoggedIn("/admin/access"), async (req, res) => {
     const logger = MainLogger.child({fn: "AdminAdd"});
     let jsonBody = req.body;
     let channelId = _.get(jsonBody, "channel", undefined);
@@ -132,7 +133,7 @@ AdminRoutes.post("/admin/add", ensureLoggedIn("/admin/access"), async (req, res)
     }
 })
 
-AdminRoutes.post("/admin/delete", ensureLoggedIn("/admin/access"), async (req, res) => {
+AdminRoutes.post("/delete", ensureLoggedIn("/admin/access"), async (req, res) => {
     const logger = MainLogger.child({fn: "AdminRemove"});
     let jsonBody = req.body;
     let channelId = _.get(jsonBody, "channel", undefined);
