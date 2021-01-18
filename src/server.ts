@@ -40,6 +40,13 @@ mongoose.connection.on("open", () => {
 
 const app = express();
 
+app.use("/robots.txt", (_q, res) => {
+    res.send(`
+        User-agent: *
+        Disallow: /
+    `)
+})
+
 app.use(expressLogger);
 app.use(express_compression());
 
@@ -47,7 +54,9 @@ app.set("views", path.join(__dirname, "views"))
 app.set("view engine", "ejs");
 
 app.use("/", Routes.UserRoutes);
-app.use("/assets", express.static(path.join(__dirname, "assets")));
+app.use("/assets", express.static(path.join(__dirname, "assets"), {
+    maxAge: 1296000 // 15 days
+}));
 app.use("/admin", Routes.AdminRoutes);
 
 let initialQuery = `query VTuberLives {
