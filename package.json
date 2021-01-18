@@ -1,0 +1,81 @@
+{
+  "name": "vt-web",
+  "version": "1.0.0",
+  "description": "Implementation of ihateani.me VTuber API",
+  "main": "src/server.ts",
+  "scripts": {
+    "clean": "rimraf dist/*",
+    "copy-assets": "node tools/copyAssets",
+    "tsc": "tsc",
+    "build": "npm-run-all clean tsc copy-assets",
+    "dev:start": "npm-run-all build start",
+    "dev": "nodemon --watch src -e ts,ejs,css",
+    "prod": "npm-run-all build prod:start",
+    "prod:start": "nodemon dist/server.js --watch dist -e ts,ejs,css",
+    "start": "node .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/noaione/vt-web.git"
+  },
+  "keywords": [
+    "vtuber",
+    "web",
+    "expressjs"
+  ],
+  "author": "N4O",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/noaione/vt-web/issues"
+  },
+  "homepage": "https://github.com/noaione/vt-web#readme",
+  "devDependencies": {
+    "@nuxt/typescript-build": "^2.0.4",
+    "@types/axios": "^0.14.0",
+    "@types/body-parser": "^1.19.0",
+    "@types/compression": "^1.7.0",
+    "@types/connect-ensure-login": "^0.1.5",
+    "@types/consolidate": "^0.14.0",
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.11",
+    "@types/express-session": "^1.17.3",
+    "@types/express-winston": "^4.0.0",
+    "@types/fs-extra": "^9.0.6",
+    "@types/lodash": "^4.14.167",
+    "@types/passport": "^1.0.5",
+    "@types/passport-local": "^1.0.33",
+    "@types/shelljs": "^0.8.8",
+    "fs-extra": "^9.0.1",
+    "nodemon": "^2.0.7",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.2",
+    "shelljs": "^0.8.4",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  },
+  "dependencies": {
+    "@types/csurf": "^1.11.0",
+    "@types/mongoose": "^5.10.3",
+    "altair-express-middleware": "^3.1.0",
+    "axios": "^0.21.1",
+    "body-parser": "^1.19.0",
+    "compression": "^1.7.4",
+    "connect-ensure-login": "^0.1.1",
+    "consolidate": "^0.16.0",
+    "csurf": "^1.11.0",
+    "dotenv": "^8.2.0",
+    "ejs": "^3.1.5",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "express-winston": "^4.0.5",
+    "flash": "^1.1.0",
+    "lodash": "^4.17.20",
+    "moment-timezone": "^0.5.32",
+    "mongoose": "^5.11.12",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0",
+    "ts-mongoose": "0.0.24",
+    "winston": "^3.3.3"
+  }
+}
