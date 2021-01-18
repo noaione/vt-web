@@ -17,7 +17,7 @@ export async function twcastChannelsDataset(channelId: string, group: string, en
     const logger = MainLogger.child({fn: "twcastChannelDataset"});
 
     logger.info("checking if channel exist...");
-    let channels = await TwitcastingChannel.findOne({"id": {"$eq": channelId}}).catch((err) => {
+    let channels = await TwitcastingChannel.findOne({"id": {"$eq": channelId}}).catch((err: any) => {
         return {};
     });
     if (_.get(channels, "id")) {
@@ -138,7 +138,7 @@ export async function youtubeChannelDataset(channelId: string, group: string, en
         return [false, "Web Admin doesn't give a Youtube API Key to use in the environment table."];
     }
 
-    let parsed_yt_channel = await YoutubeChannel.findOne({"id": {"$eq": channelId}}).catch((err) => {
+    let parsed_yt_channel = await YoutubeChannel.findOne({"id": {"$eq": channelId}}).catch((err: any) => {
         return {};
     });
     if (_.get(parsed_yt_channel, "id")) {
@@ -268,7 +268,7 @@ export async function youtubeChannelDataset(channelId: string, group: string, en
 export async function ttvChannelDataset(channelId: string, group: string, en_name: string, ttvAPI: TwitchHelix) {
     const logger = MainLogger.child({fn: "ttvChannelDataset"});
 
-    let channels = await TwitchChannel.findOne({"id": {"$eq": channelId}}).catch((err) => {
+    let channels = await TwitchChannel.findOne({"id": {"$eq": channelId}}).catch((err: any) => {
         return {};
     });
     if (_.get(channels, "id")) {
@@ -335,7 +335,7 @@ export async function vtapiRemoveVTuber(channelId: string, platform: string) {
     const logger = MainLogger.child({fn: `vtapiRemoveVTuber(${platform})`});
     if (platform === "youtube") {
         logger.info(`finding ${channelId} channel`)
-        let channel = await YoutubeChannel.findOne({"id": {"$eq": channelId}}).catch((_e) => {
+        let channel = await YoutubeChannel.findOne({"id": {"$eq": channelId}}).catch((_e: any) => {
             return {};
         });
         if (!_.get(channel, "id")) {
@@ -353,7 +353,7 @@ export async function vtapiRemoveVTuber(channelId: string, platform: string) {
         return [false, "Failed to remove channel from database, please try again later or contact the Web Admin"];
     } else if (platform === "twitch") {
         logger.info(`finding ${channelId} channel`)
-        let channel = await TwitchChannel.findOne({"id": {"$eq": channelId}}).catch((_e) => {
+        let channel = await TwitchChannel.findOne({"id": {"$eq": channelId}}).catch((_e: any) => {
             return {};
         });
         if (!_.get(channel, "id")) {
@@ -371,7 +371,7 @@ export async function vtapiRemoveVTuber(channelId: string, platform: string) {
         return [false, "Failed to remove channel from database, please try again later or contact the Web Admin"];
     } else if (platform === "twitcasting") {
         logger.info(`finding ${channelId} channel`)
-        let channel = await TwitcastingChannel.findOne({"id": {"$eq": channelId}}).catch((_e) => {
+        let channel = await TwitcastingChannel.findOne({"id": {"$eq": channelId}}).catch((_e: any) => {
             return {};
         });
         if (!_.get(channel, "id")) {
