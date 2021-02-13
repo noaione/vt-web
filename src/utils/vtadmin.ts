@@ -1,7 +1,7 @@
 import axios from "axios";
 import _ from "lodash";
 import moment from "moment-timezone";
-import { MildomChannel, TwitcastingChannel, TwitchChannel, YoutubeChannel, YTChannelProps } from "./mongoose";
+import { ChannelsData, ChannelsProps, ChannelStatsHistData, ChannelStatsHistProps } from "./mongoose";
 import { logger as MainLogger } from "./logger";
 import { fallbackNaN, isNone } from "./toolbox";
 import { TwitchHelix } from "./twitchapi";
@@ -18,7 +18,7 @@ export async function twcastChannelsDataset(channelId: string, group: string, en
     const logger = MainLogger.child({fn: "twcastChannelDataset"});
 
     logger.info("checking if channel exist...");
-    let channels = await TwitcastingChannel.findOne({"id": {"$eq": channelId}}).catch((err: any) => {
+    let channels = await ChannelsData.findOne({"id": {"$eq": channelId}, "platform": {"$eq": "twitcasting"}}).catch((err: any) => {
         return {};
     });
     if (_.get(channels, "id")) {
@@ -76,13 +76,34 @@ export async function twcastChannelsDataset(channelId: string, group: string, en
         insertData.push(mappedNew);
     }
 
+    // @ts-ignore
+    let historyDatas: ChannelStatsHistProps[] = insertData.map((res) => {
+        let timestamp = moment.tz("UTC").unix();
+        return {
+            id: res["id"],
+            history: [
+                {
+                    timestamp: timestamp,
+                    followerCount: res["followerCount"],
+                    level: res["level"],
+                }
+            ],
+            group: res["group"],
+            platform: "twitcasting"
+        }
+    });
+
     if (insertData.length > 0) {
         logger.info(`committing new data...`);
         var isCommitError = false;
-        await TwitcastingChannel.insertMany(insertData).catch((err) => {
+        await ChannelsData.insertMany(insertData).catch((err) => {
             logger.error(`failed to insert new data, ${err.toString()}`);
             isCommitError = true;
         });
+        await ChannelStatsHistData.insertMany(historyDatas).catch((err) => {
+            logger.error(`Failed to insert new history data, ${err.toString()}`);
+            isCommitError = true;
+        })
         if (isCommitError) {
             return [false, "Failed to insert new VTuber to Twitcasting database, please try again later or contact the Web Admin"];
         }
@@ -139,7 +160,7 @@ export async function youtubeChannelDataset(channelId: string, group: string, en
         return [false, "Web Admin doesn't give a Youtube API Key to use in the environment table."];
     }
 
-    let parsed_yt_channel = await YoutubeChannel.findOne({"id": {"$eq": channelId}}).catch((err: any) => {
+    let parsed_yt_channel = await ChannelsData.findOne({"id": {"$eq": channelId}, "platform": {"$eq": "youtube"}}).catch((err: any) => {
         return {};
     });
     if (_.get(parsed_yt_channel, "id")) {
@@ -229,15 +250,9 @@ export async function youtubeChannelDataset(channelId: string, group: string, en
         }
 
         let currentTimestamp = moment.tz("UTC").unix();
-        historyData.push({
-            timestamp: currentTimestamp,
-            subscriberCount: subsCount,
-            viewCount: viewCount,
-            videoCount: videoCount
-        })
 
         // @ts-ignore
-        let finalData: YTChannelProps = {
+        let finalData: ChannelsProps = {
             id: ch_id,
             en_name: en_name,
             name: title,
@@ -248,18 +263,39 @@ export async function youtubeChannelDataset(channelId: string, group: string, en
             viewCount: viewCount,
             videoCount: videoCount,
             group: group,
-            history: historyData,
             platform: "youtube"
         }
         return finalData;
     })
 
+    // @ts-ignore
+    let historyDatas: ChannelStatsHistProps[] = to_be_committed.map((res) => {
+        let timestamp = moment.tz("UTC").unix();
+        return {
+            id: res["id"],
+            history: [
+                {
+                    timestamp: timestamp,
+                    subscriberCount: res["subscriberCount"],
+                    viewCount: res["viewCount"],
+                    videoCount: res["videoCount"],
+                }
+            ],
+            group: res["group"],
+            platform: "youtube"
+        }
+    });
+
     logger.info(`committing new data...`);
     var commitFail = false;
-    await YoutubeChannel.insertMany(to_be_committed).catch((err) => {
+    await ChannelsData.insertMany(to_be_committed).catch((err) => {
         logger.error(`failed to insert new data, ${err.toString()}`);
         commitFail = true;
     });
+    await ChannelStatsHistData.insertMany(historyDatas).catch((err) => {
+        logger.error(`Failed to insert new history data, ${err.toString()}`);
+        commitFail = true;
+    })
     if (commitFail) {
         return [false, "Failed to insert new VTuber to Youtube database, please try again later or contact the Web Admin"];
     }
@@ -269,7 +305,7 @@ export async function youtubeChannelDataset(channelId: string, group: string, en
 export async function ttvChannelDataset(channelId: string, group: string, en_name: string, ttvAPI: TwitchHelix) {
     const logger = MainLogger.child({fn: "ttvChannelDataset"});
 
-    let channels = await TwitchChannel.findOne({"id": {"$eq": channelId}}).catch((err: any) => {
+    let channels = await ChannelsData.findOne({"id": {"$eq": channelId}, "platform": {"$eq": "twitch"}}).catch((err: any) => {
         return {};
     });
     if (_.get(channels, "id")) {
@@ -284,7 +320,7 @@ export async function ttvChannelDataset(channelId: string, group: string, en_nam
         return [false, "Cannot find that Twitch Channel"];
     }
     logger.info("parsing API results...");
-    let newChannels = [];
+    let newChannels: ChannelsProps[] = [];
     for (let i = 0; i < twitch_results.length; i++) {
         let result = twitch_results[i];
         logger.info(`parsing and fetching followers and videos ${result["login"]}`);
@@ -298,7 +334,8 @@ export async function ttvChannelDataset(channelId: string, group: string, en_nam
         })).filter(vid => vid["viewable"] === "public");
         // @ts-ignore
         let channels_map: VTuberModel = _.find(channelIds, {"id": result["login"]});
-        let mappedUpdate = {
+        // @ts-ignore
+        let mappedUpdate: ChannelsProps = {
             "id": result["login"],
             "user_id": result["id"],
             "name": result["display_name"],
@@ -316,13 +353,35 @@ export async function ttvChannelDataset(channelId: string, group: string, en_nam
         newChannels.push(mappedUpdate);
     }
 
+    // @ts-ignore
+    let historyDatas: ChannelStatsHistProps[] = newChannels.map((res) => {
+        let timestamp = moment.tz("UTC").unix();
+        return {
+            id: res["id"],
+            history: [
+                {
+                    timestamp: timestamp,
+                    followerCount: res["followerCount"],
+                    viewCount: res["viewCount"],
+                    videoCount: res["videoCount"],
+                }
+            ],
+            group: res["group"],
+            platform: "twitch"
+        }
+    });
+
     var commitFail = false;
     if (newChannels.length > 0) {
         logger.info(`committing new data...`);
-        await TwitchChannel.insertMany(newChannels).catch((err) => {
+        await ChannelsData.insertMany(newChannels).catch((err) => {
             logger.error(`failed to insert new data, ${err.toString()}`);
             commitFail = true;
         });
+        await ChannelStatsHistData.insertMany(historyDatas).catch((err) => {
+            logger.error(`Failed to insert new history data, ${err.toString()}`);
+            commitFail = true;
+        })
         if (commitFail) {
             return [false, "Failed to insert new VTuber to Twitch database, please try again later or contact the Web Admin"];
         }
@@ -334,7 +393,7 @@ export async function ttvChannelDataset(channelId: string, group: string, en_nam
 
 export async function mildomChannelsDataset(channelId: string, group: string, en_name: string, mildomAPI: MildomAPI) {
     const logger = MainLogger.child({fn: "mildomChannelsDataset"});
-    let channels = await MildomChannel.findOne({"id": {"$eq": channelId}}).catch((err: any) => {
+    let channels = await ChannelsData.findOne({"id": {"$eq": channelId}, "platform": {"$eq": "mildom"}}).catch((err: any) => {
         return {};
     });
     if (_.get(channels, "id")) {
@@ -377,13 +436,34 @@ export async function mildomChannelsDataset(channelId: string, group: string, en
         insertData.push(mappedNew);
     }
 
+    // @ts-ignore
+    let historyDatas: ChannelStatsHistProps[] = insertData.map((res) => {
+        let timestamp = moment.tz("UTC").unix();
+        return {
+            id: res["id"],
+            history: [
+                {
+                    timestamp: timestamp,
+                    followerCount: res["followerCount"],
+                    level: res["level"],
+                    videoCount: res["videoCount"],
+                }
+            ],
+            group: res["group"],
+            platform: "mildom"
+        }
+    });
+
     var commitFail = false;
     if (insertData.length > 0) {
         logger.info(`committing new data...`);
-        await MildomChannel.insertMany(insertData).catch((err) => {
+        await ChannelsData.insertMany(insertData).catch((err) => {
             logger.error(`failed to insert new data, ${err.toString()}`);
             commitFail = true;
         });
+        await ChannelStatsHistData.insertMany(historyDatas).catch((err) => {
+            logger.error(`Failed to insert new history data, ${err.toString()}`);
+        })
         if (commitFail) {
             return [false, "Failed to insert new VTuber to Twitch database, please try again later or contact the Web Admin"];
         }
@@ -395,78 +475,21 @@ export async function mildomChannelsDataset(channelId: string, group: string, en
 
 export async function vtapiRemoveVTuber(channelId: string, platform: string) {
     const logger = MainLogger.child({fn: `vtapiRemoveVTuber(${platform})`});
-    if (platform === "youtube") {
-        logger.info(`finding ${channelId} channel`)
-        let channel = await YoutubeChannel.findOne({"id": {"$eq": channelId}}).catch((_e: any) => {
-            return {};
-        });
-        if (!_.get(channel, "id")) {
-            return [false, "Channel doesn't exist on the database."];
-        }
-        let success = true;
-        logger.info(`removing ${channelId} channel`)
-        await YoutubeChannel.deleteMany({"id": {"$eq": channelId}}).catch((err: any) => {
-            logger.error(`failed to remove channel ${channelId}, ${err.toString()}`);
-            success = false;
-        })
-        if (success) {
-            return [true, "Success"];
-        }
-        return [false, "Failed to remove channel from database, please try again later or contact the Web Admin"];
-    } else if (platform === "twitch") {
-        logger.info(`finding ${channelId} channel`)
-        let channel = await TwitchChannel.findOne({"id": {"$eq": channelId}}).catch((_e: any) => {
-            return {};
-        });
-        if (!_.get(channel, "id")) {
-            return [false, "Channel doesn't exist on the database."];
-        }
-        let success = true;
-        logger.info(`removing ${channelId} channel`)
-        await TwitchChannel.deleteMany({"id": {"$eq": channelId}}).catch((err: any) => {
-            logger.error(`failed to remove channel ${channelId}, ${err.toString()}`);
-            success = false;
-        })
-        if (success) {
-            return [true, "Success"];
-        }
-        return [false, "Failed to remove channel from database, please try again later or contact the Web Admin"];
-    } else if (platform === "twitcasting") {
-        logger.info(`finding ${channelId} channel`)
-        let channel = await TwitcastingChannel.findOne({"id": {"$eq": channelId}}).catch((_e: any) => {
-            return {};
-        });
-        if (!_.get(channel, "id")) {
-            return [false, "Channel doesn't exist on the database."];
-        }
-        let success = true;
-        logger.info(`removing ${channelId} channel`)
-        await TwitcastingChannel.deleteMany({"id": {"$eq": channelId}}).catch((err: any) => {
-            logger.error(`failed to remove channel ${channelId}, ${err.toString()}`);
-            success = false;
-        })
-        if (success) {
-            return [true, "Success"];
-        }
-        return [false, "Failed to remove channel from database, please try again later or contact the Web Admin"];
-    } else if (platform === "mildom") {
-        logger.info(`finding ${channelId} channel`)
-        let channel = await MildomChannel.findOne({"id": {"$eq": channelId}}).catch((_e: any) => {
-            return {};
-        });
-        if (!_.get(channel, "id")) {
-            return [false, "Channel doesn't exist on the database."];
-        }
-        let success = true;
-        logger.info(`removing ${channelId} channel`)
-        await MildomChannel.deleteMany({"id": {"$eq": channelId}}).catch((err: any) => {
-            logger.error(`failed to remove channel ${channelId}, ${err.toString()}`);
-            success = false;
-        })
-        if (success) {
-            return [true, "Success"];
-        }
-        return [false, "Failed to remove channel from database, please try again later or contact the Web Admin"];
+    logger.info(`finding ${channelId} channel`);
+    let channel = await ChannelsData.findOne({"id": {"$eq": channelId}, "platform": {"$eq": platform}}).catch((_e: any) => {
+        return {};
+    });
+    if (!_.get(channel, "id")) {
+        return [false, "Channel doesn't exist on the database."];
     }
-    return [false, "Unknown platform"];
+    let success = true;
+    logger.info(`removing ${channelId} channel`);
+    await ChannelsData.deleteMany({"id": {"$eq": channelId}, "platform": {"$eq": platform}}).catch((err: any) => {
+        logger.error(`failed to remove channel ${channelId}, ${err.toString()}`);
+        success = false;
+    });
+    if (success) {
+        return [true, "Success"];
+    }
+    return [false, "Failed to remove channel from database, please try again later or contact the Web Admin"];
 }

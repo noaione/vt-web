@@ -1,19 +1,22 @@
-import axios, { AxiosInstance } from "axios";
-import moment from "moment-timezone";
-import { logger } from "./logger";
-import { isNone } from "./toolbox";
 import _ from "lodash";
-import { MildomChannelProps, MildomVideoProps } from "./mongoose";
+import moment from "moment-timezone";
+import axios, { AxiosInstance } from "axios";
+import { Logger } from "winston";
+
+import { logger as MainLogger } from "./logger";
+import { isNone } from "./toolbox";
+import { ChannelsProps, VideoProps } from "./mongoose";
 
 interface AnyDict {
     [key: string]: any
 }
 
-const CHROME_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36";
+const CHROME_UA = " Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36";
 
 export class MildomAPI {
     private session: AxiosInstance
     private BASE_URL: string
+    private logger: Logger
 
     constructor() {
         this.session = axios.create({
@@ -23,6 +26,7 @@ export class MildomAPI {
         })
 
         this.BASE_URL = "https://cloudac.mildom.com/nonolive/";
+        this.logger = MainLogger.child({cls: "MildomAPI"});
     }
 
     async fetchUser(userId: string) {
@@ -36,6 +40,7 @@ export class MildomAPI {
             sfr: "pc",
             accessToken: ""
         }
+        const logger = this.logger.child({fn: "fetchUser"});
         let results;
         try {
             let rawResults = await this.session.get(this.BASE_URL + "gappserv/user/profileV2", {
@@ -47,24 +52,24 @@ export class MildomAPI {
             if (e.response) {
                 results = e.response.data;
             } else {
-                logger.error(`MildomAPI.fetchUser() failed to fetch user ${userId}, ${e.toString()}`);
+                logger.error(`Failed to fetch user ${userId}, ${e.toString()}`);
                 console.error(e);
                 results = {"body": {}, "code": -1, "message": e.toString()};
             }
         }
 
         if (results["code"] !== 0) {
-            logger.error(`MildomAPI.fetchUser() an error occured when fetching user ${userId}`);
-            logger.error(`MildomAPI.fetchUser() got error ${results["code"]}, ${results["message"]}`);
+            logger.error(`An error occured when fetching user ${userId}`);
+            logger.error(`Got error ${results["code"]}, ${results["message"]}`);
             return undefined;
         }
 
         // @ts-ignore
-        let properResults: MildomChannelProps = {}
+        let properResults: ChannelsProps = {}
         let bodyRes = _.get(results, "body", {});
         let userInfo = _.get(bodyRes, "user_info", {});
         if (isNone(userInfo, true)) {
-            logger.error(`MildomAPI.fetchUser() user ID ${userId} missing required data to process`);
+            logger.error(`User ID ${userId} missing required data to process`);
             return undefined;
         }
 
@@ -127,6 +132,7 @@ export class MildomAPI {
             sfr: "pc",
             accessToken: ""
         }
+        const logger = this.logger.child({fn: "fetchLives"});
         let results;
         try {
             let rawResults = await this.session.get(this.BASE_URL + "gappserv/live/enterstudio", {
@@ -138,23 +144,23 @@ export class MildomAPI {
             if (e.response) {
                 results = e.response.data;
             } else {
-                logger.error(`MildomAPI.fetchLives() failed to fetch user ${userId}, ${e.toString()}`);
+                logger.error(`Failed to fetch user ${userId}, ${e.toString()}`);
                 console.error(e);
                 results = {"body": {}, "code": -1, "message": e.toString()};
             }
         }
 
         if (results["code"] !== 0) {
-            logger.error(`MildomAPI.fetchLives() an error occured when fetching user ${userId}`);
-            logger.error(`MildomAPI.fetchLives() got error ${results["code"]}, ${results["message"]}`);
+            logger.error(`An error occured when fetching user ${userId}`);
+            logger.error(`Got error ${results["code"]}, ${results["message"]}`);
             return undefined;
         }
 
         // @ts-ignore
-        let properResults: MildomVideoProps = {}
+        let properResults: VideoProps = {}
         let liveInfo = _.get(results, "body", {});
         if (isNone(liveInfo, true)) {
-            logger.error(`MildomAPI.fetchLives() user ID ${userId} missing required data to process`);
+            logger.error(`User ID ${userId} missing required data to process`);
             return undefined;
         }
         let is_live: number | undefined = _.get(liveInfo, "live_mode", undefined);
