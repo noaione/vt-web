@@ -93,6 +93,7 @@ let initialQuery = `query VTuberLives {
 app.use("/playground", altairExpress({
     endpointURL: "https://api.ihateani.me/v2/graphql",
     initialQuery: initialQuery,
+    subscriptionsEndpoint: "wss://api.ihateani.me/v2/graphql"
 }))
 
 app.use(expressErrorLogger);
