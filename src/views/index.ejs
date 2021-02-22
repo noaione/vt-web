@@ -404,21 +404,32 @@
             // console.log(channelInfo);
             let $chanCol = $(`<div class="col vtubers-card" data-search="${channelInfo.name}" data-hidden="false" />`);
             let $cardMain, border;
+            let shortCode = ""
             if (channelInfo.platform === "youtube") {
                 border = "border-danger";
                 $cardMain = $(`<div class="card border border-danger text-white bg-dark" />`);
+                shortCode = "yt";
             } else if (channelInfo.platform === "twitch") {
                 border = "border-twitch";
                 $cardMain = $(`<div class="card border border-twitch text-white bg-dark" />`);
+                shortCode = "ttv";
             } else if (channelInfo.platform === "twitcasting") {
                 border = "border-twcast";
                 $cardMain = $(`<div class="card border border-twcast text-white bg-dark" />`);
+                shortCode = "tw";
             } else if (channelInfo.platform === "mildom") {
                 border = "border-mildom";
                 $cardMain = $(`<div class="card border border-mildom text-white bg-dark" />"`);
+                shortCode = "md";
+            } else if (channelInfo.platform === "bilibili") {
+                border = "border-bili2";
+                $cardMain = $(`<div class="card border border-bili2 text-white bg-dark" />"`);
+                shortCode = "b2";
             }
-            $cardMain.append($(`<img class="card-img-top lazy" />`).attr("data-src", channelInfo.image).attr("alt",
-                "Profile Picture").attr("src", PLACEHOLDER_IMG));
+            let $wrappedLink = $(`<a href="/channel/${shortCode}-${channelInfo.id}" />`);
+            $(`<img class="card-img-top lazy" />`).attr("data-src", channelInfo.image).attr("alt",
+                "Profile Picture").attr("src", PLACEHOLDER_IMG).appendTo($wrappedLink)
+            $cardMain.append($wrappedLink);
             let $titleCard = $(`<div class="card-body text-center" />`);
             if (channelInfo.platform === "youtube") {
                 $titleCard.append($(`<i class="ihaicon mx-1 text-danger" />`).text("youtube_icon"));
