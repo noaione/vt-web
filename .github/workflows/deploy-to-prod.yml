@@ -18,7 +18,5 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: 22
           script: |
-            npm=${{ secrets.SSH_ENVS }}npm
-            pm2=${{ secrets.SSH_ENVS }}pm2
             chmod +x /var/www/vt-web/deploy.sh
             /var/www/vt-web/deploy.sh

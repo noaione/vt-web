@@ -6,7 +6,7 @@ cd /var/www/vt-web
 
 git pull
 
-npm install
-npm run build
+~/.nvm/versions/node/v14.15.1/bin/npm install
+~/.nvm/versions/node/v14.15.1/bin/npm run build
 
-pm2 restart VTFrontend
+~/.nvm/versions/node/v14.15.1/bin/pm2 restart VTFrontend
