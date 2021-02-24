@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Since I'm using NVM
-source ~/.profile
+PATH=~/.nvm/versions/node/v14.15.1/bin:$PATH
 cd /var/www/vt-web
 
 git pull
 
-~/.nvm/versions/node/v14.15.1/bin/npm install
-~/.nvm/versions/node/v14.15.1/bin/npm run build
+npm install
+npm run build
 
-~/.nvm/versions/node/v14.15.1/bin/pm2 restart VTFrontend
+pm2 restart VTFrontend
