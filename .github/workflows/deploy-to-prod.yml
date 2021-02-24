@@ -18,6 +18,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: 22
+          envs: ${{ secrets.SSH_ENVS }}
           script: |
             source ~/.profile
             chmod +x /var/www/vt-web/deploy.sh
