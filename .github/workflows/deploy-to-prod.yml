@@ -18,5 +18,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: 22
-          script: /var/www/vt-web/deploy.sh
-
+          script: |
+            chmod +x /var/www/vt-web/deploy.sh
+            /var/www/vt-web/deploy.sh
