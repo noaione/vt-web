@@ -8,7 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Execute deployment scripts
         uses: appleboy/ssh-action@master
@@ -18,8 +17,8 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: 22
-          envs: ${{ secrets.SSH_ENVS }}
           script: |
-            source ~/.profile
+            npm=${{ secrets.SSH_ENVS }}npm
+            pm2=${{ secrets.SSH_ENVS }}pm2
             chmod +x /var/www/vt-web/deploy.sh
             /var/www/vt-web/deploy.sh
