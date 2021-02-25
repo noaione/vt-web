@@ -598,11 +598,11 @@
             <div class="row g-2">
                 <div class="col-sm-6">
                     <p class="text-white">Subscribers</p>
-                    <canvas id="subs-graph" height="200"></canvas>
+                    <div id="subs-graph"></div>
                 </div>
                 <div class="col-sm-6">
                     <p class="text-white">Views</p>
-                    <canvas id="views-graph" height="200"></canvas>
+                    <div id="views-graph"></div>
                 </div>
             </div>
         </div>
@@ -622,9 +622,7 @@
         integrity="sha256-JLmknTdUZeZZ267LP9qB+/DT7tvxOOKctSKeUC2KT6E=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"
         integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js"
-        integrity="sha512-SuxO9djzjML6b9w9/I07IWnLnQhgyYVSpHZx0JV97kGBfTIsUYlWflyuW4ypnvhBrslz1yJ3R+S14fdCWmSmSA=="
-        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highcharts@9.0.1/highcharts.min.js"></script>
     <script type="text/javascript">
         "use strict"
 
@@ -672,81 +670,177 @@
             });
         }
 
-        const subsGraph = new Chart("subs-graph", {
-            type: "line",
-            data: {
-                labels: [],
-                datasets: [{
-                    backgroundColor: ["rgba(255, 0, 0, 0.3)"],
-                    data: [],
-                    borderColor: ["rgb(255, 0, 0)"],
-                    label: "Subscribers",
-                    fill: "start",
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                spanGaps: false,
-                title: {
-                    display: false
-                },
-                scales: {
-                    xAxes: [{
-                        ticks: {
-                            autoSkip: false,
-                            maxRotation: 0
-                        }
-                    }]
-                },
-                elements: {
-                    line: {
-                        tension: 0.4
-                    }
-                },
-                legend: {
-                    display: false
+        function nFormatter(num, digits) {
+            var si = [
+                { value: 1, symbol: "" },
+                { value: 1E3, symbol: "k" },
+                { value: 1E6, symbol: "M" },
+                { value: 1E9, symbol: "G" },
+                { value: 1E12, symbol: "T" },
+                { value: 1E15, symbol: "P" },
+                { value: 1E18, symbol: "E" }
+            ];
+            var rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+            var i;
+            for (i = si.length - 1; i > 0; i--) {
+                if (num >= si[i].value) {
+                    break;
                 }
             }
+            return (num / si[i].value).toFixed(digits).replace(rx, "$1") + si[i].symbol;
+        }
+
+        const subsGraph = Highcharts.chart("subs-graph", {
+            chart: {
+                type: "areaspline",
+                backgroundColor: null
+            },
+            title: {
+                text: "",
+                color: "#ffffff"
+            },
+            legend: {
+                layout: "vertical",
+                align: "left",
+                verticalAlign: "top",
+                floating: true,
+                borderWidth: 1,
+                backgroundColor: "#ffffff00"
+            },
+            xAxis: {
+                title: {
+                    text: "Date"
+                },
+                style: {
+                    color: "#ffffff"
+                },
+                labels: {
+                    style: {
+                        color: "#ffffff"
+                    },
+                    formatter: function () {
+                        return this.chart.xAxis.categories[this.pos];
+                    }
+                }
+            },
+            yAxis: {
+                title: {
+                    text: "Subscribers"
+                },
+                style: {
+                    color: "#ffffff"
+                },
+                labels: {
+                    style: {
+                        color: "#ffffff"
+                    },
+                    formatter: function () {
+                        return nFormatter(this.value, 2);
+                    }
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            tooltip: {
+                shared: true,
+                valueSuffix: " subscribers",
+                formatter: function () {
+                    let xLabel = this.points[0].series.chart.xAxis.categories[this.x];
+                    return `<b>${xLabel}</b><br/><p>${this.y.toLocaleString()} <b>Subscribers</b></p>`;
+                }
+            },
+            plotOptions: {
+                areaspline: {
+                    fillOpacity: 0.5
+                }
+            },
+            series: [{
+                name: "Subscribers",
+                showInLegend: false,
+                data: [],
+                threshold: null,
+                color: "rgba(255, 0, 0, 0.3)"
+            }]
         });
 
-        const viewsGraph = new Chart("views-graph", {
-            type: "line",
-            data: {
-                labels: [],
-                datasets: [{
-                    backgroundColor: ["rgba(0, 0, 255, 0.3)"],
-                    data: [],
-                    borderColor: ["rgb(0, 0, 255)"],
-                    label: "Views",
-                    fill: "start",
-                    borderWidth: 1
-                }]
+        const viewsGraph = Highcharts.chart("views-graph", {
+            chart: {
+                type: "areaspline",
+                backgroundColor: null
             },
-            options: {
-                maintainAspectRatio: false,
-                spanGaps: false,
+            title: {
+                text: "",
+                color: "#ffffff"
+            },
+            legend: {
+                layout: "vertical",
+                align: "left",
+                verticalAlign: "top",
+                floating: true,
+                borderWidth: 1,
+                backgroundColor: "#ffffff00"
+            },
+            xAxis: {
                 title: {
-                    display: false
+                    text: "Date"
                 },
-                scales: {
-                    xAxes: [{
-                        ticks: {
-                            autoSkip: false,
-                            maxRotation: 0
-                        }
-                    }]
+                style: {
+                    color: "#ffffff"
                 },
-                elements: {
-                    line: {
-                        tension: 0.4
+                labels: {
+                    style: {
+                        color: "#ffffff"
+                    },
+                    formatter: function () {
+                        return this.chart.xAxis.categories[this.pos];
                     }
-                },
-                legend: {
-                    display: false
                 }
-            }
+            },
+            yAxis: {
+                title: {
+                    text: "Views"
+                },
+                style: {
+                    color: "#ffffff"
+                },
+                color: "#fff",
+                labels: {
+                    style: {
+                        color: "#ffffff"
+                    },
+                    formatter: function () {
+                        return nFormatter(this.value, 2);
+                    }
+                }
+            },
+            credits: {
+                enabled: false
+            },
+            tooltip: {
+                shared: true,
+                valueSuffix: " views",
+                formatter: function () {
+                    let xLabel = this.points[0].series.chart.xAxis.categories[this.x];
+                    return `<b>${xLabel}</b><br/><p>${this.y.toLocaleString()} <b>Views</b></p>`;
+                }
+            },
+            plotOptions: {
+                areaspline: {
+                    fillOpacity: 0.5
+                }
+            },
+            series: [{
+                name: "Views",
+                showInLegend: false,
+                data: [],
+                threshold: null,
+                color: "rgba(0, 0, 255, 0.3)"
+            }]
         });
+
+        subsGraph.showLoading("Fetching history...");
+        viewsGraph.showLoading("Fetching history...");
 
         axios.get("/api/history", {
             params: {
@@ -764,24 +858,22 @@
             let subsX = subsData.map(res => res.x);
             let subsY = subsData.map(res => res.y);
 
-            subsGraph.data.labels = subsX;
-            subsGraph.data.datasets[0].data = subsY;
+            subsGraph.xAxis = {
+                categories: subsX,
+            };
+            subsGraph.series[0].setData(subsY);
 
             let viewsX = viewsData.map(res => res.x);
             let viewsY = viewsData.map(res => res.y);
 
-            viewsGraph.data.labels = viewsX;
-            viewsGraph.data.datasets[0].data = viewsY;
+            viewsGraph.xAxis = {
+                categories: viewsX,
+            };
+            viewsGraph.series[0].setData(viewsY);
 
             console.info("[Graph] Updating...");
-            subsGraph.update({
-                duration: 2500,
-                easing: "easeOutExpo" 
-            });
-            viewsGraph.update({
-                duration: 2500,
-                easing: "easeOutExpo" 
-            });
+            subsGraph.hideLoading();
+            viewsGraph.hideLoading();
         });
     </script>
 </body>
