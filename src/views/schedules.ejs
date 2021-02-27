@@ -139,7 +139,7 @@
 
         let gqlSchemas = `query VTuberSchedule($cursor:String) {
             vtuber {
-                upcoming(cursor:$cursor,limit:75,platforms:[youtube]) {
+                upcoming(cursor:$cursor,limit:75,platforms:[youtube,twitch]) {
                     _total
                     items {
                         id
@@ -299,13 +299,19 @@
         function createCard(channelInfo) {
             // console.log(channelInfo);
             let $chanCol = $(`<div class="col-sm-6" />`);
-            let $cardMain, watchUrl;
+            let $cardMain, watchUrl, thumbnail;
             if (channelInfo.platform === "youtube") {
                 $cardMain = $(`<div class="card border border-danger text-white bg-dark" />`);
                 watchUrl = `https://youtube.com/watch?v=${channelInfo.id}`;
+                thumbnail = channelInfo.thumbnail;
+            } else if (channelInfo.platform === "twitch") {
+                $cardMain = $(`<div class="card border border-twitch text-white bg-dark" />`);
+                watchUrl = `https://twitch.tv/${channelInfo.channel.id}`;
+                thumbnail = `/api/ttvthumb/${channelInfo.channel.id}`;
             }
+            console.info(thumbnail);
             let $linkClick = $(`<a href="${watchUrl}" target="_blank" rel="noopener" />`)
-                .append($(`<img class="card-img-top lazy" />`).attr("data-src", channelInfo.thumbnail).attr("alt",
+                .append($(`<img class="card-img-top lazy" />`).attr("data-src", thumbnail).attr("alt",
                     "Thumbnail").attr("src", PLACEHOLDER_IMG));
             $cardMain.append($linkClick);
             let $cardMainBody = $(`<div class="card-body" />`);
@@ -316,6 +322,9 @@
                     $cardMainBody.append($(`<i class="ihaicon mx-1 text-info" />`).text("play_icon"));
                 }
                 $cardMainBody.append($(`<span />`).text(is_premiere ? "YouTube (Premiere)" : "YouTube"));
+            } else if (channelInfo.platform === "twitch") {
+                $cardMainBody.append($(`<i class="ihaicon mx-1 text-twitch" />`).text("twitch_icon"));
+                $cardMainBody.append($(`<span />`).text("Twitch"));
             }
 
             $cardMainBody.append($(`<h5 class="card-title" />`).text(channelInfo.title));
