@@ -77,10 +77,10 @@ APIRoutes.get("/history", async (req, res) => {
     res.json(buildData);
 });
 
-APIRoutes.get("/ttvthumb/:loginname", (req, res) => {
-    let rawUuid = req.params.loginname;
-    res.setHeader("Content-Type", "image/png");
-    generateTwitchThumbnail(rawUuid, res);
-})
+// APIRoutes.get("/ttvthumb/:loginname", (req, res) => {
+//     let rawUuid = req.params.loginname;
+//     res.setHeader("Content-Type", "image/png");
+//     generateTwitchThumbnail(rawUuid, res);
+// })
 
 export { APIRoutes };

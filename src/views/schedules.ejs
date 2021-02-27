@@ -307,7 +307,7 @@
             } else if (channelInfo.platform === "twitch") {
                 $cardMain = $(`<div class="card border border-twitch text-white bg-dark" />`);
                 watchUrl = `https://twitch.tv/${channelInfo.channel.id}`;
-                thumbnail = `/api/ttvthumb/${channelInfo.channel.id}`;
+                thumbnail = `https://ttvthumb.glitch.me/${channelInfo.channel.id}`;
             }
             console.info(thumbnail);
             let $linkClick = $(`<a href="${watchUrl}" target="_blank" rel="noopener" />`)
