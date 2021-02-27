@@ -3,6 +3,7 @@ import express from "express";
 import moment from "moment-timezone";
 import { ChannelStatsHistData, ChannelStatsHistProps } from "../utils/mongoose";
 import { logger as TopLogger } from "../utils/logger";
+import { generateTwitchThumbnail } from "../utils/generateTwitch";
 
 const MainLogger = TopLogger.child({cls: "APIHandler"})
 const APIRoutes = express.Router();
@@ -74,6 +75,12 @@ APIRoutes.get("/history", async (req, res) => {
     }
     let buildData = {data: {subs: formattedSubsData, views: formattedViewsData}, code: 200};
     res.json(buildData);
+});
+
+APIRoutes.get("/ttvthumb/:loginname", (req, res) => {
+    let rawUuid = req.params.loginname;
+    res.setHeader("Content-Type", "image/png");
+    generateTwitchThumbnail(rawUuid, res);
 })
 
 export { APIRoutes };
