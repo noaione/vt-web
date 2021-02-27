@@ -1,6 +1,6 @@
 {
   "name": "vt-web",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Implementation of ihateani.me VTuber API",
   "main": "src/server.ts",
   "scripts": {
@@ -60,6 +60,7 @@
     "altair-express-middleware": "^3.1.0",
     "axios": "^0.21.1",
     "body-parser": "^1.19.0",
+    "canvas": "^2.6.1",
     "compression": "^1.7.4",
     "connect-ensure-login": "^0.1.1",
     "consolidate": "^0.16.0",
