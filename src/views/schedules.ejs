@@ -22,10 +22,12 @@
     <link rel="preconnect" href="https://api.ihateani.me">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://code.jquery.com">
+    <link rel="preconnect" href="https://ttvthumb.glitch.me">
     <link rel="dns-prefetch" href="https://i.ytimg.com">
     <link rel="dns-prefetch" href="https://api.ihateani.me">
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
     <link rel="dns-prefetch" href="https://code.jquery.com">
+    <link rel="dns-prefetch" href="https://ttvthumb.glitch.me">
 
     <link rel="icon" type="image/png" href="/assets/favicon.png">
     <link rel="icon" href="/assets/favicon.ico">
@@ -309,7 +311,6 @@
                 watchUrl = `https://twitch.tv/${channelInfo.channel.id}`;
                 thumbnail = `https://ttvthumb.glitch.me/${channelInfo.channel.id}`;
             }
-            console.info(thumbnail);
             let $linkClick = $(`<a href="${watchUrl}" target="_blank" rel="noopener" />`)
                 .append($(`<img class="card-img-top lazy" />`).attr("data-src", thumbnail).attr("alt",
                     "Thumbnail").attr("src", PLACEHOLDER_IMG));
