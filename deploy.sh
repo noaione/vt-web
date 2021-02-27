@@ -6,7 +6,7 @@ cd /var/www/vt-web
 
 git pull
 
-npm install
+npm ci
 npm run build
 
 pm2 --silent restart VTFrontend
