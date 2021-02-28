@@ -622,11 +622,12 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/axios@0.21.1/dist/axios.min.js"
         integrity="sha256-JLmknTdUZeZZ267LP9qB+/DT7tvxOOKctSKeUC2KT6E=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"
-        integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/highcharts@9.0.1/highcharts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/countup.js@2.0.7/dist/countUp.umd.min.js"></script>
     <script type="text/javascript">
         "use strict"
+
+        const CountUp = countUp.CountUp;
 
         const SEC = 1000;
         const RAW_DATA = "<%= JSON.stringify(gql_data) %>".replace(/&#34;/g, '"');
@@ -639,37 +640,29 @@
         const VIEWS = CHANNELDATA["statistics"]["viewCount"];
         const Floored = (x) => Math.round(Math.floor(x));
 
+        const outQuinticEasing = function (t, b, c, d) {
+            let ts = (t /= d) * t;
+            let tc = ts * t;
+            return b + c * (tc * ts + -5 * ts * ts + 10 * tc + -10 * ts + 5 * t);
+        }
+
         if (typeof SUBSCRIBERS === "number") {
-            anime({
-                targets: "#subs-count",
-                value: [0, SUBSCRIBERS],
-                round: 1,
-                duration: 7.5 * SEC,
-                easing: "easeOutExpo",
-                update: function (e) {
-                    let numbers = SUBSCRIBERS * e.progress / 100;
-                    subsCounter.textContent = Floored(numbers).toLocaleString();
-                },
-                finished: function () {
-                    subsCounter.textContent = SUBSCRIBERS.toLocaleString();
-                }
+            const subsCounter = new CountUp("subs-count", SUBSCRIBERS, {
+                duration: 5,
+                useEasing: true,
+                easingFn: outQuinticEasing,
+                suffix: " Subs",
             });
+            subsCounter.start();
         }
         if (typeof VIEWS === "number") {
-            anime({
-                targets: "#views-count",
-                value: [0, VIEWS],
-                round: 1,
-                duration: 5 * SEC,
-                easing: "easeOutExpo",
-                update: function (e) {
-                    let numbers = VIEWS * e.progress / 100;
-                    viewsCounter.textContent = Floored(numbers).toLocaleString();
-                },
-                finished: function () {
-                    viewsCounter.textContent = VIEWS.toLocaleString();
-                }
+            const viewsCounter = new CountUp("views-count", VIEWS, {
+                duration: 5,
+                useEasing: true,
+                easingFn: outQuinticEasing,
+                suffix: " Views",
             });
+            viewsCounter.start();
         }
 
         function nFormatter(num, digits) {
