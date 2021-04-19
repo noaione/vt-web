@@ -1,11 +1,10 @@
 import React from "react";
 import Router from 'next/router'
 import Link from 'next/link'
-import { useUser } from '../lib/hooks'
 import { v4 as uuidv4 } from 'uuid'
-import Buttons from '../components/buttons';
 
-const fetcher = (url) => fetch(url).then((r) => r.json())
+import { fetcher } from "../lib/auth";
+import Buttons from '../components/buttons';
 
 class LoginPage extends React.Component {
     constructor(props) {
