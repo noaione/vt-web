@@ -90,7 +90,7 @@ function ChannelCard(props) {
             <div id={"ch-" + id + "-" + platform} className="flex rounded-lg">
                 <div className={"m-auto shadow-md rounded-lg w-full border " + borderColor}>
                     <div className="relative">
-                        <a href={"/" + shortCode + "-" + id}>
+                        <a href={"/channel/" + shortCode + "-" + id}>
                             <img src={image} alt={name + " Channel Image"} className="w-full object-cover object-center rounded-t-lg" />
                         </a>
                     </div>
