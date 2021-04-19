@@ -48,6 +48,12 @@ class Navbar extends React.Component {
             scheduleUrl = "/schedules";
             loginUrl = "/api/logout";
             settingsUrl = "/settings";
+        } else if (mode === "channel") {
+            homeUrl = "/";
+            livesUrl = "/lives";
+            scheduleUrl = "/schedules";
+            loginUrl = "/login";
+            settingsUrl = "/settings";
         } else {
             livesUrl = "/lives";
             scheduleUrl = "/schedules";
