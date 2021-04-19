@@ -120,7 +120,6 @@ async function getAllLivesQuery(cursor = "", page = 1, cb) {
     let mainResults = gqlres.live.items;
     let pageData = gqlres.live.pageInfo;
     if (pageData.hasNextPage && pageData.nextCursor) {
-        console.log(`[API] Next page detected, paginating...`);
         return mainResults.concat(await getAllLivesQuery(pageData.nextCursor, page, cb));
     } else {
         return mainResults;
