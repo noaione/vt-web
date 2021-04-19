@@ -151,7 +151,6 @@ class ChannelPageInfo extends React.Component {
         QueryFetch(channelId, platform).then((res) => {
             const data = walk(res, "data.vtuber.channels.items");
             if (Array.isArray(data) && data.length > 0) {
-                console.info("fetched", data[0]);
                 this.setState({isLoading: false, data: data[0]});
             } else {
                 this.setState({isLoading: false});
@@ -273,7 +272,6 @@ function shortCodeToPlatform(shortCode) {
 const ChannelPageRouteDynamic = () => {
     const router = useRouter();
     const { chid } = router.query;
-    console.info(router);
     try {
         const [ shortCode, channelId ] = chid.split("-");
         const platform = shortCodeToPlatform(shortCode);

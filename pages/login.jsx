@@ -1,11 +1,14 @@
 import React from "react";
 import Router from 'next/router'
 import Link from 'next/link'
+import Head from "next/head";
 import { v4 as uuidv4 } from 'uuid'
 
 import { fetcher } from "../lib/auth";
 import Buttons from '../components/buttons';
-import Head from "next/head";
+
+import SEOMetaTags from "../components/header/seo";
+import HeaderDefault from "../components/header/head";
 
 class LoginPage extends React.Component {
     constructor(props) {
