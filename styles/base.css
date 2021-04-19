@@ -21,7 +21,7 @@ body {
 }
 
 .text-youtube {
-    @apply text-red-400;
+    @apply text-red-500;
 }
 
 .border-twitch {
@@ -41,5 +41,5 @@ body {
 }
 
 .border-youtube {
-    @apply border-red-400;
+    @apply border-red-500;
 }
