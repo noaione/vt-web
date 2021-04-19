@@ -15,6 +15,10 @@ import BadgeText from "../components/badge";
 import VideoCard from "../components/videocard";
 import GroupModal from "../components/groupmodal";
 
+import SEOMetaTags from "../components/header/seo";
+import HeaderDefault from "../components/header/head";
+import HeaderPrefetch from "../components/header/prefetch";
+
 const VideoQuerySchemas = `query VTuberLives($cursor:String) {
     vtuber {
         live(cursor:$cursor,limit:75) {
@@ -189,9 +193,10 @@ class Homepage extends React.Component {
         return (
             <>
                 <Head>
+                    <HeaderDefault />
                     <title>Lives :: VTuber API</title>
-                    <link rel="preconnect" href="https://api.ihateani.me" />
-                    <link rel="preconnect" href="https://i.ytimg.com" />
+                    <SEOMetaTags title="Lives" description="See currently lives tracked VTuber here!" />
+                    <HeaderPrefetch />
                 </Head>
                 <Navbar mode="lives" />
                 <main className="antialiased h-full pb-4 mx-4 mt-6">

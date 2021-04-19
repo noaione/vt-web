@@ -15,6 +15,10 @@ import GroupModal from "../components/groupmodal";
 import Navbar from "../components/navbar";
 import BadgeText from "../components/badge";
 
+import SEOMetaTags from "../components/header/seo";
+import HeaderDefault from "../components/header/head";
+import HeaderPrefetch from "../components/header/prefetch";
+
 const ChannelQuerySchemas = `query VTuberChannel($cursor:String) {
     vtuber {
         channels(platforms:[youtube,twitch,twitcasting,mildom],cursor:$cursor,limit:75) {
@@ -223,9 +227,10 @@ class Homepage extends React.Component {
         return (
             <>
                 <Head>
+                    <HeaderDefault />
                     <title>Home :: VTuber API</title>
-                    <link rel="preconnect" href="https://api.ihateani.me" />
-                    <link rel="preconnect" href="https://i.ytimg.com" />
+                    <SEOMetaTags title="Home" />
+                    <HeaderPrefetch />
                 </Head>
                 <Navbar />
                 <main className="antialiased h-full pb-4 mx-4 mt-6">

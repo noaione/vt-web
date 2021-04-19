@@ -6,6 +6,10 @@ import { DateTime } from "luxon";
 
 import Navbar from "../components/navbar";
 
+import SEOMetaTags from "../components/header/seo";
+import HeaderDefault from "../components/header/head";
+import HeaderPrefetch from "../components/header/prefetch";
+
 const TZ_LIST = [
     <option value="UTC-12:00">UTC-12:00</option>,
     <option value="UTC-11:00">UTC-11:00</option>,
@@ -96,7 +100,9 @@ function SettingsPage() {
     return (
         <>
             <Head>
+                <HeaderDefault />
                 <title>Settings :: VTuber API</title>
+                <SEOMetaTags title="Settings" />
             </Head>
             <Navbar mode="settings" />
             <main className="antialiased h-full pb-4 mx-4 mt-6">
