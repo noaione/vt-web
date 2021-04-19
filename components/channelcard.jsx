@@ -87,7 +87,7 @@ function ChannelCard(props) {
 
     return (
         <>
-            <div id={"ch-" + id + "-" + platform} className="flex">
+            <div id={"ch-" + id + "-" + platform} className="flex rounded-lg">
                 <div className={"m-auto shadow-md rounded-lg w-full border " + borderColor}>
                     <div className="relative">
                         <a href={"/" + shortCode + "-" + id}>
