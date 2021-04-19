@@ -290,12 +290,14 @@ export async function getStaticProps(context) {
         }
     }
 
-    const [ shortCode, channelId ] = chid.split("-");
-    if (!isType(channelId, "string")) {
+    const splittedChIds = chid.split("-");
+    if (splittedChIds.length < 2) {
         return {
             notFound: true
         }
     }
+    const shortCode = splittedChIds[0];
+    const channelId = splittedChIds.slice(1).join("-");
     const platform = shortCodeToPlatform(shortCode);
     if (!isType(platform, "string")) {
         return {
