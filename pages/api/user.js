@@ -1,6 +1,5 @@
 import nextConnect from "next-connect";
 import auth from "../../middleware/auth";
-import { deleteUser, updateUserByUsername } from "../../lib/db";
 
 const handler = nextConnect();
 
