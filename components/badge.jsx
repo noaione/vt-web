@@ -7,6 +7,6 @@ export default class BadgeText extends React.Component {
         if (typeof className === "string") {
             extraClass = className;
         }
-        return <span className={"inline-block px-2 py-1 leading-none whitespace-nowrap align-baseline rounded " + extraClass}>{this.props.children}</span>
+        return <span className={"inline-block px-3 py-1 items-center justify-center rounded " + extraClass}>{this.props.children}</span>
     }
 }
