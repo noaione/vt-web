@@ -146,109 +146,93 @@ class ChannelPageInfo extends React.Component {
         }
     }
 
-    componentDidMount() {
-        const { channelId, platform } = this.props;
-        QueryFetch(channelId, platform).then((res) => {
-            const data = walk(res, "data.vtuber.channels.items");
-            if (Array.isArray(data) && data.length > 0) {
-                this.setState({isLoading: false, data: data[0]});
-            } else {
-                this.setState({isLoading: false});
-            }
-        }).catch((err) => {
-            this.setState({isLoading: false});
-        })
-    }
+    // componentDidMount() {
+    //     const { channelId, platform } = this.props;
+    //     QueryFetch(channelId, platform).then((res) => {
+    //         const data = walk(res, "data.vtuber.channels.items");
+    //         if (Array.isArray(data) && data.length > 0) {
+    //             this.setState({isLoading: false, data: data[0]});
+    //         } else {
+    //             this.setState({isLoading: false});
+    //         }
+    //     }).catch((err) => {
+    //         this.setState({isLoading: false});
+    //     })
+    // }
 
     render() {
-        const { isLoading, data } = this.state;
-        const { channelId, platform } = this.props;
+        // const { isLoading, data } = this.state;
+        const { data } = this.props;
 
-        if (isLoading) {
-            return (
-                <>
-                    <Head>
-                        <HeaderDefault />
-                        <title>{channelId} :: VTuber API</title>
-                        <SEOMetaTags title={channelId} description={"Channel Information for " + channelId} />
-                        <HeaderPrefetch />
-                    </Head>
-                    <main className="antialiased h-full pb-4 mx-4 mt-6"></main>
-                </>
-            )
-        } else if (!isLoading && Object.keys(data).length < 1) {
-            return <NotFoundPage />;
-        } else {
-            const {id, name, en_name, image, group, statistics, history, publishedAt} = data;
-            let { subscriberCount, viewCount } = statistics;
-            subscriberCount = subscriberCount || 0;
-            viewCount = viewCount || 0;
-            const niceName = en_name || name;
-            const borderName = "border-4 " + selectBorderColor(platform);
-            let ihaIco = platform;
-            if (ihaIco === "mildom") {
-                ihaIco += "_simple";
-            }
-            const orgzName = _.get(GROUPS_NAME_MAP, group, capitalizeLetters(group));
-            return (
-                <>
-                    <Head>
-                        <HeaderDefault />
-                        <title>{niceName} :: VTuber API</title>
-                        <SEOMetaTags title={niceName} url={`/channel/${platformToShortCode(platform)}-${id}`} image={image} description={"Channel Information for " + niceName} />
-                        <HeaderPrefetch />
-                    </Head>
-                    <Navbar mode="channel" />
-                    <main className="antialiased h-full pb-4 mx-4 mt-6 px-4">
-                        <div className="flex flex-col mx-auto text-center justify-center">
-                            <img className={"rounded-full mx-auto h-64 " + borderName} src={image} />
-                            <h2 className="text-xl font-bold text-white mt-3">
-                                <i className={"mr-2 ihaicon ihaico-" + ihaIco}></i>
-                                {niceName}
-                            </h2>
-                            <h5 className="text-gray-400">
-                                {name}
-                            </h5>
-                            <h6 className="text-gray-400 font-light">
-                                Organization: {orgzName}
-                            </h6>
-                        </div>
-                        <div className="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-4 text-center">
-                            <div className="col-span-1 text-white">
-                                Subscribers:
-                                <CountUp
-                                    className="font-bold ml-2"
-                                    duration={5}
-                                    useEasing
-                                    easingFn={outQuinticEasing}
-                                    suffix=" Subs"
-                                    start={0}
-                                    formattingFn={(val) => val.toLocaleString()}
-                                    end={subscriberCount}
-                                />
-                            </div>
-                            <div className="col-span-1 text-white">
-                                Views:
-                                <CountUp
-                                    className="font-bold ml-2"
-                                    duration={5}
-                                    useEasing
-                                    easingFn={outQuinticEasing}
-                                    suffix=" Views"
-                                    start={0}
-                                    formattingFn={(val) => val.toLocaleString()}
-                                    end={viewCount}
-                                />
-                            </div>
-                        </div>
-                        <hr className="mt-4" />
-                        <div className="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 justify-center">
-                            
-                        </div>
-                    </main>
-                </>
-            )
+        const {id, name, en_name, image, group, statistics, history, publishedAt, platform} = data;
+        let { subscriberCount, viewCount } = statistics;
+        subscriberCount = subscriberCount || 0;
+        viewCount = viewCount || 0;
+        const niceName = en_name || name;
+        const borderName = "border-4 " + selectBorderColor(platform);
+        let ihaIco = platform;
+        if (ihaIco === "mildom") {
+            ihaIco += "_simple";
         }
+        const orgzName = _.get(GROUPS_NAME_MAP, group, capitalizeLetters(group));
+        return (
+            <>
+                <Head>
+                    <HeaderDefault />
+                    <title>{niceName} :: VTuber API</title>
+                    <SEOMetaTags title={niceName} url={`/channel/${platformToShortCode(platform)}-${id}`} image={image} description={"Channel Information for " + niceName} />
+                    <HeaderPrefetch />
+                </Head>
+                <Navbar mode="channel" />
+                <main className="antialiased h-full pb-4 mx-4 mt-6 px-4">
+                    <div className="flex flex-col mx-auto text-center justify-center">
+                        <img className={"rounded-full mx-auto h-64 " + borderName} src={image} />
+                        <h2 className="text-xl font-bold text-white mt-3">
+                            <i className={"mr-2 ihaicon ihaico-" + ihaIco}></i>
+                            {niceName}
+                        </h2>
+                        <h5 className="text-gray-400">
+                            {name}
+                        </h5>
+                        <h6 className="text-gray-400 font-light">
+                            Organization: {orgzName}
+                        </h6>
+                    </div>
+                    <div className="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-4 text-center">
+                        <div className="col-span-1 text-white">
+                            Subscribers:
+                            <CountUp
+                                className="font-bold ml-2"
+                                duration={5}
+                                useEasing
+                                easingFn={outQuinticEasing}
+                                suffix=" Subs"
+                                start={0}
+                                formattingFn={(val) => val.toLocaleString()}
+                                end={subscriberCount}
+                            />
+                        </div>
+                        <div className="col-span-1 text-white">
+                            Views:
+                            <CountUp
+                                className="font-bold ml-2"
+                                duration={5}
+                                useEasing
+                                easingFn={outQuinticEasing}
+                                suffix=" Views"
+                                start={0}
+                                formattingFn={(val) => val.toLocaleString()}
+                                end={viewCount}
+                            />
+                        </div>
+                    </div>
+                    <hr className="mt-4" />
+                    <div className="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 justify-center">
+                        
+                    </div>
+                </main>
+            </>
+        )
     }
 }
 
@@ -298,4 +282,50 @@ const ChannelPageRouteDynamic = () => {
 
 }
 
-export default ChannelPageRouteDynamic;
+export async function getStaticProps(context) {
+    const { chid } = context.params;
+    if (!isType(chid, "string")) {
+        return {
+            notFound: true,
+        }
+    }
+
+    const [ shortCode, channelId ] = chid.split("-");
+    if (!isType(channelId, "string")) {
+        return {
+            notFound: true
+        }
+    }
+    const platform = shortCodeToPlatform(shortCode);
+    if (!isType(platform, "string")) {
+        return {
+            notFound: true,
+        }
+    }
+
+    const res = await QueryFetch(channelId, platform);
+    const rawData = walk(res, "data.vtuber.channels.items");
+    if (!Array.isArray(rawData)) {
+        return {
+            notFound: true,
+        }
+    }
+    if (rawData.length < 1) {
+        return {
+            notFound: true,
+        }
+    }
+
+    return {
+        props: {data: rawData[0]},
+    }
+} 
+
+export async function getStaticPaths() {
+    return {
+        paths: [],
+        fallback: "blocking"
+    }
+}
+
+export default ChannelPageInfo;
