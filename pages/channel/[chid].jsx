@@ -261,7 +261,6 @@ class ChannelPageVideoCard extends React.Component {
     render() {
         const { id, title, status, thumbnail, timeData, platform, averageViewers, peakViewers, channelId } = this.props;
         const { endTime, publishedAt } = timeData;
-        console.info(endTime, id, platform, title);
 
         let ihaIco = platform;
         if (ihaIco === "mildom") {

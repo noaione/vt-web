@@ -124,7 +124,6 @@ async function getAllSchedulesQuery(cursor = "", page = 1, cb) {
     let mainResults = gqlres.upcoming.items;
     let pageData = gqlres.upcoming.pageInfo;
     if (pageData.hasNextPage && pageData.nextCursor) {
-        console.log(`[API] Next page detected, paginating...`);
         return mainResults.concat(await getAllSchedulesQuery(pageData.nextCursor, page, cb));
     } else {
         return mainResults;

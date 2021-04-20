@@ -262,7 +262,6 @@ class Homepage extends React.Component {
             const grp = items[0].group;
             configuredCallback.push({id: grp, name: _.get(GROUPS_NAME_MAP, grp, grp), total: items.length});
         });
-        console.info(configuredCallback);
         this.callbackGroupSets(configuredCallback);
     }
 
