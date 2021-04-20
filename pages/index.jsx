@@ -2,7 +2,7 @@ import _ from "lodash";
 import Head from "next/head";
 import React from "react";
 import { Link as ScrollTo } from "react-scroll";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog, Switch, Transition } from "@headlessui/react";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserFriends, faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -45,9 +45,14 @@ const ChannelQuerySchemas = `query VTuberChannel($cursor:String) {
 }`
 
 function GroupChannel(props) {
-    const { data, group } = props;
+    const { data, group, platformFilter } = props;
 
-    const groupedByPlatform = _.groupBy(data, "platform");
+    const filteredData = _.filter(data, (o) => platformFilter.includes(o.platform));
+    if (filteredData.length < 1) {
+        return null;
+    }
+
+    const groupedByPlatform = _.groupBy(filteredData, "platform");
     const ytCards = _.sortBy(_.get(groupedByPlatform, "youtube", []), "publishedAt");
     const ttvCards = _.sortBy(_.get(groupedByPlatform, "twitch", []), "publishedAt");
     const twCards = _.sortBy(_.get(groupedByPlatform, "twitcasting", []), "publishedAt");
@@ -57,7 +62,7 @@ function GroupChannel(props) {
         <div id={"group-" + group} className="pb-3 vtubers-group">
             <h2 className="text-white py-3 text-2xl font-bold">
                 {_.get(GROUPS_NAME_MAP, group, group)}
-                <BadgeText className="bg-red-500 text-white ml-2 text-lg">{data.length}</BadgeText>
+                <BadgeText className="bg-red-500 text-white ml-2 text-lg">{filteredData.length}</BadgeText>
             </h2>
             {ytCards.length > 0 ?
                 (
@@ -120,7 +125,7 @@ function groupMember(realData) {
 
 class ChannelPages extends React.Component {
     render() {
-        const {data} = this.props;
+        const { data, platformTick } = this.props;
         let realData = [];
         if (Array.isArray(data)) {
             realData = data;
@@ -138,15 +143,29 @@ class ChannelPages extends React.Component {
             configuredCallback.push({id: grp, name: _.get(GROUPS_NAME_MAP, grp, grp), total: items.length});
         });
 
+        const includedPlatform = [];
+        for (const [pl, tick] of Object.entries(platformTick)) {
+            if (tick) {
+                includedPlatform.push(pl);
+            }
+        }
+
         return (
             <>
                 {sortedGroupData.map((items) => {
                     const dd = {data: items, group: items[0].group};
-                    return <GroupChannel key={dd.group} {...dd} />;
+                    return <GroupChannel key={dd.group} platformFilter={includedPlatform} {...dd} />;
                 })}
             </>
         )
     }
+}
+
+function filterSearch(dataset, search) {
+    if (search === "" || search === " ") {
+        return dataset;
+    }
+    return _.filter(dataset, (o) => o.name.toLowerCase().includes(search));
 }
 
 async function getAllChannelsAsync(cursor = "", page = 1, cb) {
@@ -170,14 +189,27 @@ class Homepage extends React.Component {
         this.callbackGroupSets = this.callbackGroupSets.bind(this);
         this.triggerModal = this.triggerModal.bind(this);
         this.modalMounted = this.modalMounted.bind(this);
+        this.onChangeData = this.onChangeData.bind(this);
+        this.onPlatformTick = this.onPlatformTick.bind(this);
         this.scrollToTop = this.scrollToTop.bind(this);
+        this.filterGroupModalData = this.filterGroupModalData.bind(this);
         this.state = {
             loadedData: [],
+            copyOfData: [],
             isLoading: true,
             current: 1,
             max: 1,
             isModalOpen: false,
             groupSets: [],
+
+            filter: "",
+            platformFilter: {
+                youtube: true,
+                bilibili: true,
+                twitch: true,
+                twitcasting: true,
+                mildom: true,
+            }
         }
     }
 
@@ -187,7 +219,7 @@ class Homepage extends React.Component {
             selfthis.setState({current, max: total});
         }
         getAllChannelsAsync("", 1, setLoadData).then((res) => {
-            selfthis.setState({loadedData: res, isLoading: false});
+            selfthis.setState({loadedData: res, copyOfData: res, isLoading: false});
             const sortedGroupData = groupMember(res);
             let configuredCallback = [];
             sortedGroupData.forEach((items) => {
@@ -210,6 +242,41 @@ class Homepage extends React.Component {
         if (this.modalCb) {
             this.modalCb.showModal();
         }
+    }
+
+    filterGroupModalData(rawData = null) {
+        let { platformFilter } = this.state;
+        const includedPlatform = [];
+        for (const [pl, tick] of Object.entries(platformFilter)) {
+            if (tick) {
+                includedPlatform.push(pl);
+            }
+        }
+
+        const loadedData = rawData || this.state.loadedData;
+
+        const filteredData = _.filter(loadedData, (o) => includedPlatform.includes(o.platform));
+        const sortedGroupData = groupMember(filteredData);
+        let configuredCallback = [];
+        sortedGroupData.forEach((items) => {
+            const grp = items[0].group;
+            configuredCallback.push({id: grp, name: _.get(GROUPS_NAME_MAP, grp, grp), total: items.length});
+        });
+        console.info(configuredCallback);
+        this.callbackGroupSets(configuredCallback);
+    }
+
+    onChangeData(event) {
+        const filtered = filterSearch(this.state.copyOfData, event.target.value);
+        this.setState({loadedData: filtered, filter: event.target.value});
+        this.filterGroupModalData(filtered);
+    }
+
+    onPlatformTick(platform) {
+        let { platformFilter } = this.state;
+        platformFilter[platform] = !platformFilter[platform];
+        this.setState({platformFilter});
+        this.filterGroupModalData();
     }
 
     scrollToTop() {
@@ -237,7 +304,77 @@ class Homepage extends React.Component {
                     {isLoading ? 
                         <span className="text-2xl font-light mt-4 animate-pulse">Loading Page {current} out of {max}</span>
                         :
-                        <ChannelPages data={loadedData} />
+                        (
+                            <>
+                                <div className="my-4">
+                                    <label className="block">
+                                        <span className="text-gray-300 font-semibold">Search</span>
+                                        <input type="text" value={this.state.filter} onChange={this.onChangeData} className="form-input mt-1 block w-full md:w-1/2 lg:w-1/3 bg-gray-700" />
+                                    </label>
+                                    <div className="mt-3">
+                                        <span className="text-gray-300 font-semibold">Filter Platform</span>
+                                    </div>
+                                    <div className="mt-1 flex flex-col sm:flex-row gap-4">
+                                        <div className="flex flex-row gap-2">
+                                            <i className="ihaicon ihaico-youtube text-youtube text-2xl -mt-1"></i>
+                                            <Switch
+                                                checked={this.state.platformFilter.youtube}
+                                                onChange={() => this.onPlatformTick("youtube")}
+                                                className={`${this.state.platformFilter.youtube ? "bg-red-500" : "bg-gray-600"} relative inline-flex items-center h-6 rounded-full w-11`}
+                                            >
+                                                <span className="sr-only">Enable YouTube</span>
+                                                <span className={`inline-block w-4 h-4 transform transition ease-in-out duration-200 bg-white rounded-full ${this.state.platformFilter.youtube ? "translate-x-6" : "translate-x-1"}`} />
+                                            </Switch>
+                                        </div>
+                                        <div className="flex flex-row gap-2">
+                                            <i className="ihaicon ihaico-bilibili text-bili2 text-2xl -mt-1"></i>
+                                            <Switch
+                                                checked={this.state.platformFilter.bilibili}
+                                                onChange={() => this.onPlatformTick("bilibili")}
+                                                className={`${this.state.platformFilter.bilibili ? "bg-pl-bili2" : "bg-gray-600"} relative inline-flex items-center h-6 rounded-full w-11`}
+                                            >
+                                                <span className="sr-only">Enable BiliBili</span>
+                                                <span className={`inline-block w-4 h-4 transform transition ease-in-out duration-200 bg-white rounded-full ${this.state.platformFilter.bilibili ? "translate-x-6" : "translate-x-1"}`} />
+                                            </Switch>
+                                        </div>
+                                        <div className="flex flex-row gap-2">
+                                            <i className="ihaicon ihaico-twitch text-twitch text-2xl -mt-1"></i>
+                                            <Switch
+                                                checked={this.state.platformFilter.twitch}
+                                                onChange={() => this.onPlatformTick("twitch")}
+                                                className={`${this.state.platformFilter.twitch ? "bg-pl-twitch" : "bg-gray-600"} relative inline-flex items-center h-6 rounded-full w-11`}
+                                            >
+                                                <span className="sr-only">Enable Twitch</span>
+                                                <span className={`inline-block w-4 h-4 transform transition ease-in-out duration-200 bg-white rounded-full ${this.state.platformFilter.twitch ? "translate-x-6" : "translate-x-1"}`} />
+                                            </Switch>
+                                        </div>
+                                        <div className="flex flex-row gap-2">
+                                            <i className="ihaicon ihaico-twitcasting text-twcast text-2xl -mt-1"></i>
+                                            <Switch
+                                                checked={this.state.platformFilter.twitcasting}
+                                                onChange={() => this.onPlatformTick("twitcasting")}
+                                                className={`${this.state.platformFilter.twitcasting ? "bg-pl-twcast" : "bg-gray-600"} relative inline-flex items-center h-6 rounded-full w-11`}
+                                            >
+                                                <span className="sr-only">Enable Twitcasting</span>
+                                                <span className={`inline-block w-4 h-4 transform transition ease-in-out duration-200 bg-white rounded-full ${this.state.platformFilter.twitcasting ? "translate-x-6" : "translate-x-1"}`} />
+                                            </Switch>
+                                        </div>
+                                        <div className="flex flex-row gap-2">
+                                            <i className="ihaicon ihaico-mildom_simple text-mildom text-2xl -mt-1"></i>
+                                            <Switch
+                                                checked={this.state.platformFilter.mildom}
+                                                onChange={() => this.onPlatformTick("mildom")}
+                                                className={`${this.state.platformFilter.mildom ? "bg-pl-mildom" : "bg-gray-600"} relative inline-flex items-center h-6 rounded-full w-11`}
+                                            >
+                                                <span className="sr-only">Enable Mildom</span>
+                                                <span className={`inline-block w-4 h-4 transform transition ease-in-out duration-200 bg-white rounded-full ${this.state.platformFilter.mildom ? "translate-x-6" : "translate-x-1"}`} />
+                                            </Switch>
+                                        </div>
+                                    </div>
+                                </div>
+                                <ChannelPages data={loadedData} platformTick={this.state.platformFilter} />
+                            </>
+                        )
                     }
                     <GroupModal onMounted={callbacks => this.modalMounted(callbacks)}>
                         <button onClick={this.scrollToTop} className="cursor-pointer flex flex-wrap">
