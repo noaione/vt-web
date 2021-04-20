@@ -3,7 +3,9 @@ import React from "react";
 import Head from "next/head";
 import { useRouter, withRouter } from "next/router";
 
+import { DateTime } from "luxon";
 import CountUp from 'react-countup';
+import { AreaChart, XAxis, YAxis, Tooltip, Area, ResponsiveContainer } from "recharts";
 
 import NotFoundPage from "../404";
 import { GROUPS_NAME_MAP } from "../../lib/vt";
@@ -137,6 +139,46 @@ const outQuinticEasing = function (t, b, c, d) {
     return b + c * (tc * ts + -5 * ts * ts + 10 * tc + -10 * ts + 5 * t);
 }
 
+function reparseHistory(history) {
+    const reparsed = [];
+    history.forEach((res) => {
+        const properTime = DateTime.fromSeconds(res.time, {zone: "UTC"}).setZone("UTC+09:00");
+        reparsed.push({
+            time: properTime.toFormat("MM'/'dd"),
+            data: res.data,
+        });
+    });
+    return reparsed;
+}
+
+const RechartsStyles = {
+    backgroundColor: "bg-gray-500",
+}
+
+function ToolTipFormatter(value, name, props) {
+    return value.toLocaleString();
+}
+
+function tickFormatter(num) {
+    const si = [
+        { value: 1, symbol: "" },
+        { value: 1E3, symbol: "k" },
+        { value: 1E6, symbol: "M" },
+        { value: 1E9, symbol: "G" },
+        { value: 1E12, symbol: "T" },
+        { value: 1E15, symbol: "P" },
+        { value: 1E18, symbol: "E" }
+    ];
+    const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+    let i;
+    for (i = si.length - 1; i > 0; i--) {
+        if (num >= si[i].value) {
+            break;
+        }
+    }
+    return (num / si[i].value).toFixed(2).replace(rx, "$1") + si[i].symbol;
+}
+
 class ChannelPageInfo extends React.Component {
     constructor(props) {
         super(props);
@@ -183,7 +225,7 @@ class ChannelPageInfo extends React.Component {
                     <SEOMetaTags title={niceName} url={`/channel/${platformToShortCode(platform)}-${id}`} image={image} description={"Channel Information for " + niceName} />
                     <HeaderPrefetch />
                 </Head>
-                <Navbar mode="channel" />
+                <Navbar mode="channel" noSticky />
                 <main className="antialiased h-full pb-4 mx-4 mt-6 px-4">
                     <div className="flex flex-col mx-auto text-center justify-center">
                         <img className={"rounded-full mx-auto h-64 " + borderName} src={image} />
@@ -203,7 +245,7 @@ class ChannelPageInfo extends React.Component {
                             Subscribers:
                             <CountUp
                                 className="font-bold ml-2"
-                                duration={5}
+                                duration={3}
                                 useEasing
                                 easingFn={outQuinticEasing}
                                 suffix=" Subs"
@@ -216,7 +258,7 @@ class ChannelPageInfo extends React.Component {
                             Views:
                             <CountUp
                                 className="font-bold ml-2"
-                                duration={5}
+                                duration={3}
                                 useEasing
                                 easingFn={outQuinticEasing}
                                 suffix=" Views"
@@ -228,7 +270,44 @@ class ChannelPageInfo extends React.Component {
                     </div>
                     <hr className="mt-4" />
                     <div className="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 justify-center">
-                        
+                        <div className="flex justify-center">
+                            <ResponsiveContainer width="80%" height={420}>
+                                <AreaChart
+                                    data={reparseHistory(history.subscribersCount)}
+                                    margin={{top: 20, right: 30, left: 0, bottom: 0}}
+                                >
+                                    <defs>
+                                        <linearGradient id="colorSubs" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#ff0000" stopOpacity={0.8} />
+                                            <stop offset="95%" stopColor="#ff0000" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <XAxis dataKey="time" />
+                                    <YAxis tickFormatter={tickFormatter} domain={["dataMin - 100", "dataMax + 100"]} />
+                                    <Tooltip formatter={ToolTipFormatter} labelClassName="text-gray-700" />
+                                    <Area type="monotone" name="Subs" unit=" Subscribers" dataKey="data" stroke="#ff0000" fillOpacity={1} fill="url(#colorSubs)" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                        <div className="flex justify-center">
+                            <ResponsiveContainer width="80%" height={420}>
+                                <AreaChart
+                                    data={reparseHistory(history.viewsCount)}
+                                    margin={{top: 20, right: 30, left: 0, bottom: 0}}
+                                >
+                                    <defs>
+                                        <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#0535DA" stopOpacity={0.8} />
+                                            <stop offset="95%" stopColor="#0535DA" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <XAxis dataKey="time" />
+                                    <YAxis tickFormatter={tickFormatter} domain={["dataMin - 100", "dataMax + 100"]} />
+                                    <Tooltip formatter={ToolTipFormatter} labelClassName="text-gray-700" />
+                                    <Area type="monotone" name="Views" unit=" Views" dataKey="data" stroke="#0535DA" fillOpacity={1} fill="url(#colorViews)" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
                 </main>
             </>
