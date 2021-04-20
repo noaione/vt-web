@@ -20,12 +20,17 @@ class Navbar extends React.Component {
     }
 
     render() {
-        let {mode} = this.props;
+        let {mode, noSticky} = this.props;
         let homeUrl = "#";
         let livesUrl = "#";
         let scheduleUrl = "#";
         let loginUrl = "#";
         let settingsUrl = "#";
+
+        let stickyModel = "sticky top-0 z-10";
+        if (noSticky) {
+            stickyModel = "";
+        }
 
         if (mode === "lives") {
             homeUrl = "/";
@@ -67,7 +72,7 @@ class Navbar extends React.Component {
         }
 
         return (
-            <header className="bg-gray-700 sticky top-0 z-10 ">
+            <header className={"bg-gray-700 " + stickyModel}>
                 <nav className="relative select-none bg-grey lg:flex lg:items-stretch w-full py-3">
                     <div className="w-full relative flex justify-between lg:w-auto pr-4 lg:static lg:block lg:justify-start">
                         <div className="flex flex-row items-center ml-4 mt-2">
