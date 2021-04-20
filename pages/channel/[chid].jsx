@@ -447,11 +447,21 @@ class ChannelPageInfo extends React.Component {
                         </>
                         :
                         <>
-                            <div className="mt-4 grid mx-6 md:mx-16 lg:mx-24 grid-cols-1 md:grid-cols-3 lg:grid-cols-5 justify-center gap-4 items-start">
-                                {this.state.videosData.map((res) => {
-                                    return <ChannelPageVideoCard {...res} channelId={id} />
-                                })}
-                            </div>
+                            {this.state.videosData.length > 0 ?
+                                <>
+                                    <div className="mt-4 grid mx-6 md:mx-16 lg:mx-24 grid-cols-1 md:grid-cols-3 lg:grid-cols-5 justify-center gap-4 items-start">
+                                        {this.state.videosData.map((res) => {
+                                            return <ChannelPageVideoCard {...res} channelId={id} />
+                                        })}
+                                    </div>
+                                </>
+                            :
+                                <>
+                                    <div className="mt-2 text-2xl font-light">
+                                        No past live stream or video are found.
+                                    </div>
+                                </>
+                            }
                         </>
                     }
                 </main>
