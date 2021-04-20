@@ -99,6 +99,32 @@ function createViewersData(viewers, peakViewers) {
     return null;
 }
 
+
+function platformToShortCode(platform) {
+    let shortCode;
+    switch (platform) {
+        case "youtube":
+            shortCode = "yt";
+            break;
+        case "bilibili":
+            shortCode = "b2";
+            break;
+        case "twitch":
+            shortCode = "ttv";
+            break;
+        case "twitcasting":
+            shortCode = "twcast";
+            break;
+        case "mildom":
+            shortCode = "md";
+            break;
+        default:
+            shortCode = "unk";
+            break;
+    }
+    return shortCode;
+}
+
 class VideoCard extends React.Component {
     constructor(props) {
         super(props);
@@ -142,6 +168,8 @@ class VideoCard extends React.Component {
             properStartTime = startTimeTZ.toFormat("EEE, dd MMM yyyy HH:mm:ss ZZZZ");
         }
 
+        const channelUrl = `/channel/${platformToShortCode(platform)}-${ch_id}`;
+
         const viewersJSX = createViewersData(viewers, peakViewers);
         const watchUrl = prependWatchUrl(id, ch_id, room_id, platform);
 
@@ -166,8 +194,9 @@ class VideoCard extends React.Component {
                             <p><span className="font-bold">Start</span>: {properStartTime}</p>
                             {viewersJSX}
                         </div>
-                        <div className="rounded-b-lg px-4 py-4 mt-0">
-                            <Buttons use="a" href={watchUrl} type="danger">Watch!</Buttons>
+                        <div className="rounded-b-lg px-4 py-4 mt-0 flex gap-2">
+                            <Buttons use="a" href={watchUrl} type="danger">Watch</Buttons>
+                            <Buttons use="a" href={channelUrl} type="primary">Info</Buttons>
                         </div>
                     </div>
                 </div>
