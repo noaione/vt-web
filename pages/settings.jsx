@@ -102,7 +102,7 @@ function SettingsPage() {
             <Head>
                 <HeaderDefault />
                 <title>Settings :: VTuber API</title>
-                <SEOMetaTags title="Settings" />
+                <SEOMetaTags title="Settings" url="https://vtuber.ihateani.me/settings" />
             </Head>
             <Navbar mode="settings" />
             <main className="antialiased h-full pb-4 mx-4 mt-6">

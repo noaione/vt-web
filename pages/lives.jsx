@@ -195,7 +195,7 @@ class Homepage extends React.Component {
                 <Head>
                     <HeaderDefault />
                     <title>Lives :: VTuber API</title>
-                    <SEOMetaTags title="Lives" description="See currently lives tracked VTuber here!" />
+                    <SEOMetaTags title="Lives" description="See currently lives tracked VTuber here!" url="https://vtuber.ihateani.me/lives" />
                     <HeaderPrefetch />
                 </Head>
                 <Navbar mode="lives" />

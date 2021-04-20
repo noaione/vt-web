@@ -195,7 +195,7 @@ class SchedulesPage extends React.Component {
                 <Head>
                     <HeaderDefault />
                     <title>Schedules :: VTuber API</title>
-                    <SEOMetaTags title="Schedules" description="See upcoming live stream of tracked VTuber here!" />
+                    <SEOMetaTags title="Schedules" description="See upcoming live stream of tracked VTuber here!" url="https://vtuber.ihateani.me/schedules" />
                     <HeaderPrefetch />
                 </Head>
                 <Navbar mode="schedules" />
