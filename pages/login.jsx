@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Head from "next/head";
 import { v4 as uuidv4 } from 'uuid'
 
-import { fetcher } from "../lib/auth";
+import fetcher from "../lib/fetcher";
 import Buttons from '../components/buttons';
 
 import SEOMetaTags from "../components/header/seo";
@@ -22,7 +22,7 @@ class LoginPage extends React.Component {
 
     componentDidMount() {
         fetcher("/api/user").then((res) => {
-            if (res?.user) {
+            if (res?.isLoggedIn) {
                 Router.push("/admin");
             }
         }).catch((err) => {})
@@ -66,7 +66,7 @@ class LoginPage extends React.Component {
                 <Head>
                     <HeaderDefault />
                     <title>Login :: VTuber API</title>
-                    <SEOMetaTags title="Login" description="Restricted access" />
+                    <SEOMetaTags title="Login" description="Restricted access" url="https://vtuber.ihateani.me/login" />
                 </Head>
                 <main className="flex flex-wrap text-center text-white justify-center items-center min-h-screen w-screen overflow-hidden bg-gray-800">
                     <div className="fixed w-full self-center place-self-center items-center place-items-center justify-items-center">
