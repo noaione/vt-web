@@ -24,6 +24,26 @@ body {
     @apply text-red-500;
 }
 
+.bg-pl-twitch {
+    background-color: #8e42fe !important;
+}
+
+.bg-pl-twcast {
+    background-color: #027af8 !important;
+}
+
+.bg-pl-bili2 {
+    background-color: #00a1d6 !important;
+}
+
+.bg-pl-mildom {
+    background-color: #38cce3 !important;
+}
+
+.bg-pl-youtube {
+    @apply bg-red-500;
+}
+
 .border-twitch {
     border-color: #8e42fe !important;
 }
