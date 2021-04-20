@@ -38,7 +38,6 @@
     "express": "^4.17.1",
     "graphiql": "^1.4.1",
     "graphql": "^15.5.0",
-    "graphql-ws": "^4.4.1",
     "lodash": "^4.17.21",
     "luxon": "^1.26.0",
     "next": "latest",
