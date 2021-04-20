@@ -1,0 +1,65 @@
+
+body {
+  @apply bg-gray-800;
+  @apply text-white;
+}
+
+.text-twitch {
+    color: #8e42fe !important;
+}
+
+.text-twcast {
+    color: #027af8 !important;
+}
+
+.text-bili2 {
+    color: #00a1d6 !important;
+}
+
+.text-mildom {
+    color: #38cce3 !important;
+}
+
+.text-youtube {
+    @apply text-red-500;
+}
+
+.bg-pl-twitch {
+    background-color: #8e42fe !important;
+}
+
+.bg-pl-twcast {
+    background-color: #027af8 !important;
+}
+
+.bg-pl-bili2 {
+    background-color: #00a1d6 !important;
+}
+
+.bg-pl-mildom {
+    background-color: #38cce3 !important;
+}
+
+.bg-pl-youtube {
+    @apply bg-red-500;
+}
+
+.border-twitch {
+    border-color: #8e42fe !important;
+}
+
+.border-twcast {
+    border-color: #027af8 !important;
+}
+
+.border-bili2 {
+    border-color: #00a1d6 !important;
+}
+
+.border-mildom {
+    border-color: #38cce3 !important;
+}
+
+.border-youtube {
+    @apply border-red-500;
+}

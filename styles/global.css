@@ -1,0 +1,8 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+
+@import "./ihaicon.css";
+@import "./base.css";
+@import "./bootstrap-modal.css";
+
+@import "tailwindcss/utilities";
