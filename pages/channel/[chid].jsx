@@ -5,6 +5,8 @@ import { useRouter, withRouter } from "next/router";
 
 import { DateTime } from "luxon";
 import CountUp from 'react-countup';
+import TimeAgo from 'react-timeago'
+
 import { AreaChart, XAxis, YAxis, Tooltip, Area, ResponsiveContainer } from "recharts";
 
 import NotFoundPage from "../404";
@@ -16,6 +18,8 @@ import SEOMetaTags from "../../components/header/seo";
 import HeaderDefault from "../../components/header/head";
 import HeaderPrefetch from "../../components/header/prefetch";
 import { route } from "next/dist/next-server/server/router";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClock, faUser } from "@fortawesome/free-solid-svg-icons";
 
 function capitalizeLetters(text) {
     return text.slice(0).toUpperCase() + text.slice(1);
@@ -47,6 +51,30 @@ query VTuberChannelHistory($chId:[ID],$platf:PlatformName) {
                     }
                 }
                 publishedAt
+            }
+        }
+    }
+}
+`
+
+const QueryVideos = `
+query VTuberChannelHistory($chId:[ID],$platf:PlatformName,$sort:String) {
+    vtuber {
+        videos(channel_id:$chId,limit:20,platforms:[$platf],sort_by:$sort) {
+            items {
+                id
+                title
+                status
+                thumbnail
+                timeData {
+                    startTime
+                    endTime
+                    publishedAt
+                }
+                averageViewers
+                peakViewers
+                group
+                platform
             }
         }
     }
@@ -90,7 +118,18 @@ function walk(data, note) {
     return data;
 }
 
-async function QueryFetch(channelId, platform) {
+async function QueryFetch(channelId, platform, querySchema = QueryChannel) {
+    let variables = {
+        chId: channelId,
+        platf: platform
+    };
+    if (querySchema === QueryVideos) {
+        if (platform === "youtube") {
+            variables["sort"] = "timeData.endTime";
+        } else {
+            variables["sort"] = "timeData.publishedAt";
+        }
+    }
     let apiRes = await fetch("https://api.ihateani.me/v2/graphql", {
         method: "POST",
         headers: {
@@ -98,11 +137,8 @@ async function QueryFetch(channelId, platform) {
             "Accept": "application/json"
         },
         body: JSON.stringify({
-            query: QueryChannel,
-            variables: {
-                chId: channelId,
-                platf: platform
-            }
+            query: querySchema,
+            variables: variables,
         })
     }).then((res) => res.json());
     return apiRes;
@@ -179,31 +215,121 @@ function tickFormatter(num) {
     return (num / si[i].value).toFixed(2).replace(rx, "$1") + si[i].symbol;
 }
 
+function prependWatchUrl(videoId, channelId, platform) {
+    if (platform === "youtube") {
+        return `https://youtube.com/watch?v=${videoId}`;
+    } else if (platform === "bilibili") {
+        return `https://space.bilibili.com/${channelId}/video`;
+    } else if (platform === "twitch") {
+        return `https://twitch.tv/${channelId}/videos`;
+    } else if (platform === "twitcasting") {
+        return `https://twitcasting.tv/${channelId}/movie/${videoId}`;
+    } else if (platform === "mildom") {
+        return `https://mildom.com/playback/${channelId}/${videoId}`;
+    }
+}
+
+function prettyPlatformName(platform) {
+    switch (platform) {
+        case "youtube":
+            return "YouTube";
+        case "bilibili":
+            return "BiliBili";
+        case "twitch":
+            return "Twitch";
+        case "twitcasting":
+            return "Twitcasting";
+        case "mildom":
+            return "Mildom";
+        default:
+            return capitalizeLetters(platform);
+    }
+}
+
+function createViewersData(viewers, peakViewers) {
+    if (isType(viewers, "number") && isType(peakViewers, "number")) {
+        return <p><FontAwesomeIcon className="text-gray-400" icon={faUser} /> <span className="font-bold">Average</span>: {viewers.toLocaleString()} | <span className="font-bold">Peak</span>: {peakViewers.toLocaleString()}</p>
+    } else if (isType(viewers, "number") && !isType(peakViewers, "number")) {
+        return <p><FontAwesomeIcon className="text-gray-400" icon={faUser} /> <span className="font-bold">Average</span>: {viewers.toLocaleString()}</p>
+    } else if (!isType(viewers, "number") && isType(peakViewers, "number")) {
+        return <p><FontAwesomeIcon className="text-gray-400" icon={faUser} /> <span className="font-bold">Peak</span>: {peakViewers.toLocaleString()}</p>
+    }
+    return null;
+}
+
+class ChannelPageVideoCard extends React.Component {
+    render() {
+        const { id, title, status, thumbnail, timeData, platform, averageViewers, peakViewers, channelId } = this.props;
+        const { endTime, publishedAt } = timeData;
+        console.info(endTime, id, platform, title);
+
+        let ihaIco = platform;
+        if (ihaIco === "mildom") {
+            ihaIco += "_simple";
+        }
+
+        const borderColor = selectBorderColor(platform);
+        const watchUrl = prependWatchUrl(id, channelId, platform);
+        const initText = status === "video" ? "Uploaded" : "Streamed";
+        let endTimeDate = DateTime.fromSeconds(endTime, {zone: "UTC"}).toJSDate();
+        if (["mildom", "twitch", "twitcasting"].includes(platform)) {
+            endTimeDate = DateTime.fromISO(publishedAt, {zone: "UTC"}).toJSDate();
+        }
+        const viewersJSX = createViewersData(averageViewers, peakViewers);
+
+        return (
+            <>
+                <div id={"vid-" + id + "-" + platform} className="flex col-span-1 bg-gray-900 rounded-lg">
+                    <div className={"m-auto shadow-md rounded-lg w-full border " + borderColor}>
+                        <div className="relative">
+                            <a href={watchUrl}>
+                                <img src={thumbnail} alt={name + " Video Thumbnail"}  className="w-full object-cover object-center rounded-t-lg" />
+                            </a>
+                        </div>
+                        <div className="mt-2 mx-2 text-gray-200">
+                            <p className="text-xs tracking-wide font-bold">
+                                <i className={"mr-2 ihaicon ihaico-" + ihaIco}></i>
+                                {prettyPlatformName(platform)}
+                            </p>
+                            <p className="mt-2 text-white text-sm font-semibold">{title}</p>
+                        </div>
+                        <div className="my-2 mx-2 text-sm text-gray-200">
+                            <p><FontAwesomeIcon className="text-gray-400" icon={faClock} /> <span className="font-bold">{initText}</span> <TimeAgo date={endTimeDate} /></p>
+                            {viewersJSX}
+                        </div>
+                    </div>
+                </div>
+            </>
+        )
+    }
+}
+
 class ChannelPageInfo extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isLoading: true,
-            data: {},
+            videosLoading: true,
+            videosData: [],
         }
     }
 
-    // componentDidMount() {
-    //     const { channelId, platform } = this.props;
-    //     QueryFetch(channelId, platform).then((res) => {
-    //         const data = walk(res, "data.vtuber.channels.items");
-    //         if (Array.isArray(data) && data.length > 0) {
-    //             this.setState({isLoading: false, data: data[0]});
-    //         } else {
-    //             this.setState({isLoading: false});
-    //         }
-    //     }).catch((err) => {
-    //         this.setState({isLoading: false});
-    //     })
-    // }
+    componentDidMount() {
+        const {data} = this.props;
+        const {id, platform} = data;
+        QueryFetch(id, platform, QueryVideos).then((res) => {
+            let reparsedData = walk(res, "data.vtuber.videos.items") || [];
+            if (platform === "youtube") {
+                reparsedData = _.sortBy(reparsedData, (o) => o.timeData.endTime).reverse();
+            } else {
+                reparsedData = _.sortBy(reparsedData, (o) => o.timeData.publishedAt).reverse();
+            }
+            this.setState({videosLoading: false, videosData: reparsedData});
+        }).catch((err) => {
+            this.setState({videosLoading: false});
+        })
+    }
 
     render() {
-        // const { isLoading, data } = this.state;
         const { data } = this.props;
 
         const {id, name, en_name, image, group, statistics, history, publishedAt, platform} = data;
@@ -309,6 +435,26 @@ class ChannelPageInfo extends React.Component {
                             </ResponsiveContainer>
                         </div>
                     </div>
+                    <hr className="mt-4" />
+                    <div className="mt-4">
+                        <span className="text-lg font-semibold">Videos (Last 20 Videos)</span>
+                    </div>
+                    {
+                        this.state.videosLoading ?
+                        <>
+                            <div className="mt-2 text-2xl font-light animate-pulse">
+                                Loading...
+                            </div>
+                        </>
+                        :
+                        <>
+                            <div className="mt-4 grid mx-6 md:mx-16 lg:mx-24 grid-cols-1 md:grid-cols-3 lg:grid-cols-5 justify-center gap-4 items-start">
+                                {this.state.videosData.map((res) => {
+                                    return <ChannelPageVideoCard {...res} channelId={id} />
+                                })}
+                            </div>
+                        </>
+                    }
                 </main>
             </>
         )
