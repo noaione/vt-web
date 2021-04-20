@@ -1,12 +1,15 @@
-import nextConnect from "next-connect";
-import auth from "../../middleware/auth";
+import withSession from '../../lib/session';
 
-const handler = nextConnect();
-
-handler
-    .use(auth)
-    .get((req, res) => {
-        res.json({ user: req.user });
-    })
-
-export default handler;
+export default withSession(async (req, res) => {
+    const user = req.session.get("user");
+    if (user) {
+        res.json({
+            isLoggedIn: true,
+            ...user,
+        });
+    } else {
+        res.json({
+            isLoggedIn: false,
+        });
+    };
+});

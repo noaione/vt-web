@@ -1,11 +1,6 @@
-import nextConnect from 'next-connect'
-import auth from '../../middleware/auth'
+import withSession from '../../lib/session'
 
-const handler = nextConnect()
-
-handler.use(auth).get((req, res) => {
-    req.logOut();
+export default withSession(async (req, res) => {
+    req.session.destroy()
     res.redirect("/");
-})
-
-export default handler
+});
