@@ -51,6 +51,7 @@ query VTuberChannelHistory($chId:[ID],$platf:PlatformName) {
                     }
                 }
                 publishedAt
+                is_retired
             }
         }
     }
@@ -75,6 +76,7 @@ query VTuberChannelHistory($chId:[ID],$platf:PlatformName,$sort:String) {
                 peakViewers
                 group
                 platform
+                is_premiere
             }
         }
     }
@@ -259,7 +261,7 @@ function createViewersData(viewers, peakViewers) {
 
 class ChannelPageVideoCard extends React.Component {
     render() {
-        const { id, title, status, thumbnail, timeData, platform, averageViewers, peakViewers, channelId } = this.props;
+        const { id, title, status, thumbnail, timeData, platform, averageViewers, peakViewers, channelId, is_premiere } = this.props;
         const { endTime, publishedAt } = timeData;
 
         let ihaIco = platform;
@@ -269,7 +271,10 @@ class ChannelPageVideoCard extends React.Component {
 
         const borderColor = selectBorderColor(platform);
         const watchUrl = prependWatchUrl(id, channelId, platform);
-        const initText = status === "video" ? "Uploaded" : "Streamed";
+        let initText = status === "video" ? "Uploaded" : "Streamed";
+        if (is_premiere) {
+            initText = "Premiered";
+        }
         let endTimeDate = DateTime.fromSeconds(endTime, {zone: "UTC"}).toJSDate();
         if (["mildom", "twitch", "twitcasting"].includes(platform)) {
             endTimeDate = DateTime.fromISO(publishedAt, {zone: "UTC"}).toJSDate();
@@ -331,7 +336,7 @@ class ChannelPageInfo extends React.Component {
     render() {
         const { data } = this.props;
 
-        const {id, name, en_name, image, group, statistics, history, publishedAt, platform} = data;
+        const {id, name, en_name, image, group, statistics, history, publishedAt, platform, is_retired} = data;
         let { subscriberCount, viewCount } = statistics;
         subscriberCount = subscriberCount || 0;
         viewCount = viewCount || 0;
@@ -354,9 +359,10 @@ class ChannelPageInfo extends React.Component {
                 <main className="antialiased h-full pb-4 mx-4 mt-6 px-4">
                     <div className="flex flex-col mx-auto text-center justify-center">
                         <img className={"rounded-full mx-auto h-64 " + borderName} src={image} />
-                        <h2 className="text-xl font-bold text-white mt-3">
+                        <h2 className="text-xl font-bold text-white mt-3 items-center">
                             <i className={"mr-2 ihaicon ihaico-" + ihaIco}></i>
                             {niceName}
+                            {is_retired && <span className="text-gray-400 text-base uppercase ml-1">{"(retired)"}</span>}
                         </h2>
                         <h5 className="text-gray-400">
                             {name}
