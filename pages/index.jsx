@@ -34,6 +34,7 @@ const ChannelQuerySchemas = `query VTuberChannel($cursor:String) {
                     subscriberCount
                     viewCount
                 }
+                is_retired
             }
             pageInfo {
                 results_per_page

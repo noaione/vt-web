@@ -50,7 +50,7 @@ function prependWatchUrl(channelId, platform) {
 }
 
 function ChannelCard(props) {
-    const { id, name, image, platform, group, statistics } = props;
+    const { id, name, image, platform, group, statistics, is_retired } = props;
     const { subscriberCount, viewCount } = statistics;
 
     let shortCode;
@@ -89,15 +89,16 @@ function ChannelCard(props) {
         <>
             <div id={"ch-" + id + "-" + platform} className="flex rounded-lg">
                 <div className={"m-auto shadow-md rounded-lg w-full border " + borderColor}>
-                    <div className="relative">
-                        <a href={"/channel/" + shortCode + "-" + id}>
-                            <img src={image} alt={name + " Channel Image"} className="w-full object-cover object-center rounded-t-lg" />
+                    <div className="relative rounded-lg">
+                        <a href={"/channel/" + shortCode + "-" + id} className="rounded-lg">
+                            <img src={image} alt={name + " Channel Image"} className={`w-full object-cover object-center rounded-t-lg ${is_retired && "opacity-50"}`} />
                         </a>
                     </div>
                     <div className="px-4 py-4 text-gray-200 bg-gray-900">
                         <p className="mt-1 uppercase text-sm tracking-wide font-bold text-center">
                             <i className={textCol + " mr-2 ihaicon ihaico-" + ihaIco}></i>
                             {platform}
+                            {is_retired && <span className="text-gray-400 ml-1 text-sm">{"(retired)"}</span>}
                         </p>
                         <p className="mt-2 text-white text-lg font-semibold text-center">{name}</p>
                     </div>
