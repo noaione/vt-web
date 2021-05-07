@@ -155,7 +155,7 @@ class LivesPage extends React.Component<{}, LivesPageState> {
                             Loading Page {current} out of {max}
                         </span>
                     ) : (
-                        <VideosPages data={loadedData} />
+                        <VideosPages key="videospage" data={loadedData} />
                     )}
                     <GroupModal onMounted={(cb) => (this.modalCb = cb)}>
                         <button onClick={this.scrollTop} className="cursor-pointer flex flex-wrap">
