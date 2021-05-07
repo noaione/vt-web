@@ -61,6 +61,7 @@
     "@types/node": "^15.0.2",
     "@types/react": "^17.0.5",
     "@types/react-scroll": "^1.8.2",
+    "@types/react-timeago": "^4.1.2",
     "autoprefixer": "^10.2.5",
     "cross-env": "^7.0.3",
     "cssnano": "^5.0.1",
