@@ -68,6 +68,7 @@ export interface VideoCardProps {
     platform: PlatformType;
     group: keyof typeof GROUPS_NAME_MAP;
     is_premiere?: boolean;
+    is_member?: boolean;
 }
 
 interface VideoCardState {
@@ -97,8 +98,8 @@ class VideoCard extends React.Component<VideoCardProps, VideoCardState> {
             viewers,
             peakViewers,
             platform,
-            group,
             is_premiere,
+            is_member,
         } = this.props;
         const { scheduledStartTime, startTime } = timeData;
         const { name, room_id } = channel;
@@ -150,8 +151,11 @@ class VideoCard extends React.Component<VideoCardProps, VideoCardState> {
                         </div>
                         <div className="px-4 mt-4 text-gray-200 bg-gray-900">
                             <p className="mt-1 text-sm tracking-wide font-bold">
-                                <i className={textColor + " mr-2 ihaicon ihaico-" + ihaIco}></i>
+                                <i className={textColor + " mr-2 ihaicon ihaico-" + ihaIco} />
+                                {is_premiere && <i className="mr-2 ihaicon icaico-play text-blue-400" />}
+                                {is_member && <i className="mr-2 ihaicon icaico-lock text-yellow-400" />}
                                 {prettyPlatformName(platform)}
+                                {is_premiere && <span className="mr-2">{"(Premiere)"}</span>}
                             </p>
                             <p className="mt-2 text-white text-lg font-semibold">{title}</p>
                         </div>
