@@ -11,7 +11,7 @@ import {
 } from "../lib/vt";
 import { Nullable } from "../lib/utils";
 
-interface ChannelCardProps {
+export interface ChannelCardProps {
     id: string;
     name: string;
     image: string;
