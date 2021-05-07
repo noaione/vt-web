@@ -1,14 +1,16 @@
-import crypto from "crypto";
-import withSession from '../../lib/session';
+import { NextApiResponse } from "next";
 
-function validatePassword(input) {
+import crypto from "crypto";
+import withSession, { NextApiRequestWithSession } from '../../lib/session';
+
+function validatePassword(input: string) {
     if (typeof input !== "string") return false;
     const compareTo = process.env.HASHED_WEB_PASSWORD;
     const inputHashed = crypto.pbkdf2Sync(input, process.env.TOKEN_SECRET, 1000, 32, "sha512").toString("hex");
     return compareTo === inputHashed;
 };
 
-export default withSession(async (req, res) => {
+export default withSession(async (req: NextApiRequestWithSession, res: NextApiResponse) => {
     const { username, password } = await req.body;
 
     if (validatePassword(password)) {
