@@ -66,7 +66,7 @@ class VideosPages extends React.Component<VideosPagesProps> {
             <>
                 {sortedGroupData.map((items) => {
                     const groupData = { data: items, group: items[0].group };
-                    <GroupVideo key={`vidpage-${groupData.group}`} {...groupData} />;
+                    return <GroupVideo key={`vidpage-${groupData.group}`} {...groupData} />;
                 })}
             </>
         );
