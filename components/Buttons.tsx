@@ -52,7 +52,7 @@ class Buttons extends React.Component<ButtonsProps> {
             extraClass += className + " ";
         }
 
-        const colored = colorMapping[realType] || colorMapping["primary"];
+        const colored = colorMapping[realType] || colorMapping.primary;
 
         const targetData = isOutsideLink(props.href) ? "_blank" : null;
         const rel = targetData === "_blank" ? "noopener noreferrer" : null;

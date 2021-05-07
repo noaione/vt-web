@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
 import { filter, get } from "lodash";
 import React from "react";
 import Head from "next/head";
@@ -41,13 +42,14 @@ const ChannelQuerySchemas = `query VTuberChannel($cursor:String) {
 }`;
 
 async function getAllChannelsAsync(cursor = "", page = 1, cb: (current: number, total: number) => void) {
-    let results = await ihaAPIQuery(ChannelQuerySchemas, cursor);
-    let gqlres = results.data.vtuber;
+    const results = await ihaAPIQuery(ChannelQuerySchemas, cursor);
+    const gqlres = results.data.vtuber;
     page++;
-    let expectedTotal = Math.ceil(gqlres.channels._total / gqlres.channels.pageInfo.results_per_page);
+    // eslint-disable-next-line no-underscore-dangle
+    const expectedTotal = Math.ceil(gqlres.channels._total / gqlres.channels.pageInfo.results_per_page);
     cb(page, expectedTotal);
-    let mainResults = gqlres.channels.items;
-    let pageData = gqlres.channels.pageInfo;
+    const mainResults = gqlres.channels.items;
+    const pageData = gqlres.channels.pageInfo;
     if (pageData.hasNextPage && pageData.nextCursor) {
         return mainResults.concat(await getAllChannelsAsync(pageData.nextCursor, page, cb));
     } else {
@@ -120,7 +122,7 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
         const sortedGroupData = groupMember(loadedData);
 
         this.setState({ loadedData, copyOfData: loadedData, isLoading: false });
-        let configuredCallback: GroupCallbackData[] = [];
+        const configuredCallback: GroupCallbackData[] = [];
         sortedGroupData.forEach((items) => {
             const grp = items[0].group;
             configuredCallback.push({
@@ -137,7 +139,7 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
     }
 
     filterGroupModalData(rawData = null) {
-        let { platformFilter } = this.state;
+        const { platformFilter } = this.state;
         const includedPlatform = [];
         for (const [pl, tick] of Object.entries(platformFilter)) {
             if (tick) {
@@ -149,7 +151,7 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
 
         const filteredData = filter(loadedData, (o) => includedPlatform.includes(o.platform));
         const sortedGroupData = groupMember(filteredData);
-        let configuredCallback = [];
+        const configuredCallback = [];
         sortedGroupData.forEach((items) => {
             const grp = items[0].group;
             configuredCallback.push({
@@ -162,7 +164,7 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
     }
 
     onPlatformTick(platform: PlatformType) {
-        let { platformFilter } = this.state;
+        const { platformFilter } = this.state;
         platformFilter[platform] = !platformFilter[platform];
         this.setState({ platformFilter });
         this.filterGroupModalData();

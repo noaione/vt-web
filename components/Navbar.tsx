@@ -36,7 +36,7 @@ class Navbar extends React.Component<NavbarProps, NavbarState> {
     }
 
     render() {
-        let { mode, noSticky } = this.props;
+        const { mode, noSticky } = this.props;
 
         let homeUrl = "#";
         let livesUrl = "#";

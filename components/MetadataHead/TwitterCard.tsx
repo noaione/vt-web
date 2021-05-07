@@ -12,20 +12,20 @@ class TwitterCardsMeta extends React.Component<TwitterCardProps> {
     }
 
     render() {
-        let {title, description, image} = this.props;
+        const { title, description, image } = this.props;
 
-        title = title || "VTuber API";
+        const realTitle = title || "VTuber API";
 
         return (
             <>
                 {/* Twitter Card Meta */}
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:creator" content="@nao0809_" />
-                <meta name="twitter:title" content={title} />
+                <meta name="twitter:title" content={realTitle} />
                 {description && <meta property="twitter:description" content={description} />}
                 {image && <meta property="twitter:image" content={image} />}
             </>
-        )
+        );
     }
 }
 

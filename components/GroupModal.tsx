@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, ModalHeader, ModalBody } from "reactstrap";
+import { Modal, ModalBody, ModalHeader } from "reactstrap";
 
 export interface CallbackModal {
     showModal: () => void;
@@ -24,7 +24,7 @@ class GroupModal extends React.Component<ModalProps, ModalState> {
         this.toggler = this.toggler.bind(this);
         this.state = {
             show: false,
-        }
+        };
     }
 
     componentDidMount() {
@@ -38,20 +38,19 @@ class GroupModal extends React.Component<ModalProps, ModalState> {
     }
 
     handleShow() {
-        this.setState({show: true});
+        this.setState({ show: true });
     }
 
     handleHide() {
-        this.setState({show: false});
+        this.setState({ show: false });
     }
-    
+
     toggler() {
-        this.setState({show: !this.state.show});
+        this.setState({ show: !this.state.show });
     }
 
     render() {
-        let { children, className } = this.props;
-        className = className || "";
+        const { children } = this.props;
 
         return (
             <Modal
@@ -68,7 +67,7 @@ class GroupModal extends React.Component<ModalProps, ModalState> {
                     {children}
                 </ModalBody>
             </Modal>
-        )
+        );
     }
 }
 

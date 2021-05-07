@@ -168,7 +168,7 @@ export function shortCodeToPlatform(shortCode: string): Nullable<PlatformType> {
 }
 
 export async function ihaAPIQuery(gqlSchemas: string, cursor: string = "") {
-    let apiRes = await fetcher("https://api.ihateani.me/v2/graphql", {
+    const apiRes = await fetcher("https://api.ihateani.me/v2/graphql", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

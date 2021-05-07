@@ -8,7 +8,7 @@ import { DateTime } from "luxon";
 
 import { createViewersData, VideoCardProps } from "./VideoCard";
 
-import { selectBorderColor, prettyPlatformName, PlatformType } from "../lib/vt";
+import { PlatformType, prettyPlatformName, selectBorderColor } from "../lib/vt";
 
 function prependVideoURLPage(videoId: string, channelId: string, platform: PlatformType) {
     if (platform === "youtube") {

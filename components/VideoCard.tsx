@@ -92,19 +92,19 @@ class VideoCard extends React.Component<VideoCardProps, VideoCardState> {
     }
 
     render() {
-        let {
+        const {
             id,
             title,
             channel,
             timeData,
             status,
-            thumbnail,
             viewers,
             peakViewers,
             platform,
             is_premiere,
             is_member,
         } = this.props;
+        let { thumbnail } = this.props;
         const { scheduledStartTime, startTime } = timeData;
         const { name, room_id } = channel;
         const ch_id = channel.id;
@@ -114,7 +114,7 @@ class VideoCard extends React.Component<VideoCardProps, VideoCardState> {
 
         let ihaIco = platform as string;
         if (ihaIco === "mildom") {
-            ihaIco + "_simple";
+            ihaIco += "_simple";
         }
 
         if (status === "upcoming" && platform === "twitch") {

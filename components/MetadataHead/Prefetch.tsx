@@ -31,5 +31,5 @@ export default function HeaderPrefetch() {
             <link rel="preconnect" href="https://vpic.mildom.com" />
             <link rel="dns-prefetch" href="https://vpic.mildom.com" />
         </>
-    )
+    );
 }

@@ -6,6 +6,6 @@ const MetadataHead = {
     Base,
     Prefetch,
     SEO,
-}
+};
 
 export default MetadataHead;

@@ -48,13 +48,14 @@ const VideoQuerySchemas = `query VTuberLives($cursor:String) {
 }`;
 
 async function getAllSchedulesQuery(cursor = "", page = 1, cb: (current: number, total: number) => void) {
-    let results = await ihaAPIQuery(VideoQuerySchemas, cursor);
-    let gqlres = results.data.vtuber;
+    const results = await ihaAPIQuery(VideoQuerySchemas, cursor);
+    const gqlres = results.data.vtuber;
     page++;
-    let expectedTotal = Math.ceil(gqlres.upcoming._total / gqlres.upcoming.pageInfo.results_per_page);
+    // eslint-disable-next-line no-underscore-dangle
+    const expectedTotal = Math.ceil(gqlres.upcoming._total / gqlres.upcoming.pageInfo.results_per_page);
     cb(page, expectedTotal);
-    let mainResults = gqlres.upcoming.items;
-    let pageData = gqlres.upcoming.pageInfo;
+    const mainResults = gqlres.upcoming.items;
+    const pageData = gqlres.upcoming.pageInfo;
     if (pageData.hasNextPage && pageData.nextCursor) {
         return mainResults.concat(await getAllSchedulesQuery(pageData.nextCursor, page, cb));
     } else {
@@ -93,6 +94,7 @@ class SchedulesPage extends React.Component<{}, SchedulesPageState> {
     }
 
     async componentDidMount() {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const selfthis = this;
         function setLoadData(current: number, total: number) {
             selfthis.setState({ current, max: total });
@@ -102,7 +104,7 @@ class SchedulesPage extends React.Component<{}, SchedulesPageState> {
         const sortedGroupData = groupMember(loadedData);
 
         this.setState({ loadedData, isLoading: false });
-        let configuredCallback: GroupCallbackData[] = [];
+        const configuredCallback: GroupCallbackData[] = [];
         sortedGroupData.forEach((items) => {
             const grp = items[0].group;
             configuredCallback.push({

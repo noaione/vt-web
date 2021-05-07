@@ -29,7 +29,9 @@ class LoginPage extends React.Component<{}, LoginPageState> {
                     Router.push("/admin");
                 }
             })
-            .catch((err) => {});
+            .catch((err) => {
+                console.error(err);
+            });
     }
 
     setErrorMessage(message) {

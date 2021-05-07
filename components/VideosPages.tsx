@@ -14,7 +14,7 @@ interface GroupingVideoProps {
 export function groupMember(realData: VideoCardProps[]): VideoCardProps[][] {
     const groupedByGroup = groupBy(realData, (o) => o.group);
 
-    let sortedGroupData = [];
+    const sortedGroupData = [];
     Object.keys(groupedByGroup)
         .sort()
         .forEach((group) => {
@@ -60,7 +60,7 @@ class VideosPages extends React.Component<VideosPagesProps> {
             return <div className="text-center pb-8 text-2xl font-light text-gray-300">No ongoing lives</div>;
         }
 
-        let sortedGroupData = groupMember(realData);
+        const sortedGroupData = groupMember(realData);
 
         return (
             <>

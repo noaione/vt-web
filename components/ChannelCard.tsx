@@ -3,11 +3,11 @@ import React from "react";
 import Buttons from "./Buttons";
 
 import {
+    GROUPS_NAME_MAP,
+    PlatformType,
+    prependChannelURL,
     selectBorderColor,
     selectTextColor,
-    PlatformType,
-    GROUPS_NAME_MAP,
-    prependChannelURL,
 } from "../lib/vt";
 import { Nullable } from "../lib/utils";
 
@@ -36,7 +36,7 @@ export interface ChannelCardProps {
 }
 
 function ChannelCard(props: ChannelCardProps) {
-    const { id, name, image, platform, group, statistics, is_retired } = props;
+    const { id, name, image, platform, statistics, is_retired } = props;
     const { subscriberCount, viewCount } = statistics;
 
     let shortCode;

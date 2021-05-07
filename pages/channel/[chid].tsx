@@ -5,7 +5,7 @@ import { GetStaticPropsContext } from "next";
 import CountUp from "react-countup";
 import { get, sortBy } from "lodash";
 import { DateTime } from "luxon";
-import { AreaChart, XAxis, YAxis, Tooltip, Area, ResponsiveContainer } from "recharts";
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import MetadataHead from "../../components/MetadataHead";
 import Navbar from "../../components/Navbar";
@@ -94,18 +94,14 @@ function reparseHistory(history) {
 }
 
 const outQuinticEasing = function (t: number, b: number, c: number, d: number) {
-    let ts = (t /= d) * t;
-    let tc = ts * t;
+    const ts = (t /= d) * t;
+    const tc = ts * t;
     return b + c * (tc * ts + -5 * ts * ts + 10 * tc + -10 * ts + 5 * t);
 };
 
 function ToolTipFormatter(value: string, _n: string, _p: any) {
     return value.toLocaleString();
 }
-
-const RechartsStyles = {
-    backgroundColor: "bg-gray-500",
-};
 
 function tickFormatter(num: number) {
     const si = [
@@ -358,18 +354,18 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
 }
 
 async function QueryFetch(channelId: string, platform: PlatformType, querySchema = QueryChannel) {
-    let variables = {
+    const variables: { [key: string]: any } = {
         chId: channelId,
         platf: platform,
     };
     if (querySchema === QueryVideos) {
         if (platform === "youtube") {
-            variables["sort"] = "timeData.endTime";
+            variables.sort = "timeData.endTime";
         } else {
-            variables["sort"] = "timeData.publishedAt";
+            variables.sort = "timeData.publishedAt";
         }
     }
-    let apiRes = await fetch("https://api.ihateani.me/v2/graphql", {
+    const apiRes = await fetch("https://api.ihateani.me/v2/graphql", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -391,7 +387,7 @@ export async function getStaticProps(context: GetStaticPropsContext) {
         };
     }
 
-    let selectOneChannel = Array.isArray(chid) ? chid[0] : chid;
+    const selectOneChannel = Array.isArray(chid) ? chid[0] : chid;
 
     const splittedChIds = selectOneChannel.split("-");
     if (splittedChIds.length < 2) {

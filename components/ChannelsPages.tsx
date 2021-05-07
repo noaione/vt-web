@@ -1,4 +1,4 @@
-import { get, sortBy, filter, groupBy } from "lodash";
+import { filter, get, groupBy, sortBy } from "lodash";
 import React from "react";
 
 import BadgeText from "./Badge";
@@ -13,7 +13,7 @@ interface GroupChannelProps {
     platformFilter: PlatformType[];
 }
 
-function GroupChannel(props) {
+function GroupChannel(props: GroupChannelProps) {
     const { data, group, platformFilter } = props;
 
     const filteredData = filter(data, (o) => platformFilter.includes(o.platform));
@@ -84,7 +84,7 @@ function GroupChannel(props) {
 export function groupMember(realData: ChannelCardProps[]): ChannelCardProps[][] {
     const groupedByGroup = groupBy(realData, (o) => o.group);
 
-    let sortedGroupData = [];
+    const sortedGroupData = [];
     Object.keys(groupedByGroup)
         .sort()
         .forEach((group) => {
@@ -115,9 +115,9 @@ export default class ChannelsPages extends React.Component<ChannelsPagesProps> {
             );
         }
 
-        let sortedGroupData = groupMember(realData);
+        const sortedGroupData = groupMember(realData);
 
-        let configuredCallback = [];
+        const configuredCallback = [];
         sortedGroupData.forEach((items) => {
             const grp = items[0].group;
             configuredCallback.push({

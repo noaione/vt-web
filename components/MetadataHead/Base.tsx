@@ -10,5 +10,5 @@ export default function HeaderBase() {
             <link rel="icon" type="image/png" href="/assets/favicon.png" />
             <link rel="icon" href="/assets/favicon.ico" />
         </>
-    )
+    );
 }

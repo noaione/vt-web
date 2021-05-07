@@ -13,22 +13,22 @@ class OpenGraphMeta extends React.Component<OpenGraphProps> {
     }
 
     render() {
-        let {title, description, url, image} = this.props;
+        const { title, description, url, image } = this.props;
 
-        url = url || "https://vtuber.ihateani.me/";
-        image = image || "/assets/favicon.png";
+        const realUrl = url || "https://vtuber.ihateani.me/";
+        const realImage = image || "/assets/favicon.png";
 
         return (
             <>
                 {/* OpenGraph Meta */}
                 {title && <meta property="og:title" content={title} />}
                 {description && <meta property="og:description" content={description} />}
-                {image && <meta property="og:image" content={image} />}
-                <meta property="og:url" content={url} />
+                {realImage && <meta property="og:image" content={realImage} />}
+                <meta property="og:url" content={realUrl} />
                 <meta property="og:site_name" content="VTuber API" />
                 <meta property="og:type" content="website" />
             </>
-        )
+        );
     }
 }
 
