@@ -1,5 +1,5 @@
 import fetcher from "./fetcher";
-import { capitalizeLetters } from "./utils";
+import { capitalizeLetters, Nullable } from "./utils";
 
 export type PlatformType = "youtube" | "bilibili" | "twitch" | "twitcasting" | "mildom";
 export type VideoType = "live" | "upcoming" | "past" | "video";
@@ -148,6 +148,23 @@ export function platformToShortCode(platform: PlatformType) {
             break;
     }
     return shortCode;
+}
+
+export function shortCodeToPlatform(shortCode: string): Nullable<PlatformType> {
+    switch (shortCode) {
+        case "yt":
+            return "youtube";
+        case "b2":
+            return "bilibili";
+        case "ttv":
+            return "twitch";
+        case "twcast":
+            return "twitcasting";
+        case "md":
+            return "mildom";
+        default:
+            return null;
+    }
 }
 
 export async function ihaAPIQuery(gqlSchemas: string, cursor: string = "") {
