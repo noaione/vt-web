@@ -101,7 +101,7 @@ function ChannelCard(props: ChannelCardProps) {
                             borderColor
                         }
                     >
-                        <Buttons use="a" href={prependChannelURL(id, platform)} type="primary">
+                        <Buttons use="a" href={prependChannelURL(id, platform)} btnType="primary">
                             Watch!
                         </Buttons>
                     </div>

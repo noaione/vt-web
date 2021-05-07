@@ -169,10 +169,10 @@ class VideoCard extends React.Component<VideoCardProps, VideoCardState> {
                             {viewersJSX}
                         </div>
                         <div className="rounded-b-lg px-4 py-4 mt-0 flex gap-2">
-                            <Buttons use="a" href={watchUrl} type="danger">
+                            <Buttons use="a" href={watchUrl} btnType="danger">
                                 Watch
                             </Buttons>
-                            <Buttons use="a" href={channelUrl} type="primary">
+                            <Buttons use="a" href={channelUrl} btnType="primary">
                                 Info
                             </Buttons>
                         </div>
