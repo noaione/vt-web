@@ -1,8 +1,9 @@
 import React from "react";
-import { GraphiQL } from "graphiql";
-import { createClient } from "graphql-ws";
-import { createGraphiQLFetcher } from "@graphiql/toolkit";
 import Head from "next/head";
+
+import { GraphiQL } from "graphiql";
+import { createGraphiQLFetcher } from "@graphiql/toolkit";
+import MetadataHead from "../components/MetadataHead";
 
 const URL = `https://api.ihateani.me/v2/graphql`;
 
@@ -26,7 +27,11 @@ query VTuberLive($cursor:String) {
 }
 `;
 
-class GraphQLPlayground extends React.Component {
+interface GQLPlaygroundState {
+    fetcher: ReturnType<typeof createGraphiQLFetcher> | null;
+}
+
+class GraphQLPlayground extends React.Component<{}, GQLPlaygroundState> {
     constructor(props) {
         super(props);
         this.state = {
@@ -45,7 +50,9 @@ class GraphQLPlayground extends React.Component {
         return (
             <>
                 <Head>
+                    <MetadataHead.Base />
                     <title>GraphQL Playground</title>
+                    <MetadataHead.SEO title="GraphQL Playground" description="Play around with the VTAPI here" urlPath="/playground" />
                     <link href="https://unpkg.com/graphiql/graphiql.min.css" rel="stylesheet" />
                     <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.23.0/theme/dracula.css" rel="stylesheet" />
                 </Head>

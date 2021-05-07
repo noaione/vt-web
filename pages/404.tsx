@@ -1,17 +1,16 @@
 import React from "react";
 import Head from "next/head";
 
-import SEOMetaTags from "../components/header/seo";
-import HeaderDefault from "../components/header/head";
+import MetadataHead from "../components/MetadataHead";
 
 class NotFoundPage extends React.Component {
     render() {
         return (
             <>
                 <Head>
-                    <HeaderDefault />
+                    <MetadataHead.Base />
                     <title>404 :: VTuber API</title>
-                    <SEOMetaTags title="404" description="Page not found" />
+                    <MetadataHead.SEO title="404" description="Page not found" />
                 </Head>
                 <div className="bg-gray-800 text-white h-screen text-center w-screen flex flex-col items-center justify-center">
                     <div>
