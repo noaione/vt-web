@@ -9,6 +9,7 @@ import { AreaChart, XAxis, YAxis, Tooltip, Area, ResponsiveContainer } from "rec
 
 import MetadataHead from "../../components/MetadataHead";
 import Navbar from "../../components/Navbar";
+import VideoCardSmall from "../../components/VideoCardSmall";
 import { ChannelCardProps } from "../../components/ChannelCard";
 import { VideoCardProps } from "../../components/VideoCard";
 
@@ -17,6 +18,7 @@ import {
     GROUPS_NAME_MAP,
     platformToShortCode,
     PlatformType,
+    prependChannelURL,
     selectBorderColor,
     shortCodeToPlatform,
 } from "../../lib/vt";
@@ -155,9 +157,9 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
         }
         let videosData: VideoCardProps[] = walk(res, "data.vtuber.videos.items") || [];
         if (platform === "youtube") {
-            videosData = sortBy(videosData, (o) => o.timeData.endTime);
+            videosData = sortBy(videosData, (o) => o.timeData.endTime).reverse();
         } else {
-            videosData = sortBy(videosData, (o) => o.timeData.publishedAt);
+            videosData = sortBy(videosData, (o) => o.timeData.publishedAt).reverse();
         }
         this.setState({ videosData, videosLoading: false });
     }
@@ -171,7 +173,6 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
             group,
             statistics,
             history,
-            publishedAt,
             platform,
             is_retired,
         } = this.props.data;
@@ -203,7 +204,13 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
                 <Navbar mode="channel" noSticky />
                 <main className="antialiased h-full pb-4 mx-4 mt-6 px-4">
                     <div className="flex flex-col mx-auto text-center justify-center">
-                        <img className={"rounded-full mx-auto h-64 " + borderName} src={image} />
+                        <a href={prependChannelURL(id, platform)} target="_blank" rel="noopener noreferrer">
+                            <img
+                                className={"rounded-full mx-auto h-64 " + borderName}
+                                src={image}
+                                loading="lazy"
+                            />
+                        </a>
                         <h2 className="text-xl font-bold text-white mt-3 items-center">
                             <i className={"mr-2 ihaicon ihaico-" + ihaIco}></i>
                             {niceName}
@@ -305,6 +312,39 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
                             </ResponsiveContainer>
                         </div>
                     </div>
+                    <hr className="mt-4" />
+                    <div className="mt-4">
+                        <span className="text-lg font-semibold">Videos (Last 20 Videos)</span>
+                    </div>
+                    {this.state.videosLoading ? (
+                        <>
+                            <div className="mt-2 text-2xl font-light animate-pulse">Loading...</div>
+                        </>
+                    ) : (
+                        <>
+                            {this.state.videosData.length > 0 ? (
+                                <>
+                                    <div className="mt-4 grid mx-6 md:mx-16 lg:mx-24 grid-cols-1 md:grid-cols-3 lg:grid-cols-5 justify-center gap-4 items-start">
+                                        {this.state.videosData.map((res) => {
+                                            return (
+                                                <VideoCardSmall
+                                                    key={`videosmall-${res.id}`}
+                                                    {...res}
+                                                    channelId={id}
+                                                />
+                                            );
+                                        })}
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="mt-2 text-2xl font-light">
+                                        No past live stream or video are found.
+                                    </div>
+                                </>
+                            )}
+                        </>
+                    )}
                 </main>
             </>
         );
