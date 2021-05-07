@@ -111,6 +111,7 @@ class SchedulesPage extends React.Component<{}, SchedulesPageState> {
                 total: items.length,
             });
         });
+        this.callbackGroupSets(configuredCallback);
     }
 
     callbackGroupSets(groupSets: GroupCallbackData[]) {

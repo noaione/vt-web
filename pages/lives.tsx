@@ -111,6 +111,7 @@ class LivesPage extends React.Component<{}, LivesPageState> {
                 total: items.length,
             });
         });
+        this.callbackGroupSets(configuredCallback);
     }
 
     callbackGroupSets(groupSets: GroupCallbackData[]) {
