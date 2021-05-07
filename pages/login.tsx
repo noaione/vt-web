@@ -1,38 +1,42 @@
 import React from "react";
-import Router from 'next/router'
-import Link from 'next/link'
+import Router from "next/router";
 import Head from "next/head";
-import { v4 as uuidv4 } from 'uuid'
+import { v4 as uuidv4 } from "uuid";
 
 import fetcher from "../lib/fetcher";
-import Buttons from '../components/buttons';
+import Buttons from "../components/Buttons";
 
-import SEOMetaTags from "../components/header/seo";
-import HeaderDefault from "../components/header/head";
+import MetadataHead from "../components/MetadataHead";
 
-class LoginPage extends React.Component {
+interface LoginPageState {
+    errorMsg: string;
+}
+
+class LoginPage extends React.Component<{}, LoginPageState> {
     constructor(props) {
         super(props);
         this.onSubmit = this.onSubmit.bind(this);
         this.setErrorMessage = this.setErrorMessage.bind(this);
         this.state = {
             errorMsg: "",
-        }
+        };
     }
 
     componentDidMount() {
-        fetcher("/api/user").then((res) => {
-            if (res?.isLoggedIn) {
-                Router.push("/admin");
-            }
-        }).catch((err) => {})
+        fetcher("/api/user")
+            .then((res) => {
+                if (res?.isLoggedIn) {
+                    Router.push("/admin");
+                }
+            })
+            .catch((err) => {});
     }
 
     setErrorMessage(message) {
-        this.setState({errorMsg: message});
+        this.setState({ errorMsg: message });
     }
 
-    async onSubmit(e) {
+    async onSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         const userStr = uuidv4();
 
@@ -43,9 +47,9 @@ class LoginPage extends React.Component {
         const res = await fetch("/api/login", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify(body),
         });
 
         if (res.status === 200) {
@@ -64,34 +68,44 @@ class LoginPage extends React.Component {
         return (
             <>
                 <Head>
-                    <HeaderDefault />
+                    <MetadataHead.Base />
                     <title>Login :: VTuber API</title>
-                    <SEOMetaTags title="Login" description="Restricted access" url="https://vtuber.ihateani.me/login" />
+                    <MetadataHead.SEO title="Login" description="Restricted access" urlPath="/login" />
                 </Head>
                 <main className="flex flex-wrap text-center text-white justify-center items-center min-h-screen w-screen overflow-hidden bg-gray-800">
                     <div className="fixed w-full self-center place-self-center items-center place-items-center justify-items-center">
                         <form onSubmit={this.onSubmit} className="mx-auto">
                             <label className="inline-flex flex-col justify-center">
-                                <span className="text-gray-100 text-lg mb-2 tracking-wide uppercase">Password</span>
-                                <input type="password" name="password" placeholder="********" required className="form-input bg-gray-700 border border-gray-700 focus:outline-none focus:border-blue-500 rounded-lg" />
+                                <span className="text-gray-100 text-lg mb-2 tracking-wide uppercase">
+                                    Password
+                                </span>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    placeholder="********"
+                                    required
+                                    className="form-input bg-gray-700 border border-gray-700 focus:outline-none focus:border-blue-500 rounded-lg"
+                                />
                             </label>
-                            {this.state.errorMsg && 
-                                (
-                                    <>
+                            {this.state.errorMsg && (
+                                <>
                                     <div className="flex justify-center mt-2">
-                                        <span className="font-semibold text-red-400 text-sm">Error: {this.state.errorMsg}</span>
+                                        <span className="font-semibold text-red-400 text-sm">
+                                            Error: {this.state.errorMsg}
+                                        </span>
                                     </div>
-                                    </>
-                                )
-                            }
+                                </>
+                            )}
                             <div className="flex flex-row gap-2 mt-4 justify-center">
-                                <Buttons type="submit" type="blue">Login</Buttons>
+                                <Buttons type="submit" btnType="primary">
+                                    Login
+                                </Buttons>
                             </div>
                         </form>
                     </div>
                 </main>
             </>
-        )
+        );
     }
 }
 
