@@ -204,13 +204,19 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
                 <Navbar mode="channel" noSticky />
                 <main className="antialiased h-full pb-4 mx-4 mt-6 px-4">
                     <div className="flex flex-col mx-auto text-center justify-center">
-                        <a href={prependChannelURL(id, platform)} target="_blank" rel="noopener noreferrer">
-                            <img
-                                className={"rounded-full mx-auto h-64 " + borderName}
-                                src={image}
-                                loading="lazy"
-                            />
-                        </a>
+                        <div className="flex justify-center">
+                            <a
+                                href={prependChannelURL(id, platform)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <img
+                                    className={"rounded-full mx-auto h-64 " + borderName}
+                                    src={image}
+                                    loading="lazy"
+                                />
+                            </a>
+                        </div>
                         <h2 className="text-xl font-bold text-white mt-3 items-center">
                             <i className={"mr-2 ihaicon ihaico-" + ihaIco}></i>
                             {niceName}
