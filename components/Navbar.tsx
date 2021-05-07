@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCog, faSignInAlt, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 
 interface NavbarProps {
-    mode: "lives" | "schedules" | "settings" | "admin" | "channel" | "video";
+    mode?: "lives" | "schedules" | "settings" | "admin" | "channel" | "video";
     noSticky?: boolean;
 }
 
