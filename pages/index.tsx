@@ -84,6 +84,13 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
 
     constructor(props) {
         super(props);
+        this.callbackGroupSets = this.callbackGroupSets.bind(this);
+        this.filterGroupModalData = this.filterGroupModalData.bind(this);
+        this.onPlatformTick = this.onPlatformTick.bind(this);
+        this.onChangeData = this.onChangeData.bind(this);
+        this.openModal = this.openModal.bind(this);
+        this.scrollTop = this.scrollTop.bind(this);
+
         this.state = {
             loadedData: [],
             copyOfData: [],
@@ -112,7 +119,7 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
         const loadedData = await getAllChannelsAsync("", 1, setLoadData);
         const sortedGroupData = groupMember(loadedData);
 
-        this.setState({ loadedData, isLoading: false });
+        this.setState({ loadedData, copyOfData: loadedData, isLoading: false });
         let configuredCallback: GroupCallbackData[] = [];
         sortedGroupData.forEach((items) => {
             const grp = items[0].group;
@@ -125,7 +132,7 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
         this.callbackGroupSets(configuredCallback);
     }
 
-    callbackGroupSets(groupSets) {
+    callbackGroupSets(groupSets: GroupCallbackData[]) {
         this.setState({ groupSets });
     }
 
