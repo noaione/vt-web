@@ -1,15 +1,20 @@
 import React from "react";
 
-class TwitterCardsMeta extends React.Component {
+interface TwitterCardProps {
+    image?: string;
+    title: string;
+    description: string;
+}
+
+class TwitterCardsMeta extends React.Component<TwitterCardProps> {
     constructor(props) {
         super(props);
     }
+
     render() {
-        let {title, description, url, image, color} = this.props;
+        let {title, description, image} = this.props;
 
         title = title || "VTuber API";
-        color = color || "#383838";
-        url = url || "https://vtuber.ihateani.me/";
 
         return (
             <>

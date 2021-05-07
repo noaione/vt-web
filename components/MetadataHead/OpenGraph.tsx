@@ -1,13 +1,20 @@
 import React from "react";
 
-class OpenGraphMeta extends React.Component {
+interface OpenGraphProps {
+    image?: string;
+    title: string;
+    url: string;
+    description: string;
+}
+
+class OpenGraphMeta extends React.Component<OpenGraphProps> {
     constructor(props) {
         super(props);
     }
-    render() {
-        let {title, description, url, image, color} = this.props;
 
-        color = color || "#383838";
+    render() {
+        let {title, description, url, image} = this.props;
+
         url = url || "https://vtuber.ihateani.me/";
         image = image || "/assets/favicon.png";
 

@@ -1,4 +1,6 @@
-export default function HeaderDefault() {
+import React from "react";
+
+export default function HeaderBase() {
     return (
         <>
             <meta charSet="utf-8" />
