@@ -62,10 +62,11 @@ export default class VideoCardSmall extends React.Component<VideoCardProps> {
                 <div id={"vid-" + id + "-" + platform} className="flex col-span-1 bg-gray-900 rounded-lg">
                     <div className={"m-auto shadow-md rounded-lg w-full border " + borderColor}>
                         <div className="relative">
-                            <a href={watchUrl}>
+                            <a href={watchUrl} target="_blank" rel="noopener noreferrer">
                                 <img
                                     src={thumbnail}
                                     alt={name + " Video Thumbnail"}
+                                    loading="lazy"
                                     className="w-full object-cover object-center rounded-t-lg"
                                 />
                             </a>

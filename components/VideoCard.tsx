@@ -145,10 +145,11 @@ class VideoCard extends React.Component<VideoCardProps, VideoCardState> {
                 <div id={`vid-${id}-${platform}`} className="flex bg-gray-900 col-span-1 rounded-lg">
                     <div className={"m-auto shadow-md rounded-lg w-full border " + borderColor}>
                         <div className="relative">
-                            <a href={watchUrl}>
+                            <a href={watchUrl} target="_blank" rel="noopener noreferrer">
                                 <img
                                     src={thumbnail}
                                     alt={name + " Video Thumbnail"}
+                                    loading="lazy"
                                     className="w-full object-cover object-center rounded-t-lg"
                                 />
                             </a>

@@ -80,6 +80,7 @@ function ChannelCard(props: ChannelCardProps) {
                             <img
                                 src={image}
                                 alt={name + " Channel Image"}
+                                loading="lazy"
                                 className={`w-full object-cover object-center rounded-t-lg ${
                                     is_retired && "opacity-50"
                                 }`}
@@ -108,12 +109,15 @@ function ChannelCard(props: ChannelCardProps) {
                     )}
                     <div
                         className={
-                            "rounded-b-lg px-4 py-4 text-gray-200 bg-gray-900 text-center border-t " +
+                            "rounded-b-lg px-4 py-4 text-gray-200 bg-gray-900 text-center flex flex-row gap-2 justify-center border-t " +
                             borderColor
                         }
                     >
-                        <Buttons use="a" href={prependChannelURL(id, platform)} btnType="primary">
-                            Watch!
+                        <Buttons use="a" href={prependChannelURL(id, platform)} btnType="danger">
+                            Watch
+                        </Buttons>
+                        <Buttons use="a" href={"/channel/" + shortCode + "-" + id} btnType="primary">
+                            Info
                         </Buttons>
                     </div>
                 </div>
