@@ -8,7 +8,12 @@
     "dev": "next dev -p 6520",
     "devdebug": "cross-env NODE_OPTIONS='--inspect' next dev -p 6520",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "type-check": "tsc --pretty --noEmit",
+    "format": "prettier --write .",
+    "lint": "eslint --ext ts --ext tsx --ext js pages/ lib/ components/",
+    "lintfix": "eslint --ext ts --ext tsx --ext js pages/ lib/ components/ --fix",
+    "testall": "npm-run-all lint type-check"
   },
   "repository": {
     "type": "git",
@@ -62,6 +67,8 @@
     "@types/react": "^17.0.5",
     "@types/react-scroll": "^1.8.2",
     "@types/react-timeago": "^4.1.2",
+    "@typescript-eslint/eslint-plugin": "^4.22.1",
+    "@typescript-eslint/parser": "^4.22.1",
     "autoprefixer": "^10.2.5",
     "cross-env": "^7.0.3",
     "cssnano": "^5.0.1",
