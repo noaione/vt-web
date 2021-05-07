@@ -25,7 +25,7 @@ function getPreferedTimezone(localStorage) {
     return prefer;
 }
 
-function createViewersData(viewers?: number, peakViewers?: number) {
+export function createViewersData(viewers?: number, peakViewers?: number) {
     if (isType(viewers, "number") && isType(peakViewers, "number")) {
         return (
             <p>
@@ -57,14 +57,18 @@ export interface VideoCardProps {
         name: string;
         room_id?: string;
     };
+    channelId?: string;
     timeData: {
         scheduledStartTime?: number;
         startTime?: number;
+        endTime?: number;
+        publishedAt?: string;
     };
     status: VideoType;
     thumbnail?: Nullable<string>;
     viewers?: Nullable<number>;
     peakViewers?: Nullable<number>;
+    averageViewers?: Nullable<number>;
     platform: PlatformType;
     group: keyof typeof GROUPS_NAME_MAP;
     is_premiere?: boolean;

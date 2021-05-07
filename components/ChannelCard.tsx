@@ -11,9 +11,15 @@ import {
 } from "../lib/vt";
 import { Nullable } from "../lib/utils";
 
+interface HistoryData {
+    data: number;
+    time: number;
+}
+
 export interface ChannelCardProps {
     id: string;
     name: string;
+    en_name?: string;
     image: string;
     platform: PlatformType;
     group: keyof typeof GROUPS_NAME_MAP;
@@ -21,6 +27,11 @@ export interface ChannelCardProps {
         subscriberCount?: Nullable<number>;
         viewCount?: Nullable<number>;
     };
+    history?: {
+        subscribersCount?: HistoryData;
+        viewsCount?: HistoryData;
+    };
+    publishedAt?: string;
     is_retired: boolean;
 }
 
