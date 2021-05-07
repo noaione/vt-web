@@ -12,6 +12,19 @@ interface ButtonsProps {
     type?: "button" | "submit" | "reset";
 }
 
+function isOutsideLink(link: string) {
+    if (!link) {
+        return false;
+    }
+    if (link.startsWith("http")) {
+        return true;
+    }
+    if (link.includes("::/")) {
+        return true;
+    }
+    return false;
+}
+
 class Buttons extends React.Component<ButtonsProps> {
     render() {
         const { btnType, use, children, className, ...props } = this.props;
@@ -41,6 +54,9 @@ class Buttons extends React.Component<ButtonsProps> {
 
         const colored = colorMapping[realType] || colorMapping["primary"];
 
+        const targetData = isOutsideLink(props.href) ? "_blank" : null;
+        const rel = targetData === "_blank" ? "noopener noreferrer" : null;
+
         if (isA) {
             return (
                 <a
@@ -50,6 +66,8 @@ class Buttons extends React.Component<ButtonsProps> {
                         extraClass +
                         colored
                     }
+                    target={targetData}
+                    rel={rel}
                 >
                     {children}
                 </a>
