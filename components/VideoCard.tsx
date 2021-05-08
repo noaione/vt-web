@@ -14,6 +14,7 @@ import {
     selectTextColor,
     VideoType,
 } from "../lib/vt";
+import { ChannelCardProps } from "./ChannelCard";
 
 function getPreferedTimezone(localStorage) {
     const DEFAULTS = "UTC" + DateTime.local().toFormat("ZZ");
@@ -52,12 +53,8 @@ export function createViewersData(viewers?: number, peakViewers?: number) {
 export interface VideoCardProps {
     id: string;
     title: string;
-    channel: {
-        id: string;
-        name: string;
-        room_id?: string;
-    };
-    channelId?: string;
+    channel: ChannelCardProps;
+    channel_id?: string;
     timeData: {
         scheduledStartTime?: number;
         startTime?: number;
@@ -135,7 +132,8 @@ class VideoCard extends React.Component<VideoCardProps, VideoCardState> {
             properStartTime = startTimeTZ.toFormat("EEE, dd MMM yyyy HH:mm:ss ZZZZ");
         }
 
-        const channelUrl = `/channel/${platformToShortCode(platform)}-${ch_id}`;
+        const videoInfo = `/video/${platformToShortCode(platform)}-${id}`;
+        const channelInfo = `/channel/${platformToShortCode(platform)}-${ch_id}`;
 
         const viewersJSX = createViewersData(viewers, peakViewers);
         const watchUrl = prependWatchUrl(id, ch_id, room_id, platform);
@@ -178,8 +176,11 @@ class VideoCard extends React.Component<VideoCardProps, VideoCardState> {
                             <Buttons use="a" href={watchUrl} btnType="danger">
                                 Watch
                             </Buttons>
-                            <Buttons use="a" href={channelUrl} btnType="primary">
+                            <Buttons use="a" href={videoInfo} btnType="primary">
                                 Info
+                            </Buttons>
+                            <Buttons use="a" href={channelInfo} btnType="warning">
+                                Channel Info
                             </Buttons>
                         </div>
                     </div>
