@@ -480,6 +480,21 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
             is_member,
         } = this.props.data;
 
+        function statusToExpandedText(st: "live" | "upcoming" | "past" | "video") {
+            switch (st) {
+                case "live":
+                    return "Live";
+                case "upcoming":
+                    return "Upcoming";
+                case "past":
+                    return "Past Stream";
+                case "video":
+                    return "Video Upload";
+                default:
+                    return capitalizeLetters(st);
+            }
+        }
+
         const { scheduledStartTime, startTime, endTime, publishedAt, status } = this.state;
         let { averageViewers, peakViewers, viewers } = this.state;
         averageViewers = averageViewers ?? 0;
@@ -493,6 +508,21 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
         }
         const orgzName = get(GROUPS_NAME_MAP, group, capitalizeLetters(group));
 
+        const description = `Video Information for stream/video ID ${id} from ${capitalizeLetters(platform)}
+        
+        **Video title**: ${title}
+        **Status**: ${statusToExpandedText(status)}
+        **Started/Uploaded at**: ${
+            status === "video"
+                ? DateTime.fromISO(publishedAt, { zone: "UTC" })
+                      .setZone("UTC+09:00")
+                      .toLocaleString(DateTime.DATETIME_MED_WITH_WEEKDAY)
+                : DateTime.fromSeconds(startTime, { zone: "UTC" })
+                      .setZone("UTC+09:00")
+                      .toLocaleString(DateTime.DATETIME_MED_WITH_WEEKDAY)
+        }
+        `;
+
         return (
             <>
                 <Head>
@@ -500,9 +530,7 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                     <title>{title} :: VTuber API</title>
                     <MetadataHead.SEO
                         title={`${title} - ${niceName}`}
-                        description={`Video Information for Stream/Video ID ${id} from ${capitalizeLetters(
-                            platform
-                        )} by ${niceName} titled ${title}`}
+                        description={description}
                         image={thumbnail}
                         urlPath={`/video/${platformToShortCode(platform)}-${id}`}
                     />
