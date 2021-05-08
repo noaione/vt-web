@@ -157,10 +157,11 @@ class VideoCard extends React.Component<VideoCardProps, VideoCardState> {
                         <div className="px-4 mt-4 text-gray-200 bg-gray-900">
                             <p className="mt-1 text-sm tracking-wide font-bold">
                                 <i className={textColor + " mr-2 ihaicon ihaico-" + ihaIco} />
-                                {is_premiere && <i className="mr-2 ihaicon icaico-play text-blue-400" />}
-                                {is_member && <i className="mr-2 ihaicon icaico-lock text-yellow-400" />}
+                                {is_premiere && <i className="mr-2 ihaicon ihaico-play text-blue-400" />}
+                                {is_member && <i className="mr-2 ihaicon ihaico-lock text-yellow-400" />}
                                 {prettyPlatformName(platform)}
-                                {is_premiere && <span className="mr-2">{"(Premiere)"}</span>}
+                                {is_premiere && <span className="mr-2">{" (Premiere)"}</span>}
+                                {is_member && <span className="mr-2">{" (Member-Only)"}</span>}
                             </p>
                             <p className="mt-2 text-white text-lg font-semibold">{title}</p>
                         </div>
