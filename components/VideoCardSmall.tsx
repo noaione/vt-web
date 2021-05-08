@@ -8,7 +8,7 @@ import { DateTime } from "luxon";
 
 import { createViewersData, VideoCardProps } from "./VideoCard";
 
-import { PlatformType, prettyPlatformName, selectBorderColor } from "../lib/vt";
+import { platformToShortCode, PlatformType, prettyPlatformName, selectBorderColor } from "../lib/vt";
 
 function prependVideoURLPage(videoId: string, channelId: string, platform: PlatformType) {
     if (platform === "youtube") {
@@ -35,7 +35,7 @@ export default class VideoCardSmall extends React.Component<VideoCardProps> {
             platform,
             averageViewers,
             peakViewers,
-            channelId,
+            channel_id,
             is_premiere,
         } = this.props;
         const { endTime, publishedAt } = timeData;
@@ -46,7 +46,7 @@ export default class VideoCardSmall extends React.Component<VideoCardProps> {
         }
 
         const borderColor = selectBorderColor(platform);
-        const watchUrl = prependVideoURLPage(id, channelId, platform);
+        const watchUrl = prependVideoURLPage(id, channel_id, platform);
         let initText = status === "video" ? "Uploaded" : "Streamed";
         if (is_premiere) {
             initText = "Premiered";
@@ -84,6 +84,14 @@ export default class VideoCardSmall extends React.Component<VideoCardProps> {
                                 <span className="font-bold">{initText}</span> <TimeAgo date={endTimeDate} />
                             </p>
                             {viewersJSX}
+                        </div>
+                        <div className="my-2 mx-2">
+                            <a
+                                className="text-sm uppercase tracking-wide text-blue-400 hover:text-blue-300 duration-200 transition-colors"
+                                href={`/video/${platformToShortCode(platform)}-${id}`}
+                            >
+                                Info
+                            </a>
                         </div>
                     </div>
                 </div>

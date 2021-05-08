@@ -70,7 +70,7 @@ class Navbar extends React.Component<NavbarProps, NavbarState> {
             scheduleUrl = "/schedules";
             loginUrl = "/api/logout";
             settingsUrl = "/settings";
-        } else if (mode === "channel") {
+        } else if (mode === "channel" || mode === "video") {
             homeUrl = "/";
             livesUrl = "/lives";
             scheduleUrl = "/schedules";

@@ -332,7 +332,7 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
                                                 <VideoCardSmall
                                                     key={`videosmall-${res.id}`}
                                                     {...res}
-                                                    channelId={id}
+                                                    channel_id={id}
                                                 />
                                             );
                                         })}
