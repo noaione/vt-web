@@ -27,7 +27,7 @@ class SEOMetaTags extends React.Component<SEOMetaProps> {
         let realDescription = "A Frontend for ihateani.me VTuber API";
         let realImage = "/assets/favicon.png";
         let realUrl = null;
-        let realColor = "#383838";
+        let realColor = "#3DCE70";
         if (isString(title)) {
             realTitle = title;
         }
@@ -55,7 +55,7 @@ class SEOMetaTags extends React.Component<SEOMetaProps> {
 
         return (
             <>
-                {realTitle && <meta name="description" content={realTitle} />}
+                {realDescription && <meta name="description" content={realDescription} />}
                 <meta name="theme-color" content={realColor} />
                 <OpenGraphMeta title={realTitle} description={realDescription} url={url} image={realImage} />
                 <TwitterCardsMeta title={realTitle} description={realDescription} image={realImage} />
