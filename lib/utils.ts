@@ -38,3 +38,14 @@ export function walk(data: any, note: string) {
     }
     return data;
 }
+
+export function pickFirstLine(textdata: string) {
+    if (typeof textdata !== "string") {
+        return textdata;
+    }
+    const extractedLines = textdata.split("\n");
+    if (extractedLines.length < 1) {
+        return textdata;
+    }
+    return extractedLines[0];
+}
