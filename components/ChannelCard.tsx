@@ -18,6 +18,7 @@ interface HistoryData {
 
 export interface ChannelCardProps {
     id: string;
+    room_id?: string;
     name: string;
     en_name?: string;
     image: string;
