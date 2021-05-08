@@ -13,7 +13,7 @@ export type JSTypeof =
     | "array"; // Extra addition
 
 export function capitalizeLetters(text: string) {
-    return text.slice(0).toUpperCase() + text.slice(1);
+    return text.slice(0, 1).toUpperCase() + text.slice(1);
 }
 
 export function isType(data: any, type: JSTypeof): data is typeof data {
