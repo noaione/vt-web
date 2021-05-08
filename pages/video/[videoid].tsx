@@ -509,10 +509,10 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
         const orgzName = get(GROUPS_NAME_MAP, group, capitalizeLetters(group));
 
         const description = `Video Information for stream/video ID ${id} from ${capitalizeLetters(platform)}
-        
-        **Video title**: ${title}
-        **Status**: ${statusToExpandedText(status)}
-        **Started/Uploaded at**: ${
+
+        Video title: ${title}
+        Status: ${statusToExpandedText(status)}
+        Started/Uploaded at: ${
             status === "video"
                 ? DateTime.fromISO(publishedAt, { zone: "UTC" })
                       .setZone("UTC+09:00")
@@ -520,7 +520,7 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                 : DateTime.fromSeconds(startTime, { zone: "UTC" })
                       .setZone("UTC+09:00")
                       .toLocaleString(DateTime.DATETIME_MED_WITH_WEEKDAY)
-        }
+        } JST
         `;
 
         return (
