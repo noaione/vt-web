@@ -1,4 +1,5 @@
 import React from "react";
+import { pickFirstLine } from "../../lib/utils";
 
 import OpenGraphMeta from "./OpenGraph";
 import TwitterCardsMeta from "./TwitterCard";
@@ -55,7 +56,7 @@ class SEOMetaTags extends React.Component<SEOMetaProps> {
 
         return (
             <>
-                {realDescription && <meta name="description" content={realDescription} />}
+                {realDescription && <meta name="description" content={pickFirstLine(realDescription)} />}
                 <meta name="theme-color" content={realColor} />
                 <OpenGraphMeta title={realTitle} description={realDescription} url={url} image={realImage} />
                 <TwitterCardsMeta title={realTitle} description={realDescription} image={realImage} />

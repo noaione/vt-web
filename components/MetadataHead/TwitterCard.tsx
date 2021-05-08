@@ -1,4 +1,5 @@
 import React from "react";
+import { pickFirstLine } from "../../lib/utils";
 
 interface TwitterCardProps {
     image?: string;
@@ -18,11 +19,10 @@ class TwitterCardsMeta extends React.Component<TwitterCardProps> {
 
         return (
             <>
-                {/* Twitter Card Meta */}
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:creator" content="@nao0809_" />
                 <meta name="twitter:title" content={realTitle} />
-                {description && <meta property="twitter:description" content={description} />}
+                {description && <meta property="twitter:description" content={pickFirstLine(description)} />}
                 {image && <meta property="twitter:image" content={image} />}
             </>
         );

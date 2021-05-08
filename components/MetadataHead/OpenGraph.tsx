@@ -20,7 +20,6 @@ class OpenGraphMeta extends React.Component<OpenGraphProps> {
 
         return (
             <>
-                {/* OpenGraph Meta */}
                 {title && <meta property="og:title" content={title} />}
                 {description && <meta property="og:description" content={description} />}
                 {realImage && <meta property="og:image" content={realImage} />}
