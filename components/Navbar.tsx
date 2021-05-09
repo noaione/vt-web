@@ -16,6 +16,7 @@ interface NavbarState {
 class Navbar extends React.Component<NavbarProps, NavbarState> {
     constructor(props) {
         super(props);
+        this.toggleDropdown = this.toggleDropdown.bind(this);
 
         this.state = {
             active: false,
