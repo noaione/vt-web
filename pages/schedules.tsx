@@ -15,7 +15,7 @@ import { GROUPS_NAME_MAP, ihaAPIQuery } from "../lib/vt";
 
 const VideoQuerySchemas = `query VTuberLives($cursor:String) {
     vtuber {
-        upcoming(cursor:$cursor,limit:75) {
+        upcoming(cursor:$cursor,limit:100) {
             _total
             items {
                 id
