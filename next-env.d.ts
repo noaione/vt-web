@@ -7,6 +7,7 @@ declare global {
         interface ProcessEnv {
             TOKEN_SECRET?: string;
             HASHED_WEB_PASSWORD?: string;
+            IHAAPI_PASSWORD?: string;
         }
     }
 }
