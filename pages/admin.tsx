@@ -219,7 +219,7 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
                                         type="text"
                                         value={this.state.filter}
                                         onChange={this.onChangeData}
-                                        className="form-input mt-1 block w-full md:w-1/2 lg:w-1/3 bg-gray-700"
+                                        className="form-input mt-1 block w-full md:w-1/2 lg:w-1/3 bg-gray-700 border-2 border-gray-700 focus:border-blue-500"
                                     />
                                 </label>
                                 <div className="mt-3">
@@ -333,7 +333,11 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
                                     </div>
                                 </div>
                             </div>
-                            <ChannelsPages data={loadedData} platformTick={this.state.platformFilter} />
+                            <ChannelsPages
+                                data={loadedData}
+                                platformTick={this.state.platformFilter}
+                                adminMode
+                            />
                         </>
                     )}
                     <GroupModal onMounted={(callbacks) => (this.modalCb = callbacks)}>
