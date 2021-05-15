@@ -4,9 +4,9 @@ function isNone(data) {
     return typeof data === "undefined" || data === null;
 }
 
-interface ButtonsProps {
+interface ButtonsProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     btnType?: "primary" | "success" | "warning" | "danger" | "dark";
-    use?: "a" | "div" | string;
+    use?: "a" | "div";
     href?: string;
     className?: string;
     type?: "button" | "submit" | "reset";
@@ -25,18 +25,22 @@ function isOutsideLink(link: string) {
     return false;
 }
 
+const noop = (ev: React.MouseEvent<HTMLButtonElement>) => {
+    return null;
+};
+
 class Buttons extends React.Component<ButtonsProps> {
     render() {
-        const { btnType, use, children, className, ...props } = this.props;
+        const { btnType, use, children, className, onClick, ...props } = this.props;
 
         let realType = "primary";
         if (!isNone(btnType)) {
             realType = btnType;
         }
 
-        let isA = false;
-        if (use === "a") {
-            isA = true;
+        let realOnClick = noop;
+        if (typeof onClick === "function") {
+            realOnClick = onClick;
         }
 
         const colorMapping = {
@@ -46,21 +50,32 @@ class Buttons extends React.Component<ButtonsProps> {
             danger: "bg-red-500 hover:bg-red-600",
             dark: "bg-gray-700 hover:bg-gray-800",
         };
+        const colorDisabledMapping = {
+            primary: "bg-blue-400",
+            success: "bg-green-400",
+            warning: "bg-yellow-500",
+            danger: "bg-red-400",
+            dark: "bg-gray-600",
+        };
 
         let extraClass = "";
         if (typeof className === "string") {
             extraClass += className + " ";
         }
 
-        const colored = colorMapping[realType] || colorMapping.primary;
+        let colored = colorMapping[realType] || colorMapping.primary;
+        if (props.disabled) {
+            colored = colorDisabledMapping[realType] || colorDisabledMapping.primary;
+            colored += " cursor-not-allowed";
+        }
 
         const targetData = isOutsideLink(props.href) ? "_blank" : null;
         const rel = targetData === "_blank" ? "noopener noreferrer" : null;
-
-        if (isA) {
+        if (use === "a") {
+            const restProps = props as unknown as React.AnchorHTMLAttributes<HTMLAnchorElement>;
             return (
                 <a
-                    {...props}
+                    {...restProps}
                     className={
                         "inline-block px-6 py-2 text-xs font-medium leading-6 text-center text-white uppercase transition rounded shadow ripple hover:shadow-lg focus:outline-none " +
                         extraClass +
@@ -73,9 +88,12 @@ class Buttons extends React.Component<ButtonsProps> {
                 </a>
             );
         }
+
+        const restProps = props as unknown as React.ButtonHTMLAttributes<HTMLButtonElement>;
         return (
             <button
-                {...props}
+                {...restProps}
+                onClick={(ev) => realOnClick(ev)}
                 className={
                     "inline-block px-6 py-2 text-xs font-medium leading-6 text-center text-white uppercase transition rounded shadow ripple hover:shadow-lg focus:outline-none " +
                     extraClass +
