@@ -3,10 +3,10 @@ import Router from "next/router";
 import Head from "next/head";
 import { v4 as uuidv4 } from "uuid";
 
-import fetcher from "../lib/fetcher";
 import Buttons from "../components/Buttons";
-
 import MetadataHead from "../components/MetadataHead";
+
+import withSession, { NextServerSideContextWithSession, SimpleUser } from "../lib/session";
 
 interface LoginPageState {
     errorMsg: string;
@@ -20,18 +20,6 @@ class LoginPage extends React.Component<{}, LoginPageState> {
         this.state = {
             errorMsg: "",
         };
-    }
-
-    componentDidMount() {
-        fetcher("/api/user")
-            .then((res) => {
-                if (res?.isLoggedIn) {
-                    Router.push("/admin");
-                }
-            })
-            .catch((err) => {
-                console.error(err);
-            });
     }
 
     setErrorMessage(message) {
@@ -110,5 +98,19 @@ class LoginPage extends React.Component<{}, LoginPageState> {
         );
     }
 }
+
+export const getServerSideProps = withSession(async function ({ req }: NextServerSideContextWithSession) {
+    const user = req.session.get<SimpleUser>("user");
+    if (user) {
+        return {
+            redirect: {
+                destination: "/admin",
+                permanent: false,
+            },
+        };
+    }
+
+    return { props: {} };
+});
 
 export default LoginPage;
