@@ -25,6 +25,7 @@ function isOutsideLink(link: string) {
     return false;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const noop = (ev: React.MouseEvent<HTMLButtonElement>) => {
     return null;
 };
