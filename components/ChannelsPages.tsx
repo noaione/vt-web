@@ -1,5 +1,5 @@
 import { filter, get, groupBy, sortBy } from "lodash";
-import React from "react";
+import React, { useState } from "react";
 
 import BadgeText from "./Badge";
 import ChannelCard, { ChannelCardProps } from "./ChannelCard";
@@ -11,10 +11,11 @@ interface GroupChannelProps {
     data: ChannelCardProps[];
     group: string;
     platformFilter: PlatformType[];
+    adminMode?: boolean;
 }
 
 function GroupChannel(props: GroupChannelProps) {
-    const { data, group, platformFilter } = props;
+    const { data, group, platformFilter, adminMode } = props;
 
     const filteredData = filter(data, (o) => platformFilter.includes(o.platform));
     if (filteredData.length < 1) {
@@ -22,10 +23,34 @@ function GroupChannel(props: GroupChannelProps) {
     }
 
     const groupedByPlatform = groupBy(filteredData, "platform");
-    const ytCards = sortBy(get(groupedByPlatform, "youtube", []), "publishedAt");
-    const ttvCards = sortBy(get(groupedByPlatform, "twitch", []), "publishedAt");
-    const twCards = sortBy(get(groupedByPlatform, "twitcasting", []), "publishedAt");
-    const mdCards = sortBy(get(groupedByPlatform, "mildom", []), "publishedAt");
+    const [YTCards, setYTCards] = useState<ChannelCardProps[]>(
+        sortBy(get(groupedByPlatform, "youtube", []), "publishedAt")
+    );
+    const [TTVCards, setTTVCards] = useState<ChannelCardProps[]>(
+        sortBy(get(groupedByPlatform, "twitch", []), "publishedAt")
+    );
+    const [TWCards, setTWCards] = useState<ChannelCardProps[]>(
+        sortBy(get(groupedByPlatform, "twitcasting", []), "publishedAt")
+    );
+    const [MDCards, setMDCards] = useState<ChannelCardProps[]>(
+        sortBy(get(groupedByPlatform, "mildom", []), "publishedAt")
+    );
+
+    function callbackRemoval(id: string, platform: PlatformType) {
+        if (platform === "youtube") {
+            const filteredCards = YTCards.filter((o) => o.id !== id);
+            setYTCards(filteredCards);
+        } else if (platform === "twitch") {
+            const filteredCards = TTVCards.filter((o) => o.id !== id);
+            setTTVCards(filteredCards);
+        } else if (platform === "twitcasting") {
+            const filteredCards = TWCards.filter((o) => o.id !== id);
+            setTWCards(filteredCards);
+        } else if (platform === "mildom") {
+            const filteredCards = MDCards.filter((o) => o.id !== id);
+            setMDCards(filteredCards);
+        }
+    }
 
     return (
         <div id={"group-" + group} className="pb-3 vtubers-group">
@@ -33,49 +58,69 @@ function GroupChannel(props: GroupChannelProps) {
                 {get(GROUPS_NAME_MAP, group, capitalizeLetters(group))}
                 <BadgeText className="bg-red-500 text-white ml-2 text-lg">{filteredData.length}</BadgeText>
             </h2>
-            {ytCards.length > 0 ? (
+            {YTCards.length > 0 && (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 items-start mb-2">
-                        {ytCards.map((channel) => {
-                            return <ChannelCard key={channel.id} {...channel} />;
+                        {YTCards.map((channel) => {
+                            return (
+                                <ChannelCard
+                                    key={channel.id}
+                                    adminMode={adminMode}
+                                    callbackRemove={callbackRemoval}
+                                    {...channel}
+                                />
+                            );
                         })}
                     </div>
                 </>
-            ) : (
-                ""
             )}
-            {ttvCards.length > 0 ? (
+            {TTVCards.length > 0 && (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 items-start mb-2">
-                        {ttvCards.map((channel) => {
-                            return <ChannelCard key={channel.id} {...channel} />;
+                        {TTVCards.map((channel) => {
+                            return (
+                                <ChannelCard
+                                    key={channel.id}
+                                    adminMode={adminMode}
+                                    callbackRemove={callbackRemoval}
+                                    {...channel}
+                                />
+                            );
                         })}
                     </div>
                 </>
-            ) : (
-                ""
             )}
-            {twCards.length > 0 ? (
+            {TWCards.length > 0 && (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 items-start mb-2">
-                        {twCards.map((channel) => {
-                            return <ChannelCard key={channel.id} {...channel} />;
+                        {TWCards.map((channel) => {
+                            return (
+                                <ChannelCard
+                                    key={channel.id}
+                                    adminMode={adminMode}
+                                    callbackRemove={callbackRemoval}
+                                    {...channel}
+                                />
+                            );
                         })}
                     </div>
                 </>
-            ) : (
-                ""
             )}
-            {mdCards.length > 0 ? (
+            {MDCards.length > 0 && (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 items-start mb-2">
-                        {mdCards.map((channel) => {
-                            return <ChannelCard key={channel.id} {...channel} />;
+                        {MDCards.map((channel) => {
+                            return (
+                                <ChannelCard
+                                    key={channel.id}
+                                    adminMode={adminMode}
+                                    callbackRemove={callbackRemoval}
+                                    {...channel}
+                                />
+                            );
                         })}
                     </div>
                 </>
-            ) : (
-                ""
             )}
         </div>
     );
@@ -97,11 +142,12 @@ export function groupMember(realData: ChannelCardProps[]): ChannelCardProps[][] 
 interface ChannelsPagesProps {
     data: ChannelCardProps[];
     platformTick: Record<PlatformType, boolean>;
+    adminMode?: boolean;
 }
 
 export default class ChannelsPages extends React.Component<ChannelsPagesProps> {
     render() {
-        const { data, platformTick } = this.props;
+        const { data, platformTick, adminMode } = this.props;
         let realData = [];
         if (Array.isArray(data)) {
             realData = data;
@@ -138,7 +184,14 @@ export default class ChannelsPages extends React.Component<ChannelsPagesProps> {
             <>
                 {sortedGroupData.map((items) => {
                     const dd = { data: items, group: items[0].group };
-                    return <GroupChannel key={dd.group} platformFilter={includedPlatform} {...dd} />;
+                    return (
+                        <GroupChannel
+                            key={dd.group}
+                            platformFilter={includedPlatform}
+                            adminMode={adminMode}
+                            {...dd}
+                        />
+                    );
                 })}
             </>
         );
