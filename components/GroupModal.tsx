@@ -56,8 +56,8 @@ class GroupModal extends React.Component<ModalProps, ModalState> {
             <Modal
                 isOpen={this.state.show}
                 toggle={this.toggler}
-                onHide={this.handleHide}
-                contentClassName={"bg-gray-700"}
+                className="modal-xl"
+                contentClassName="bg-gray-700"
                 scrollable
             >
                 <ModalHeader className="font-bold border-gray-500" toggle={this.toggler}>
