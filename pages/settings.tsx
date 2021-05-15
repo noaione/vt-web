@@ -4,7 +4,7 @@ import React from "react";
 import MetadataHead from "../components/MetadataHead";
 import Navbar from "../components/Navbar";
 
-import TimezoneSettings from "../components/SettingsPage/Timezone";
+import SettingsComponent from "../components/SettingsPage";
 
 export default function SettingsPage() {
     return (
@@ -15,9 +15,10 @@ export default function SettingsPage() {
                 <MetadataHead.SEO title="Settings" urlPath="/settings" />
             </Head>
             <Navbar mode="settings" />
-            <main className="antialiased h-full pb-4 mx-4 mt-6">
+            <main className="antialiased h-full pb-4 mx-4 mt-6 flex flex-col">
                 <h2 className="text-3xl text-white font-bold m-2">Settings</h2>
-                <TimezoneSettings />
+                <SettingsComponent.Timezone />
+                <SettingsComponent.FreeChat />
             </main>
         </>
     );
