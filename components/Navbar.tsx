@@ -27,11 +27,12 @@ class Navbar extends React.Component<NavbarProps, NavbarState> {
         this.setState((prevState) => ({ active: !prevState.active }));
     }
 
-    async navigateLink(urlTarget: string) {
-        if (this.props.mode === "admin") {
+    async navigateLink(urlTarget: string, logOut: boolean = false) {
+        if (logOut && this.props.mode === "admin") {
             await fetch("/api/logout", {
                 method: "POST",
             });
+            urlTarget = "/";
         }
         Router.push(urlTarget);
     }
@@ -166,7 +167,7 @@ class Navbar extends React.Component<NavbarProps, NavbarState> {
                                 className="px-3 py-2 flex h-10 w-10 items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
                                 onClick={(ev) => {
                                     ev.preventDefault();
-                                    outerThis.navigateLink(loginUrl);
+                                    outerThis.navigateLink(loginUrl, true);
                                 }}
                             >
                                 {mode === "admin" ? (
