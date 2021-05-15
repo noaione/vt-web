@@ -1,5 +1,5 @@
 import fetcher from "./fetcher";
-import { capitalizeLetters, Nullable } from "./utils";
+import { capitalizeLetters, isNone, Nullable } from "./utils";
 
 export type PlatformType = "youtube" | "bilibili" | "twitch" | "twitcasting" | "mildom";
 export type VideoType = "live" | "upcoming" | "past" | "video";
@@ -182,4 +182,13 @@ export async function ihaAPIQuery(gqlSchemas: string, cursor: string = "") {
         }),
     });
     return apiRes;
+}
+
+export function filterFreeChat(title: string) {
+    const matched = title.match(/(fr[e]{2}).*(chat)/i);
+    if (isNone(matched)) {
+        // include since it's unmatched
+        return true;
+    }
+    return matched.length > 0 ? false : true;
 }
