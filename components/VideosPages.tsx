@@ -2,13 +2,14 @@ import React from "react";
 import { get, groupBy, sortBy } from "lodash";
 
 import VideoCard, { VideoCardProps } from "./VideoCard";
-import { GROUPS_NAME_MAP } from "../lib/vt";
+import { filterFreeChat, GROUPS_NAME_MAP } from "../lib/vt";
 import { capitalizeLetters } from "../lib/utils";
 import BadgeText from "./Badge";
 
 interface GroupingVideoProps {
     data: VideoCardProps[];
     group: string;
+    enableFreeChat?: boolean;
 }
 
 export function groupMember(realData: VideoCardProps[]): VideoCardProps[][] {
@@ -25,9 +26,12 @@ export function groupMember(realData: VideoCardProps[]): VideoCardProps[][] {
 }
 
 function GroupVideo(props: GroupingVideoProps) {
-    const { data, group } = props;
+    const { data, group, enableFreeChat } = props;
 
-    const sortedByTime = sortBy(data, (o) => o.timeData.startTime);
+    let sortedByTime = sortBy(data, (o) => o.timeData.startTime);
+    if (!enableFreeChat) {
+        sortedByTime = sortedByTime.filter((o) => filterFreeChat(o.title));
+    }
 
     return (
         <div id={"group-" + group} className="pb-3 mt-2 vtubers-group">
@@ -46,11 +50,12 @@ function GroupVideo(props: GroupingVideoProps) {
 
 interface VideosPagesProps {
     data?: VideoCardProps[];
+    enableFreeChat?: boolean;
 }
 
 class VideosPages extends React.Component<VideosPagesProps> {
     render() {
-        const { data } = this.props;
+        const { data, enableFreeChat } = this.props;
         let realData = [];
         if (Array.isArray(data)) {
             realData = data;
@@ -66,7 +71,13 @@ class VideosPages extends React.Component<VideosPagesProps> {
             <>
                 {sortedGroupData.map((items) => {
                     const groupData = { data: items, group: items[0].group };
-                    return <GroupVideo key={`vidpage-${groupData.group}`} {...groupData} />;
+                    return (
+                        <GroupVideo
+                            key={`vidpage-${groupData.group}`}
+                            enableFreeChat={enableFreeChat}
+                            {...groupData}
+                        />
+                    );
                 })}
             </>
         );
