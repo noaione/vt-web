@@ -10,7 +10,7 @@ import GroupModal, { CallbackModal } from "../components/GroupModal";
 import { VideoCardProps } from "../components/VideoCard";
 import VideosPages, { groupMember } from "../components/VideosPages";
 
-import { capitalizeLetters } from "../lib/utils";
+import { capitalizeLetters, mapBoolean } from "../lib/utils";
 import { GROUPS_NAME_MAP, ihaAPIQuery } from "../lib/vt";
 
 const VideoQuerySchemas = `query VTuberLives($cursor:String) {
@@ -75,6 +75,7 @@ interface SchedulesPageState {
     current: number;
     max: number;
     groupSets: GroupCallbackData[];
+    includeFreeChat: boolean;
 }
 
 class SchedulesPage extends React.Component<{}, SchedulesPageState> {
@@ -90,6 +91,7 @@ class SchedulesPage extends React.Component<{}, SchedulesPageState> {
             current: 1,
             max: 1,
             groupSets: [],
+            includeFreeChat: false,
         };
     }
 
@@ -99,6 +101,11 @@ class SchedulesPage extends React.Component<{}, SchedulesPageState> {
         function setLoadData(current: number, total: number) {
             selfthis.setState({ current, max: total });
         }
+        const read = localStorage.getItem("vtapi.fcEnabled");
+        if (typeof read === "undefined" || read === null) {
+            localStorage.setItem("vtapi.fcEnabled", this.state.includeFreeChat ? "true" : "false");
+        }
+        this.setState({ includeFreeChat: mapBoolean(read) });
 
         const loadedData = await getAllSchedulesQuery("", 1, setLoadData);
         const sortedGroupData = groupMember(loadedData);
@@ -157,7 +164,7 @@ class SchedulesPage extends React.Component<{}, SchedulesPageState> {
                             Loading Page {current} out of {max}
                         </span>
                     ) : (
-                        <VideosPages data={loadedData} />
+                        <VideosPages data={loadedData} enableFreeChat={this.state.includeFreeChat} />
                     )}
                     <GroupModal onMounted={(cb) => (this.modalCb = cb)}>
                         <button onClick={this.scrollTop} className="cursor-pointer flex flex-wrap">
