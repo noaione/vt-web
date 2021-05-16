@@ -19,6 +19,8 @@ export default function SettingsPage() {
                 <h2 className="text-3xl text-white font-bold m-2">Settings</h2>
                 <SettingsComponent.Timezone />
                 <SettingsComponent.FreeChat />
+                <SettingsComponent.Excluder />
+                <SettingsComponent.Platform />
             </main>
         </>
     );
