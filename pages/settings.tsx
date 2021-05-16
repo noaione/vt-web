@@ -4,7 +4,7 @@ import React from "react";
 import MetadataHead from "../components/MetadataHead";
 import Navbar from "../components/Navbar";
 
-import SettingsComponent from "../components/SettingsPage";
+import SettingsComponent from "../components/SettingsComponents";
 
 export default function SettingsPage() {
     return (
