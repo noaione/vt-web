@@ -215,13 +215,21 @@ class CountUpViewersClass extends React.Component<CountUpProps, CountUpState> {
                 duration={2}
                 easingFn={outQuinticEasing}
                 useEasing
-                formattingFn={(n) => n.toLocaleString()}
+                formattingFn={(n) => {
+                    if (n < 0) {
+                        return "N/A";
+                    }
+                    return n.toLocaleString();
+                }}
             />
         );
     }
 }
 
 function durationToText(seconds: number) {
+    if (seconds < 0) {
+        return "N/A";
+    }
     const s = seconds % 60;
     const m = (seconds / 60) % 60;
     const h = (seconds / 3600) % 60;
@@ -284,17 +292,21 @@ class TimeTicker extends React.Component<TimeTickerProps, TimeTickerState> {
     }
 }
 
-function TimeAgoWrapper({ timeData }: { timeData: number }) {
+function TimeAgoWrapper({ timeData, isPremiere }: { timeData: number; isPremiere: boolean }) {
     if (typeof timeData !== "number") {
         return null;
     }
 
     const isFuture = DateTime.utc().toSeconds() >= timeData;
+    let spanText = isFuture ? "Streamed" : "Streaming";
+    if (isPremiere) {
+        spanText = isFuture ? "Premiered" : "Premiering";
+    }
 
     return (
         <div className="flex flex-row justify-center items-center">
             <FontAwesomeIcon className="text-gray-400" icon={faClock} />{" "}
-            <span className="ml-2 text-gray-400 font-bold">{isFuture ? "Streamed" : "Streaming"}</span>{" "}
+            <span className="ml-2 text-gray-400 font-bold">{spanText}</span>{" "}
             <TimeAgo
                 className="ml-1 text-gray-400 font-light"
                 date={DateTime.fromSeconds(timeData, { zone: "UTC" }).toJSDate()}
@@ -309,17 +321,25 @@ interface TimeData {
     endTime?: Nullable<number>;
     publishedAt: string;
     status: "live" | "upcoming" | "past" | "video";
+    isPremiere: boolean;
 }
 
-function createTimeData({ startTime, endTime, scheduledStartTime, publishedAt, status }: TimeData) {
+function createTimeData({
+    startTime,
+    endTime,
+    scheduledStartTime,
+    publishedAt,
+    status,
+    isPremiere,
+}: TimeData) {
     if (status === "live") {
         return <TimeTicker startTime={startTime} />;
     }
     if (status === "upcoming") {
-        return <TimeAgoWrapper timeData={scheduledStartTime} />;
+        return <TimeAgoWrapper timeData={scheduledStartTime} isPremiere={isPremiere} />;
     }
     if (status === "past") {
-        return <TimeAgoWrapper timeData={endTime} />;
+        return <TimeAgoWrapper timeData={endTime} isPremiere={isPremiere} />;
     }
     return (
         <div className="flex flex-row justify-center items-center">
@@ -347,7 +367,7 @@ interface VideoPageInfoProps {
     data: VideoCardProps;
 }
 
-interface VideoPageInfoState extends TimeData {
+interface VideoPageInfoState extends Omit<TimeData, "isPremiere"> {
     tz: string;
     callback?: {
         peakViewers?: { update(value: number): void };
@@ -497,9 +517,9 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
 
         const { scheduledStartTime, startTime, endTime, publishedAt, status } = this.state;
         let { averageViewers, peakViewers, viewers } = this.state;
-        averageViewers = averageViewers ?? 0;
-        peakViewers = peakViewers ?? 0;
-        viewers = viewers ?? 0;
+        averageViewers = averageViewers ?? -1;
+        peakViewers = peakViewers ?? -1;
+        viewers = viewers ?? -1;
 
         const niceName = en_name || name;
         let ihaIco = platform;
@@ -569,6 +589,7 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                             </div>
                             <div className="flex justify-center text-center mt-1 mb-2 lg:mb-0">
                                 {createTimeData({
+                                    isPremiere: is_premiere,
                                     startTime,
                                     endTime,
                                     scheduledStartTime,
@@ -720,7 +741,11 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                                         <div className="flex flex-col">
                                             <div className="font-light text-2xl mt-1 justify-center text-center">
                                                 {status === "past" ? (
-                                                    <span>{averageViewers.toLocaleString()}</span>
+                                                    <span>
+                                                        {averageViewers < 0
+                                                            ? "N/A"
+                                                            : averageViewers.toLocaleString()}
+                                                    </span>
                                                 ) : (
                                                     <CountUpViewersClass
                                                         initialValue={viewers}
@@ -736,7 +761,11 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                                         <div className="flex flex-col">
                                             <div className="font-light text-2xl mt-1 justify-center text-center">
                                                 {status === "past" ? (
-                                                    <span>{peakViewers.toLocaleString()}</span>
+                                                    <span>
+                                                        {peakViewers < 0
+                                                            ? "N/A"
+                                                            : peakViewers.toLocaleString()}
+                                                    </span>
                                                 ) : (
                                                     <CountUpViewersClass
                                                         initialValue={peakViewers}
