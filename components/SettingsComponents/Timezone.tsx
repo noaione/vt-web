@@ -1,6 +1,7 @@
 import React from "react";
 
 import { DateTime } from "luxon";
+import { getLocalStorageData } from "./helper";
 
 const TZ_LIST = [
     <option key="tz-utc12" value="UTC-12:00">
@@ -119,13 +120,9 @@ const TZ_LIST = [
     </option>,
 ];
 
-function getPreferedTimezone(localStorage: any) {
+function getPreferedTimezone(localStorage: Storage) {
     const DEFAULTS = "UTC" + DateTime.local().toFormat("ZZ");
-    const prefer = localStorage.getItem("vtapi-offsetLoc");
-    if (typeof prefer === "undefined" || prefer === null) {
-        localStorage.setItem("vtapi-offsetLoc", DEFAULTS);
-        return DEFAULTS;
-    }
+    const prefer = getLocalStorageData(localStorage, "vtapi.offsetLoc", DEFAULTS);
     return prefer;
 }
 
@@ -152,7 +149,7 @@ class TimezoneSettings extends React.Component<{}, TimezoneState> {
     render() {
         return (
             <>
-                <h4 className="text-lg ml-2">Timezone/Offset</h4>
+                <h4 className="text-lg font-semibold ml-2">Timezone/Offset</h4>
                 <div>
                     <select
                         className="form-select ml-2 w-full md:w-1/2 lg:w-1/3 mt-2 bg-gray-700"

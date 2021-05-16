@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 
+import { getLocalStorageData } from "./helper";
 import { mapBoolean } from "../../lib/utils";
 
 export default function FreeChatIncludeSettings() {
@@ -10,11 +11,8 @@ export default function FreeChatIncludeSettings() {
         if (run) {
             return;
         }
-        const read = localStorage.getItem("vtapi.fcEnabled");
-        if (typeof read === "undefined" || read === null) {
-            localStorage.setItem("vtapi.fcEnabled", enabled ? "true" : "false");
-        }
-        setEnabled(mapBoolean(read));
+        const fcEnabled = getLocalStorageData(localStorage, "vtapi.fcEnabled", enabled ? "true" : "false");
+        setEnabled(mapBoolean(fcEnabled));
         setRun(true);
     });
 
