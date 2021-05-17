@@ -1,0 +1,109 @@
+import React from "react";
+
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
+
+function SkeletonCard({ isTwitch }: { isTwitch?: boolean }) {
+    return (
+        <div className="flex rounded-lg">
+            <div className="m-auto shadow-md rounded-lg w-full">
+                <div className="relative rounded-lg flex-start">
+                    <Skeleton height={300} />
+                </div>
+                <div className="px-4 py-4 text-gray-200 bg-gray-900">
+                    <p className="mt-1 uppercase text-sm tracking-wide font-bold text-center">
+                        <Skeleton width={100} />
+                    </p>
+                    <p className="mt-2 text-white text-lg font-semibold text-center">
+                        <Skeleton />
+                    </p>
+                </div>
+                <div
+                    className={`px-4 py-4 text-gray-200 bg-gray-900 border-t ${
+                        isTwitch ? "border-twitch" : "border-youtube"
+                    }`}
+                >
+                    <Skeleton height={25} />
+                </div>
+                <div
+                    className={`px-4 py-4 text-gray-200 bg-gray-900 border-t ${
+                        isTwitch ? "border-twitch" : "border-youtube"
+                    }`}
+                >
+                    <Skeleton height={25} />
+                </div>
+                <div
+                    className={`rounded-b-lg px-4 py-4 text-gray-200 bg-gray-900 text-center flex flex-row gap-2 justify-center border-t ${
+                        isTwitch ? "border-twitch" : "border-youtube"
+                    }`}
+                >
+                    <Skeleton width={90} height={40} />
+                    <Skeleton width={70} height={40} />
+                </div>
+            </div>
+        </div>
+    );
+}
+
+const SkeletonCheckbox = {
+    gap: "0.3rem",
+};
+
+function FilterSkeleton() {
+    return (
+        <div className="my-4">
+            <label className="flex flex-col">
+                <Skeleton width={33} />
+                <div className="block w-full md:w-1/2 lg:w-1/3">
+                    <Skeleton height={45} />
+                </div>
+            </label>
+            <div className="mt-3">
+                <Skeleton width={100} />
+            </div>
+            <div className="mt-1 flex flex-col sm:flex-row" style={{ gap: "0.75rem" }}>
+                <div className="flex flex-row" style={SkeletonCheckbox}>
+                    <Skeleton width={25} height={25} />
+                    <Skeleton width={45} height={25} />
+                </div>
+                <div className="flex flex-row" style={SkeletonCheckbox}>
+                    <Skeleton width={25} height={25} />
+                    <Skeleton width={45} height={25} />
+                </div>
+                <div className="flex flex-row" style={SkeletonCheckbox}>
+                    <Skeleton width={25} height={25} />
+                    <Skeleton width={45} height={25} />
+                </div>
+                <div className="flex flex-row" style={SkeletonCheckbox}>
+                    <Skeleton width={25} height={25} />
+                    <Skeleton width={45} height={25} />
+                </div>
+                <div className="flex flex-row" style={SkeletonCheckbox}>
+                    <Skeleton width={25} height={25} />
+                    <Skeleton width={45} height={25} />
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default function ChannelsPagesSkeleton() {
+    return (
+        <SkeletonTheme color="#404040" highlightColor="#525252">
+            <FilterSkeleton />
+            <div className="pb-3 vtubers-group skeleton">
+                <h2 className="text-white py-3 text-3xl font-bold mb-2">
+                    <Skeleton width={120} height={40} />
+                    <Skeleton width={40} height={40} className="ml-2" />
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 items-start mb-2">
+                    <SkeletonCard />
+                    <SkeletonCard />
+                    <SkeletonCard />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 items-start mb-2">
+                    <SkeletonCard isTwitch />
+                </div>
+            </div>
+        </SkeletonTheme>
+    );
+}
