@@ -1,5 +1,9 @@
+import { has } from "lodash";
+
 import fetcher from "./fetcher";
-import { capitalizeLetters, isNone, Nullable } from "./utils";
+import { capitalizeLetters, isNone, mapBoolean, Nullable } from "./utils";
+
+import { getLocalStorageData } from "../components/SettingsComponents/helper";
 
 export type PlatformType = "youtube" | "bilibili" | "twitch" | "twitcasting" | "mildom";
 export type VideoType = "live" | "upcoming" | "past" | "video";
@@ -167,7 +171,8 @@ export function shortCodeToPlatform(shortCode: string): Nullable<PlatformType> {
     }
 }
 
-export async function ihaAPIQuery(gqlSchemas: string, cursor: string = "") {
+export async function ihaAPIQuery(gqlSchemas: string, cursor: string = "", extraVariables = {}) {
+    const mergedVariables = Object.assign({}, extraVariables, { cursor });
     const apiRes = await fetcher("https://api.ihateani.me/v2/graphql", {
         method: "POST",
         headers: {
@@ -176,9 +181,7 @@ export async function ihaAPIQuery(gqlSchemas: string, cursor: string = "") {
         },
         body: JSON.stringify({
             query: gqlSchemas,
-            variables: {
-                cursor: cursor,
-            },
+            variables: mergedVariables,
         }),
     });
     return apiRes;
@@ -191,4 +194,50 @@ export function filterFreeChat(title: string) {
         return true;
     }
     return matched.length > 0 ? false : true;
+}
+
+export function getGroupsAndPlatformsFilters(localStorage: Storage) {
+    const loadedGroups = getLocalStorageData(localStorage, "vtapi.excluded", JSON.stringify([])) as string[];
+    const allGroups = Object.keys(GROUPS_NAME_MAP).filter((e) => !loadedGroups.includes(e));
+    let allPlatforms = ["youtube", "twitch", "twitcasting", "bilibili", "mildom"];
+    const platformInclude = getLocalStorageData(
+        localStorage,
+        "vtapi.excluded",
+        JSON.stringify({
+            yt: true,
+            ttv: true,
+            md: true,
+            b2: true,
+            tw: true,
+        })
+    ) as any;
+    if (has(platformInclude, "yt")) {
+        if (!mapBoolean(platformInclude.yt)) {
+            allPlatforms = allPlatforms.filter((e) => e !== "youtube");
+        }
+    }
+    if (has(platformInclude, "ttv")) {
+        if (!mapBoolean(platformInclude.ttv)) {
+            allPlatforms = allPlatforms.filter((e) => e !== "twitch");
+        }
+    }
+    if (has(platformInclude, "md")) {
+        if (!mapBoolean(platformInclude.md)) {
+            allPlatforms = allPlatforms.filter((e) => e !== "mildom");
+        }
+    }
+    if (has(platformInclude, "b2")) {
+        if (!mapBoolean(platformInclude.b2)) {
+            allPlatforms = allPlatforms.filter((e) => e !== "bilibili");
+        }
+    }
+    if (has(platformInclude, "tw")) {
+        if (!mapBoolean(platformInclude.tw)) {
+            allPlatforms = allPlatforms.filter((e) => e !== "twitcasting");
+        }
+    }
+    return {
+        platform: allPlatforms,
+        groups: allGroups,
+    };
 }
