@@ -42,7 +42,7 @@ export default class PlatformComponent extends React.Component<{}, IChecked> {
         if (has(platformInclude, "b2")) {
             b2 = mapBoolean(platformInclude.b2);
         }
-        if (has(platformInclude, "yt")) {
+        if (has(platformInclude, "tw")) {
             tw = mapBoolean(platformInclude.tw);
         }
         this.setState({ yt, ttv, md, b2, tw });
