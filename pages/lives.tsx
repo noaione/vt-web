@@ -11,11 +11,11 @@ import { VideoCardProps } from "../components/VideoCard";
 import VideosPages, { groupMember } from "../components/VideosPages";
 
 import { capitalizeLetters } from "../lib/utils";
-import { GROUPS_NAME_MAP, ihaAPIQuery } from "../lib/vt";
+import { getGroupsAndPlatformsFilters, GROUPS_NAME_MAP, ihaAPIQuery } from "../lib/vt";
 
-const VideoQuerySchemas = `query VTuberLives($cursor:String) {
+const VideoQuerySchemas = `query VTuberLives($cursor:String,$groups:[String],$platform:[PlatformName]) {
     vtuber {
-        live(cursor:$cursor,limit:100) {
+        live(cursor:$cursor,groups:$groups,platforms:$platform,limit:100) {
             _total
             items {
                 id
@@ -47,8 +47,13 @@ const VideoQuerySchemas = `query VTuberLives($cursor:String) {
     }
 }`;
 
-async function getAllLivesQuery(cursor = "", page = 1, cb: (current: number, total: number) => void) {
-    const results = await ihaAPIQuery(VideoQuerySchemas, cursor);
+async function getAllLivesQuery(
+    cursor = "",
+    page = 1,
+    extraVariables = {},
+    cb: (current: number, total: number) => void
+) {
+    const results = await ihaAPIQuery(VideoQuerySchemas, cursor, extraVariables);
     const gqlres = results.data.vtuber;
     page++;
     // eslint-disable-next-line no-underscore-dangle
@@ -57,7 +62,7 @@ async function getAllLivesQuery(cursor = "", page = 1, cb: (current: number, tot
     const mainResults = gqlres.live.items;
     const pageData = gqlres.live.pageInfo;
     if (pageData.hasNextPage && pageData.nextCursor) {
-        return mainResults.concat(await getAllLivesQuery(pageData.nextCursor, page, cb));
+        return mainResults.concat(await getAllLivesQuery(pageData.nextCursor, page, extraVariables, cb));
     } else {
         return mainResults;
     }
@@ -100,7 +105,9 @@ class LivesPage extends React.Component<{}, LivesPageState> {
             selfthis.setState({ current, max: total });
         }
 
-        const loadedData = await getAllLivesQuery("", 1, setLoadData);
+        const extraVars = getGroupsAndPlatformsFilters(localStorage);
+
+        const loadedData = await getAllLivesQuery("", 1, extraVars, setLoadData);
         const sortedGroupData = groupMember(loadedData);
 
         this.setState({ loadedData, isLoading: false });

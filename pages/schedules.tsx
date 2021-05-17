@@ -11,11 +11,11 @@ import { VideoCardProps } from "../components/VideoCard";
 import VideosPages, { groupMember } from "../components/VideosPages";
 
 import { capitalizeLetters, mapBoolean } from "../lib/utils";
-import { GROUPS_NAME_MAP, ihaAPIQuery } from "../lib/vt";
+import { getGroupsAndPlatformsFilters, GROUPS_NAME_MAP, ihaAPIQuery } from "../lib/vt";
 
-const VideoQuerySchemas = `query VTuberLives($cursor:String) {
+const VideoQuerySchemas = `query VTuberLives($cursor:String,$groups:[String],$platform:[PlatformName]) {
     vtuber {
-        upcoming(cursor:$cursor,limit:100) {
+        upcoming(cursor:$cursor,groups:$groups,platforms:$platform,limit:100) {
             _total
             items {
                 id
@@ -47,8 +47,13 @@ const VideoQuerySchemas = `query VTuberLives($cursor:String) {
     }
 }`;
 
-async function getAllSchedulesQuery(cursor = "", page = 1, cb: (current: number, total: number) => void) {
-    const results = await ihaAPIQuery(VideoQuerySchemas, cursor);
+async function getAllSchedulesQuery(
+    cursor = "",
+    page = 1,
+    extraVariables = {},
+    cb: (current: number, total: number) => void
+) {
+    const results = await ihaAPIQuery(VideoQuerySchemas, cursor, extraVariables);
     const gqlres = results.data.vtuber;
     page++;
     // eslint-disable-next-line no-underscore-dangle
@@ -57,7 +62,7 @@ async function getAllSchedulesQuery(cursor = "", page = 1, cb: (current: number,
     const mainResults = gqlres.upcoming.items;
     const pageData = gqlres.upcoming.pageInfo;
     if (pageData.hasNextPage && pageData.nextCursor) {
-        return mainResults.concat(await getAllSchedulesQuery(pageData.nextCursor, page, cb));
+        return mainResults.concat(await getAllSchedulesQuery(pageData.nextCursor, page, extraVariables, cb));
     } else {
         return mainResults;
     }
@@ -106,8 +111,9 @@ class SchedulesPage extends React.Component<{}, SchedulesPageState> {
             localStorage.setItem("vtapi.fcEnabled", this.state.includeFreeChat ? "true" : "false");
         }
         this.setState({ includeFreeChat: mapBoolean(read) });
+        const extraVars = getGroupsAndPlatformsFilters(localStorage);
 
-        const loadedData = await getAllSchedulesQuery("", 1, setLoadData);
+        const loadedData = await getAllSchedulesQuery("", 1, extraVars, setLoadData);
         const sortedGroupData = groupMember(loadedData);
 
         this.setState({ loadedData, isLoading: false });
