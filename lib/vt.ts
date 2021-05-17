@@ -202,7 +202,7 @@ export function getGroupsAndPlatformsFilters(localStorage: Storage) {
     let allPlatforms = ["youtube", "twitch", "twitcasting", "bilibili", "mildom"];
     const platformInclude = getLocalStorageData(
         localStorage,
-        "vtapi.excluded",
+        "vtapi.platInc",
         JSON.stringify({
             yt: true,
             ttv: true,
