@@ -101,7 +101,7 @@ module.exports = {
     },
     overrides: [
         {
-            files: ["tools/**/*.js", "lib/**/*.js"],
+            files: ["**/*.js"],
             rules: {
                 "@typescript-eslint/no-unused-vars": "off",
                 "@typescript-eslint/no-var-requires": "off",
