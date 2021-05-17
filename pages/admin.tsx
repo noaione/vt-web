@@ -7,6 +7,7 @@ import { Link as ScrollTo } from "react-scroll";
 import { Switch } from "@headlessui/react";
 
 import ChannelsPages, { groupMember } from "../components/ChannelsPages";
+import ChannelsPagesSkeleton from "../components/ChannelsPagesSkeleton";
 import { ChannelCardProps } from "../components/ChannelCard";
 import GroupModal, { CallbackModal } from "../components/GroupModal";
 import MetadataHead from "../components/MetadataHead";
@@ -207,9 +208,12 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
                 <Navbar mode="admin" />
                 <main className="antialiased h-full pb-4 mx-4 mt-6">
                     {isLoading ? (
-                        <span className="text-2xl font-light mt-4 animate-pulse">
-                            Loading Page {current} out of {max}
-                        </span>
+                        <>
+                            <ChannelsPagesSkeleton />
+                            <span className="text-2xl font-light mt-4 animate-pulse">
+                                Loading Page {current} out of {max}
+                            </span>
+                        </>
                     ) : (
                         <>
                             <div className="my-4">

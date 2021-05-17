@@ -9,6 +9,7 @@ import Navbar from "../components/Navbar";
 import GroupModal, { CallbackModal } from "../components/GroupModal";
 import { VideoCardProps } from "../components/VideoCard";
 import VideosPages, { groupMember } from "../components/VideosPages";
+import VideosPagesSkeleton from "../components/VideosPagesSkeleton";
 
 import { capitalizeLetters, mapBoolean } from "../lib/utils";
 import { getGroupsAndPlatformsFilters, GROUPS_NAME_MAP, ihaAPIQuery } from "../lib/vt";
@@ -166,9 +167,12 @@ class SchedulesPage extends React.Component<{}, SchedulesPageState> {
                 <Navbar mode="schedules" />
                 <main className="antialiased h-full pb-4 mx-4 mt-6">
                     {isLoading ? (
-                        <span className="text-2xl font-light mt-4 animate-pulse text-center">
-                            Loading Page {current} out of {max}
-                        </span>
+                        <>
+                            <VideosPagesSkeleton />
+                            <span className="text-2xl font-light mt-4 animate-pulse text-center">
+                                Loading Page {current} out of {max}
+                            </span>
+                        </>
                     ) : (
                         <VideosPages data={loadedData} enableFreeChat={this.state.includeFreeChat} />
                     )}

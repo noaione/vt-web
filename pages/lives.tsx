@@ -9,6 +9,7 @@ import Navbar from "../components/Navbar";
 import GroupModal, { CallbackModal } from "../components/GroupModal";
 import { VideoCardProps } from "../components/VideoCard";
 import VideosPages, { groupMember } from "../components/VideosPages";
+import VideosPagesSkeleton from "../components/VideosPagesSkeleton";
 
 import { capitalizeLetters } from "../lib/utils";
 import { getGroupsAndPlatformsFilters, GROUPS_NAME_MAP, ihaAPIQuery } from "../lib/vt";
@@ -160,9 +161,12 @@ class LivesPage extends React.Component<{}, LivesPageState> {
                 <Navbar mode="lives" />
                 <main className="antialiased h-full pb-4 mx-4 mt-6">
                     {isLoading ? (
-                        <span className="text-2xl font-light mt-4 animate-pulse text-center">
-                            Loading Page {current} out of {max}
-                        </span>
+                        <>
+                            <VideosPagesSkeleton addViewers />
+                            <span className="text-2xl font-light mt-4 animate-pulse text-center">
+                                Loading Page {current} out of {max}
+                            </span>
+                        </>
                     ) : (
                         <VideosPages key="videospage" data={loadedData} />
                     )}
