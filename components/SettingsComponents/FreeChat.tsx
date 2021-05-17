@@ -24,7 +24,7 @@ export default function FreeChatIncludeSettings() {
         <>
             <div className="flex flex-row mt-4 items-center gap-2">
                 <input
-                    className="form-checkbox ml-2"
+                    className="form-checkbox ml-2 transition duration-150 rounded-sm"
                     checked={enabled}
                     type="checkbox"
                     onChange={(e) => setEnabled(e.target.checked)}

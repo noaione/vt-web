@@ -19,12 +19,12 @@ const OPTIONS = Object.entries(GROUPS_NAME_MAP).map(([key, value]) => {
 });
 
 const colourStyles: Partial<Styles<OptionTypeBase, true, GroupTypeBase<OptionTypeBase>>> = {
-    control: (styles) => ({ ...styles, backgroundColor: "#374151", borderColor: "#374151" }),
-    menu: (styles) => ({ ...styles, backgroundColor: "#374151" }),
+    control: (styles) => ({ ...styles, backgroundColor: "#404040", borderColor: "#374151" }),
+    menu: (styles) => ({ ...styles, backgroundColor: "#404040" }),
     option: (styles, { isDisabled }) => {
         return {
             ...styles,
-            backgroundColor: "#374151",
+            backgroundColor: "#404040",
             color: "#fff",
             cursor: isDisabled ? "not-allowed" : "default",
             ":hover": {
@@ -37,6 +37,11 @@ const colourStyles: Partial<Styles<OptionTypeBase, true, GroupTypeBase<OptionTyp
             },
         };
     },
+    input: (styles) => ({
+        ...styles,
+        color: "#fff",
+        border: "0px",
+    }),
     multiValue: (styles) => ({
         ...styles,
         backgroundColor: "#2b6fdc",
@@ -111,7 +116,6 @@ export default class ExcludeComponents extends React.Component<{}, ExcluderState
                         styles={colourStyles}
                         onChange={this.onChangeEvent}
                         className="basic-multi-select w-full md:w-1/2 lg:w-1/3"
-                        isSearchable={false}
                         isMulti
                     />
                 </div>

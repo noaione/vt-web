@@ -66,7 +66,7 @@ export default class PlatformComponent extends React.Component<{}, IChecked> {
                     <div className="flex flex-col gap-2">
                         <div className="flex flex-row items-center gap-2">
                             <input
-                                className="form-checkbox"
+                                className="form-checkbox transition duration-150 rounded-sm"
                                 checked={this.state.yt}
                                 type="checkbox"
                                 onChange={(e) => this.changeData("yt", e.target.checked)}
@@ -76,7 +76,7 @@ export default class PlatformComponent extends React.Component<{}, IChecked> {
                         </div>
                         <div className="flex flex-row items-center gap-2">
                             <input
-                                className="form-checkbox"
+                                className="form-checkbox transition duration-150 rounded-sm"
                                 checked={this.state.b2}
                                 type="checkbox"
                                 onChange={(e) => this.changeData("b2", e.target.checked)}
@@ -86,7 +86,7 @@ export default class PlatformComponent extends React.Component<{}, IChecked> {
                         </div>
                         <div className="flex flex-row items-center gap-2">
                             <input
-                                className="form-checkbox"
+                                className="form-checkbox transition duration-150 rounded-sm"
                                 checked={this.state.ttv}
                                 type="checkbox"
                                 onChange={(e) => this.changeData("ttv", e.target.checked)}
@@ -96,7 +96,7 @@ export default class PlatformComponent extends React.Component<{}, IChecked> {
                         </div>
                         <div className="flex flex-row items-center gap-2">
                             <input
-                                className="form-checkbox"
+                                className="form-checkbox transition duration-150 rounded-sm"
                                 checked={this.state.tw}
                                 type="checkbox"
                                 onChange={(e) => this.changeData("tw", e.target.checked)}
@@ -106,7 +106,7 @@ export default class PlatformComponent extends React.Component<{}, IChecked> {
                         </div>
                         <div className="flex flex-row items-center gap-2">
                             <input
-                                className="form-checkbox"
+                                className="form-checkbox transition duration-150 rounded-sm"
                                 checked={this.state.md}
                                 type="checkbox"
                                 onChange={(e) => this.changeData("md", e.target.checked)}
