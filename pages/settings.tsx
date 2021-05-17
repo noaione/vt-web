@@ -7,6 +7,8 @@ import Navbar from "../components/Navbar";
 import SettingsComponent from "../components/SettingsComponents";
 
 export default function SettingsPage() {
+    const commit = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA ?? "";
+
     return (
         <>
             <Head>
@@ -22,6 +24,41 @@ export default function SettingsPage() {
                 <SettingsComponent.Excluder />
                 <SettingsComponent.Platform />
             </main>
+            <footer className="mx-4 border-t-2 border-gray-600">
+                <div className="ml-2 flex flex-col mt-4">
+                    <div>This project is made by N4O#8868</div>
+                    <div>
+                        Source code:{" "}
+                        <a
+                            className="text-blue-400 hover:text-blue-500 hover:underline transition duration-150"
+                            href="https://github.com/noaione/vt-web"
+                        >
+                            https://github.com/noaione/vt-web
+                        </a>
+                    </div>
+                    <div>
+                        It utilize the{" "}
+                        <a
+                            className="text-blue-400 hover:text-blue-500 hover:underline transition duration-150"
+                            href="https://github.com/noaione/vt-web"
+                        >
+                            ihateani.me API
+                        </a>{" "}
+                        for the VTuber API data, and use Next.JS for the website itself.
+                    </div>
+                </div>
+                {commit && (
+                    <div className="ml-2 flex flex-row mt-2 text-sm text-gray-400">
+                        Commit:{" "}
+                        <a
+                            className="text-blue-400 hover:text-blue-500 hover:underline transition duration-150"
+                            href={"https://github.com/noaione/vt-web/commit/" + commit}
+                        >
+                            {commit.slice(0, 7)}
+                        </a>
+                    </div>
+                )}
+            </footer>
         </>
     );
 }
