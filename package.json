@@ -33,9 +33,6 @@
   },
   "homepage": "https://github.com/noaione/vt-web#readme",
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.35",
-    "@fortawesome/free-solid-svg-icons": "^5.15.3",
-    "@fortawesome/react-fontawesome": "^0.1.14",
     "@graphiql/toolkit": "^0.2.1",
     "@hapi/iron": "^6.0.0",
     "@headlessui/react": "^1.2.0",

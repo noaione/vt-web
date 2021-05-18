@@ -1,9 +1,6 @@
 import React from "react";
 import Router from "next/router";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCog, faSignInAlt, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
-
 interface NavbarProps {
     mode?: "lives" | "schedules" | "settings" | "admin" | "channel" | "video";
     noSticky?: boolean;
@@ -160,7 +157,7 @@ class Navbar extends React.Component<NavbarProps, NavbarState> {
                                     outerThis.navigateLink(settingsUrl);
                                 }}
                             >
-                                <FontAwesomeIcon icon={faCog} />
+                                <i className="ihaicon ihaico-cog" />
                             </a>
                             <a
                                 href={loginUrl}
@@ -171,9 +168,9 @@ class Navbar extends React.Component<NavbarProps, NavbarState> {
                                 }}
                             >
                                 {mode === "admin" ? (
-                                    <FontAwesomeIcon icon={faSignOutAlt} />
+                                    <i className="ihaicon ihaico-exit" />
                                 ) : (
-                                    <FontAwesomeIcon icon={faSignInAlt} />
+                                    <i className="ihaicon ihaico-enter" />
                                 )}
                             </a>
                         </div>

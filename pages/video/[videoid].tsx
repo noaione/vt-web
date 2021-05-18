@@ -6,8 +6,6 @@ import CountUp from "react-countup";
 import TimeAgo from "react-timeago";
 import { find, get, padStart } from "lodash";
 import { DateTime } from "luxon";
-import { faClock } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import MetadataHead from "../../components/MetadataHead";
 import Navbar from "../../components/Navbar";
@@ -239,6 +237,23 @@ function durationToText(seconds: number) {
     return `${zeroPad(m)}:${zeroPad(s)}`;
 }
 
+function ClockIcon() {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4 text-gray-400"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+        >
+            <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                clipRule="evenodd"
+            />
+        </svg>
+    );
+}
+
 interface TimeTickerProps {
     startTime?: Nullable<number>;
     raw?: boolean;
@@ -282,8 +297,7 @@ class TimeTicker extends React.Component<TimeTickerProps, TimeTickerState> {
 
         return (
             <div className="flex flex-row justify-center items-center">
-                <FontAwesomeIcon className="text-gray-400" icon={faClock} />{" "}
-                <span className="ml-2 text-gray-400 font-bold">Elapsed:</span>
+                <ClockIcon /> <span className="ml-1 text-gray-400 font-bold">Elapsed:</span>
                 <span className="ml-1 text-gray-400 font-medium">
                     {durationToText(currentTime - startTime)}
                 </span>
@@ -305,8 +319,8 @@ function TimeAgoWrapper({ timeData, isPremiere }: { timeData: number; isPremiere
 
     return (
         <div className="flex flex-row justify-center items-center">
-            <FontAwesomeIcon className="text-gray-400" icon={faClock} />{" "}
-            <span className="ml-2 text-gray-400 font-bold">{spanText}</span>{" "}
+            <ClockIcon />
+            <span className="ml-1 text-gray-400 font-bold">{spanText}</span>{" "}
             <TimeAgo
                 className="ml-1 text-gray-400 font-light"
                 date={DateTime.fromSeconds(timeData, { zone: "UTC" }).toJSDate()}
@@ -343,8 +357,8 @@ function createTimeData({
     }
     return (
         <div className="flex flex-row justify-center items-center">
-            <FontAwesomeIcon className="text-gray-400" icon={faClock} />{" "}
-            <span className="ml-2 text-gray-400 font-bold">Uploaded</span>
+            <ClockIcon />
+            <span className="ml-1 text-gray-400 font-bold">Uploaded</span>
             <TimeAgo
                 className="ml-1 text-gray-400 font-light"
                 date={DateTime.fromISO(publishedAt, { zone: "UTC" }).toJSDate()}
