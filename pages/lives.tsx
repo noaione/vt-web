@@ -2,6 +2,7 @@ import { get } from "lodash";
 import Head from "next/head";
 import React from "react";
 
+import LoadingBar from "react-top-loading-bar";
 import { Link as ScrollTo } from "react-scroll";
 
 import MetadataHead from "../components/MetadataHead";
@@ -78,8 +79,7 @@ interface GroupCallbackData {
 interface LivesPageState {
     loadedData: VideoCardProps[];
     isLoading: boolean;
-    current: number;
-    max: number;
+    progressBar: number;
     groupSets: GroupCallbackData[];
 }
 
@@ -93,8 +93,7 @@ class LivesPage extends React.Component<{}, LivesPageState> {
         this.state = {
             loadedData: [],
             isLoading: true,
-            current: 1,
-            max: 1,
+            progressBar: 0,
             groupSets: [],
         };
     }
@@ -103,7 +102,7 @@ class LivesPage extends React.Component<{}, LivesPageState> {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const selfthis = this;
         function setLoadData(current: number, total: number) {
-            selfthis.setState({ current, max: total });
+            selfthis.setState({ progressBar: (current / total) * 100 });
         }
 
         const extraVars = getGroupsAndPlatformsFilters(localStorage);
@@ -145,7 +144,7 @@ class LivesPage extends React.Component<{}, LivesPageState> {
     }
 
     render() {
-        const { loadedData, isLoading, current, max } = this.state;
+        const { loadedData, isLoading, progressBar } = this.state;
         return (
             <>
                 <Head>
@@ -162,10 +161,16 @@ class LivesPage extends React.Component<{}, LivesPageState> {
                 <main className="antialiased h-full pb-4 mx-4 mt-6">
                     {isLoading ? (
                         <>
+                            <LoadingBar
+                                color="#277844"
+                                progress={progressBar}
+                                onLoaderFinished={() => {
+                                    setTimeout(() => {
+                                        this.setState({ progressBar: 0 });
+                                    }, 2500);
+                                }}
+                            />
                             <VideosPagesSkeleton addViewers />
-                            <span className="text-2xl font-light mt-4 animate-pulse text-center">
-                                Loading Page {current} out of {max}
-                            </span>
                         </>
                     ) : (
                         <VideosPages key="videospage" data={loadedData} />

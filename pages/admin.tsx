@@ -3,6 +3,7 @@ import { filter, get } from "lodash";
 import React from "react";
 import Head from "next/head";
 
+import LoadingBar from "react-top-loading-bar";
 import { Link as ScrollTo } from "react-scroll";
 import { Switch } from "@headlessui/react";
 
@@ -75,8 +76,7 @@ interface HomepageChannelState {
     loadedData: ChannelCardProps[];
     copyOfData: ChannelCardProps[];
     isLoading: boolean;
-    current: number;
-    max: number;
+    progressBar: number;
     groupSets: GroupCallbackData[];
     filter: string;
     platformFilter: Record<PlatformType, boolean>;
@@ -98,8 +98,7 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
             loadedData: [],
             copyOfData: [],
             isLoading: true,
-            current: 1,
-            max: 1,
+            progressBar: 5,
             groupSets: [],
 
             filter: "",
@@ -116,7 +115,7 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
     async componentDidMount() {
         const selfthis = this;
         function setLoadData(current: number, total: number) {
-            selfthis.setState({ current, max: total });
+            selfthis.setState({ progressBar: (current / total) * 100 });
         }
 
         const loadedData = await getAllChannelsAsync("", 1, setLoadData);
@@ -194,7 +193,7 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
     }
 
     render() {
-        const { loadedData, isLoading, current, max } = this.state;
+        const { loadedData, isLoading, progressBar } = this.state;
         const outerThis = this;
 
         return (
@@ -209,10 +208,16 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
                 <main className="antialiased h-full pb-4 mx-4 mt-6">
                     {isLoading ? (
                         <>
+                            <LoadingBar
+                                color="#277844"
+                                progress={progressBar}
+                                onLoaderFinished={() => {
+                                    setTimeout(() => {
+                                        this.setState({ progressBar: 0 });
+                                    }, 2500);
+                                }}
+                            />
                             <ChannelsPagesSkeleton />
-                            <span className="text-2xl font-light mt-4 animate-pulse">
-                                Loading Page {current} out of {max}
-                            </span>
                         </>
                     ) : (
                         <>
