@@ -6,8 +6,8 @@ function SkeletonCard({ addViewers }: { addViewers?: boolean }) {
     return (
         <div className="flex flex-col bg-gray-900 col-span-1 rounded-lg">
             <div className="m-auto shadow-md rounded-lg w-full">
-                <div className="relative items-start -mt-1">
-                    <Skeleton height={404} />
+                <div className="relative items-start -mt-1 aspect-w-16 aspect-h-9">
+                    <Skeleton className="h-full" />
                 </div>
             </div>
             <div className="px-4 mt-4 text-gray-200 bg-gray-900">

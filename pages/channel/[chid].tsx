@@ -22,6 +22,7 @@ import {
     selectBorderColor,
     shortCodeToPlatform,
 } from "../../lib/vt";
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 
 const QueryChannel = `
 query VTuberChannelHistory($chId:[ID],$platf:PlatformName) {
@@ -80,6 +81,48 @@ query VTuberChannelHistory($chId:[ID],$platf:PlatformName,$sort:String) {
     }
 }
 `;
+
+interface BorderSkeleton {
+    border?: PlatformType;
+}
+
+function VideosPageSmallCardSkeleton({ border }: BorderSkeleton) {
+    const borderMap = selectBorderColor(border || "youtube");
+    return (
+        <div className="flex col-span-1 bg-gray-900 rounded-lg">
+            <div className={"m-auto shadow-md rounded-lg w-full border " + borderMap}>
+                <div className="relative aspect-w-16 aspect-h-9" style={{ marginTop: "-0.22rem" }}>
+                    <Skeleton className="h-full" />
+                </div>
+                <div className="mt-2 mx-2 text-gray-200">
+                    <Skeleton className="h-3 !w-12" />
+                    <Skeleton />
+                </div>
+                <div className="my-2 mx-2 text-sm text-gray-200 flex flex-col">
+                    <Skeleton className="!w-44 h-3 !max-w-full" />
+                    <Skeleton className="!w-52 h-3 !max-w-full" />
+                </div>
+                <div className="my-2 mx-2">
+                    <Skeleton className="!w-8" />
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function VideoCollectionSkeleton({ border }: BorderSkeleton) {
+    return (
+        <SkeletonTheme color="#404040" highlightColor="#525252">
+            <div className="mt-4 grid mx-6 md:mx-16 lg:mx-24 grid-cols-1 md:grid-cols-3 lg:grid-cols-5 justify-center gap-4 items-start">
+                <VideosPageSmallCardSkeleton border={border} />
+                <VideosPageSmallCardSkeleton border={border} />
+                <VideosPageSmallCardSkeleton border={border} />
+                <VideosPageSmallCardSkeleton border={border} />
+                <VideosPageSmallCardSkeleton border={border} />
+            </div>
+        </SkeletonTheme>
+    );
+}
 
 function reparseHistory(history) {
     const reparsed = [];
@@ -161,17 +204,8 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
     }
 
     render() {
-        const {
-            id,
-            name,
-            en_name,
-            image,
-            group,
-            statistics,
-            history,
-            platform,
-            is_retired,
-        } = this.props.data;
+        const { id, name, en_name, image, group, statistics, history, platform, is_retired } =
+            this.props.data;
 
         let { subscriberCount, viewCount } = statistics;
         subscriberCount = subscriberCount || 0;
@@ -320,7 +354,7 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
                     </div>
                     {this.state.videosLoading ? (
                         <>
-                            <div className="mt-2 text-2xl font-light animate-pulse">Loading...</div>
+                            <VideoCollectionSkeleton border={platform} />
                         </>
                     ) : (
                         <>

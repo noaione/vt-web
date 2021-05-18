@@ -6,8 +6,8 @@ function SkeletonCard({ isTwitch }: { isTwitch?: boolean }) {
     return (
         <div className="flex rounded-lg">
             <div className="m-auto shadow-md rounded-lg w-full">
-                <div className="relative rounded-lg flex-start">
-                    <Skeleton height={300} />
+                <div className="relative rounded-lg flex-start aspect-w-1 aspect-h-1">
+                    <Skeleton className="h-full" />
                 </div>
                 <div className="px-4 py-4 text-gray-200 bg-gray-900">
                     <p className="mt-1 uppercase text-sm tracking-wide font-bold text-center">
