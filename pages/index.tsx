@@ -197,7 +197,7 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
         const outerThis = this;
 
         return (
-            <>
+            <React.Fragment key="channelsmain-fragment">
                 <Head>
                     <MetadataHead.Base />
                     <title>Home :: VTuber API</title>
@@ -380,7 +380,7 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
                         </button>
                     </div>
                 </main>
-            </>
+            </React.Fragment>
         );
     }
 }

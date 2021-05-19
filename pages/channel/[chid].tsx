@@ -19,7 +19,9 @@ import {
     platformToShortCode,
     PlatformType,
     prependChannelURL,
+    prettyPlatformName,
     selectBorderColor,
+    selectPlatformColor,
     shortCodeToPlatform,
 } from "../../lib/vt";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
@@ -217,6 +219,7 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
             ihaIco += "_simple";
         }
         const orgzName = get(GROUPS_NAME_MAP, group, capitalizeLetters(group));
+        const description = `"${niceName}" Channel Information on ${prettyPlatformName(platform)}`;
 
         return (
             <>
@@ -227,7 +230,8 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
                         title={niceName}
                         urlPath={`/channel/${platformToShortCode(platform)}-${id}`}
                         image={image}
-                        description={"Channel Information for " + niceName}
+                        color={selectPlatformColor(platform)}
+                        description={description}
                     />
                     <MetadataHead.Prefetch />
                 </Head>

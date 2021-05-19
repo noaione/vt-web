@@ -50,6 +50,23 @@ export const GROUPS_NAME_MAP = {
     vshojo: "VShojo",
 };
 
+export function selectPlatformColor(platform: PlatformType) {
+    switch (platform) {
+        case "youtube":
+            return "#FE0000";
+        case "bilibili":
+            return "#00a1d6";
+        case "twitch":
+            return "#9146FF";
+        case "twitcasting":
+            return "#3381ff";
+        case "mildom":
+            return "#38cce3";
+        default:
+            return null;
+    }
+}
+
 export function selectBorderColor(platform: PlatformType) {
     switch (platform) {
         case "youtube":

@@ -146,7 +146,7 @@ class LivesPage extends React.Component<{}, LivesPageState> {
     render() {
         const { loadedData, isLoading, progressBar } = this.state;
         return (
-            <>
+            <React.Fragment key="livespage">
                 <Head>
                     <MetadataHead.Base />
                     <title>Lives :: VTuber API</title>
@@ -219,7 +219,7 @@ class LivesPage extends React.Component<{}, LivesPageState> {
                         </button>
                     </div>
                 </main>
-            </>
+            </React.Fragment>
         );
     }
 }

@@ -60,6 +60,7 @@ export interface VideoCardProps {
         startTime?: number;
         endTime?: number;
         publishedAt?: string;
+        duration?: number;
     };
     status: VideoType;
     thumbnail?: Nullable<string>;

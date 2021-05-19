@@ -2,25 +2,28 @@ import React from "react";
 import Head from "next/head";
 import { GetStaticPropsContext } from "next";
 
-import CountUp from "react-countup";
-import TimeAgo from "react-timeago";
-import { find, get, padStart } from "lodash";
+import { find, get } from "lodash";
 import { DateTime } from "luxon";
 
 import MetadataHead from "../../components/MetadataHead";
+import CountUp, { CountUpCallback } from "../../components/CountUp";
 import Navbar from "../../components/Navbar";
 import { VideoCardProps } from "../../components/VideoCard";
+import TimeVideoInfoBlock from "../../components/VideoInfo/TimeBlock";
+import Toki, { TokiProps } from "../../components/VideoInfo/Toki";
 
-import { capitalizeLetters, isType, Nullable, walk } from "../../lib/utils";
+import { capitalizeLetters, isType, walk } from "../../lib/utils";
 import {
     GROUPS_NAME_MAP,
     platformToShortCode,
     PlatformType,
     prependWatchUrl,
     prettyPlatformName,
+    selectPlatformColor,
     selectTextColor,
     shortCodeToPlatform,
 } from "../../lib/vt";
+import VideoEmbed from "../../components/VideoEmbed";
 
 const QueryVideos = `
 query VTuberChannelHistory($id:[ID],$platf:PlatformName) {
@@ -36,6 +39,7 @@ query VTuberChannelHistory($id:[ID],$platf:PlatformName) {
                     endTime
                     scheduledStartTime
                     publishedAt
+                    duration
                 }
                 channel {
                     name
@@ -72,6 +76,7 @@ query VTuberVideoUpdate($id:[ID],$platf:PlatformName) {
                     endTime
                     scheduledStartTime
                     publishedAt
+                    duration
                 }
             }
         }
@@ -147,226 +152,6 @@ export async function getStaticPaths() {
     };
 }
 
-const outQuinticEasing = function (t: number, b: number, c: number, d: number) {
-    const ts = (t /= d) * t;
-    const tc = ts * t;
-    return b + c * (tc * ts + -5 * ts * ts + 10 * tc + -10 * ts + 5 * t);
-};
-
-function zeroPad(num: number) {
-    return padStart(Math.floor(num).toString(), 2, "0");
-}
-
-interface CountUpProps {
-    initialValue: number;
-    updateKey: string;
-    callback: (callbacks: { update(value: number): void }, updateKey: string) => void;
-}
-
-interface CountUpState {
-    value: number;
-}
-
-class CountUpViewersClass extends React.Component<CountUpProps, CountUpState> {
-    private cref: React.RefObject<CountUp>;
-
-    constructor(props) {
-        super(props);
-        this.cref = React.createRef<CountUp>();
-        this.updateBound = this.updateBound.bind(this);
-        this.state = {
-            value: this.props.initialValue,
-        };
-    }
-
-    updateBound(value: number) {
-        if (typeof value !== "number") {
-            console.warn("Will not update value, since it's not a number");
-            return;
-        }
-        if (this.cref && this.cref.current) {
-            console.info(`Updating ${this.props.updateKey} to ${value}`);
-            // @ts-ignore
-            this.cref.current.update(value);
-        }
-    }
-
-    componentDidMount() {
-        const updateBound = this.updateBound;
-        this.props.callback(
-            {
-                // @ts-ignore
-                update: (value: number) => updateBound(value),
-            },
-            this.props.updateKey
-        );
-    }
-
-    render() {
-        const { value } = this.state;
-
-        return (
-            <CountUp
-                ref={this.cref}
-                start={0}
-                end={value}
-                duration={2}
-                easingFn={outQuinticEasing}
-                useEasing
-                formattingFn={(n) => {
-                    if (n < 0) {
-                        return "N/A";
-                    }
-                    return n.toLocaleString();
-                }}
-            />
-        );
-    }
-}
-
-function durationToText(seconds: number) {
-    if (seconds < 0) {
-        return "N/A";
-    }
-    const s = seconds % 60;
-    const m = (seconds / 60) % 60;
-    const h = (seconds / 3600) % 60;
-    if (h > 0) {
-        return `${zeroPad(h)}:${zeroPad(m)}:${zeroPad(s)}`;
-    }
-    return `${zeroPad(m)}:${zeroPad(s)}`;
-}
-
-function ClockIcon() {
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4 text-gray-400"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-        >
-            <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                clipRule="evenodd"
-            />
-        </svg>
-    );
-}
-
-interface TimeTickerProps {
-    startTime?: Nullable<number>;
-    raw?: boolean;
-}
-
-interface TimeTickerState {
-    currentTime: number;
-}
-
-class TimeTicker extends React.Component<TimeTickerProps, TimeTickerState> {
-    timerState?: NodeJS.Timeout;
-    constructor(props) {
-        super(props);
-        this.state = {
-            currentTime: DateTime.utc().toSeconds(),
-        };
-    }
-
-    componentDidMount() {
-        this.timerState = setInterval(() => {
-            this.setState((prevState) => ({ currentTime: prevState.currentTime + 1 }));
-        }, 1000);
-    }
-
-    componentWillUnmount() {
-        if (this.timerState) {
-            clearInterval(this.timerState);
-        }
-    }
-
-    render() {
-        const { startTime, raw } = this.props;
-        const { currentTime } = this.state;
-        if (typeof startTime !== "number") {
-            return null;
-        }
-
-        if (raw) {
-            return <span>{durationToText(currentTime - startTime)}</span>;
-        }
-
-        return (
-            <div className="flex flex-row justify-center items-center">
-                <ClockIcon /> <span className="ml-1 text-gray-400 font-bold">Elapsed:</span>
-                <span className="ml-1 text-gray-400 font-medium">
-                    {durationToText(currentTime - startTime)}
-                </span>
-            </div>
-        );
-    }
-}
-
-function TimeAgoWrapper({ timeData, isPremiere }: { timeData: number; isPremiere: boolean }) {
-    if (typeof timeData !== "number") {
-        return null;
-    }
-
-    const isFuture = DateTime.utc().toSeconds() >= timeData;
-    let spanText = isFuture ? "Streamed" : "Streaming";
-    if (isPremiere) {
-        spanText = isFuture ? "Premiered" : "Premiering";
-    }
-
-    return (
-        <div className="flex flex-row justify-center items-center">
-            <ClockIcon />
-            <span className="ml-1 text-gray-400 font-bold">{spanText}</span>{" "}
-            <TimeAgo
-                className="ml-1 text-gray-400 font-light"
-                date={DateTime.fromSeconds(timeData, { zone: "UTC" }).toJSDate()}
-            />
-        </div>
-    );
-}
-
-interface TimeData {
-    scheduledStartTime?: Nullable<number>;
-    startTime?: Nullable<number>;
-    endTime?: Nullable<number>;
-    publishedAt: string;
-    status: "live" | "upcoming" | "past" | "video";
-    isPremiere: boolean;
-}
-
-function createTimeData({
-    startTime,
-    endTime,
-    scheduledStartTime,
-    publishedAt,
-    status,
-    isPremiere,
-}: TimeData) {
-    if (status === "live") {
-        return <TimeTicker startTime={startTime} />;
-    }
-    if (status === "upcoming") {
-        return <TimeAgoWrapper timeData={scheduledStartTime} isPremiere={isPremiere} />;
-    }
-    if (status === "past") {
-        return <TimeAgoWrapper timeData={endTime} isPremiere={isPremiere} />;
-    }
-    return (
-        <div className="flex flex-row justify-center items-center">
-            <ClockIcon />
-            <span className="ml-1 text-gray-400 font-bold">Uploaded</span>
-            <TimeAgo
-                className="ml-1 text-gray-400 font-light"
-                date={DateTime.fromISO(publishedAt, { zone: "UTC" }).toJSDate()}
-            />
-        </div>
-    );
-}
-
 function getPreferedTimezone(localStorage: any) {
     const DEFAULTS = "UTC" + DateTime.local().toFormat("ZZ");
     const prefer = localStorage.getItem("vtapi-offsetLoc");
@@ -381,12 +166,8 @@ interface VideoPageInfoProps {
     data: VideoCardProps;
 }
 
-interface VideoPageInfoState extends Omit<TimeData, "isPremiere"> {
+interface VideoPageInfoState extends Omit<TokiProps, "isPremiere"> {
     tz: string;
-    callback?: {
-        peakViewers?: { update(value: number): void };
-        viewers?: { update(value: number): void };
-    };
     viewers?: number;
     peakViewers?: number;
     averageViewers?: number;
@@ -394,24 +175,21 @@ interface VideoPageInfoState extends Omit<TimeData, "isPremiere"> {
 
 export default class VideoPageInfo extends React.Component<VideoPageInfoProps, VideoPageInfoState> {
     timerTick?: NodeJS.Timeout;
+    viewersCb?: CountUpCallback;
+    peakViewersCb?: CountUpCallback;
 
     constructor(props: VideoPageInfoProps) {
         super(props);
-        this.callbackViewersUpdater = this.callbackViewersUpdater.bind(this);
         this.updaterTick = this.updaterTick.bind(this);
         const {
             status,
-            timeData: { scheduledStartTime, startTime, endTime, publishedAt },
+            timeData: { scheduledStartTime, startTime, endTime, publishedAt, duration },
             averageViewers,
             peakViewers,
             viewers,
         } = this.props.data;
         this.state = {
             tz: "UTC+09:00",
-            callback: {
-                peakViewers: undefined,
-                viewers: undefined,
-            },
             scheduledStartTime,
             startTime,
             endTime,
@@ -420,6 +198,7 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
             averageViewers,
             viewers,
             peakViewers,
+            duration,
         };
     }
 
@@ -449,7 +228,7 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
 
         const {
             status,
-            timeData: { scheduledStartTime, startTime, endTime, publishedAt },
+            timeData: { scheduledStartTime, startTime, endTime, publishedAt, duration },
             averageViewers,
             peakViewers,
             viewers,
@@ -461,15 +240,13 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
             endTime,
             publishedAt,
             averageViewers,
+            duration,
         });
-
-        if (this.state.callback) {
-            if (this.state.callback.peakViewers) {
-                this.state.callback.peakViewers.update(peakViewers);
-            }
-            if (this.state.callback.viewers) {
-                this.state.callback.viewers.update(viewers);
-            }
+        if (this.peakViewersCb) {
+            this.peakViewersCb.update(peakViewers);
+        }
+        if (this.viewersCb) {
+            this.viewersCb.update(viewers);
         }
     }
 
@@ -495,17 +272,10 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
         }
     }
 
-    callbackViewersUpdater(cb: { update(value: number): void }, updateKey: string) {
-        const { callback } = this.state;
-        callback[updateKey] = cb;
-        this.setState({ callback });
-    }
-
     render() {
         const {
             id,
             title,
-            thumbnail,
             channel_id,
             channel: { name, en_name, room_id, image },
             group,
@@ -514,26 +284,32 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
             is_member,
         } = this.props.data;
 
-        function statusToExpandedText(st: "live" | "upcoming" | "past" | "video") {
+        function statusToExpandedText(st: "live" | "upcoming" | "past" | "video", plat: PlatformType) {
             switch (st) {
                 case "live":
-                    return "Live";
+                    return `[Live on ${prettyPlatformName(plat)}]`;
                 case "upcoming":
-                    return "Upcoming";
+                    return `Upcoming ${prettyPlatformName(plat)} Stream`;
                 case "past":
-                    return "Past Stream";
+                    return `Past ${prettyPlatformName(plat)} Stream`;
                 case "video":
-                    return "Video Upload";
+                    return "Video upload";
                 default:
                     return capitalizeLetters(st);
             }
         }
 
         const { scheduledStartTime, startTime, endTime, publishedAt, status } = this.state;
-        let { averageViewers, peakViewers, viewers } = this.state;
+        let { averageViewers, peakViewers, viewers, duration } = this.state;
         averageViewers = averageViewers ?? -1;
         peakViewers = peakViewers ?? -1;
         viewers = viewers ?? -1;
+        duration = duration ?? -1;
+
+        let { thumbnail } = this.props.data;
+        if (status === "upcoming" && platform === "twitch") {
+            thumbnail = "https://ttvthumb.glitch.me/" + channel_id;
+        }
 
         const niceName = en_name || name;
         let ihaIco = platform;
@@ -542,20 +318,13 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
         }
         const orgzName = get(GROUPS_NAME_MAP, group, capitalizeLetters(group));
 
-        const description = `Video Information for stream/video ID ${id} from ${capitalizeLetters(platform)}
-
-        Video title: ${title}
-        Status: ${statusToExpandedText(status)}
-        Started/Uploaded at: ${
-            status === "video"
-                ? DateTime.fromISO(publishedAt, { zone: "UTC" })
-                      .setZone("UTC+09:00")
-                      .toLocaleString(DateTime.DATETIME_MED_WITH_WEEKDAY)
-                : DateTime.fromSeconds(startTime, { zone: "UTC" })
-                      .setZone("UTC+09:00")
-                      .toLocaleString(DateTime.DATETIME_MED_WITH_WEEKDAY)
-        } JST
-        `;
+        const description = `${statusToExpandedText(status, platform)} "${title}" by ${niceName}`;
+        let embedId = id;
+        if (platform !== "youtube" && platform !== "bilibili") {
+            embedId = channel_id;
+        } else if (platform !== "youtube" && platform === "bilibili") {
+            embedId = room_id;
+        }
 
         return (
             <>
@@ -563,10 +332,11 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                     <MetadataHead.Base />
                     <title>{title} :: VTuber API</title>
                     <MetadataHead.SEO
-                        title={`${title} - ${niceName}`}
+                        title={`[${prettyPlatformName(platform)}] ${title}`}
                         description={description}
                         image={thumbnail}
                         urlPath={`/video/${platformToShortCode(platform)}-${id}`}
+                        color={selectPlatformColor(platform)}
                     />
                 </Head>
                 <Navbar mode="video" noSticky />
@@ -574,18 +344,14 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-4">
                         <div className="flex flex-col mx-auto">
                             <div className="flex justify-center">
-                                <a
-                                    href={prependWatchUrl(id, channel_id, room_id, platform)}
-                                    className="cursor-pointer"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    <img
-                                        className="rounded-md w-full object-cover object-center shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1"
-                                        src={thumbnail}
-                                        loading="lazy"
-                                    />
-                                </a>
+                                <VideoEmbed
+                                    id={embedId}
+                                    url={prependWatchUrl(id, channel_id, room_id, platform)}
+                                    imageClassName="rounded-md shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1"
+                                    status={status}
+                                    platform={platform}
+                                    thumbnail={thumbnail}
+                                />
                             </div>
                             <div className="flex justify-center mt-2">
                                 <p className="mt-1 text-sm tracking-wide font-bold">
@@ -602,14 +368,14 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                                 </p>
                             </div>
                             <div className="flex justify-center text-center mt-1 mb-2 lg:mb-0">
-                                {createTimeData({
-                                    isPremiere: is_premiere,
-                                    startTime,
-                                    endTime,
-                                    scheduledStartTime,
-                                    publishedAt,
-                                    status,
-                                })}
+                                <Toki
+                                    startTime={startTime}
+                                    endTime={endTime}
+                                    scheduledStartTime={scheduledStartTime}
+                                    publishedAt={publishedAt}
+                                    status={status}
+                                    isPremiere={is_premiere}
+                                />
                             </div>
                         </div>
                         <div className="flex flex-col">
@@ -657,95 +423,16 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                                     )}
                                 </div>
                             </div>
-                            <div
-                                className={`grid ${
-                                    status === "video" ? "grid-cols-1" : "grid-cols-2"
-                                } justify-between mt-4 items-center`}
-                            >
-                                <div className="flex flex-col">
-                                    <div className="font-bold justify-center text-center">
-                                        {status === "video" ? (
-                                            <span>
-                                                {DateTime.fromISO(publishedAt, { zone: "UTC" })
-                                                    .setZone(this.state.tz)
-                                                    .setLocale("en")
-                                                    .toFormat("dd LLL yyyy")}
-                                            </span>
-                                        ) : (
-                                            <span>
-                                                {DateTime.fromSeconds(
-                                                    status === "upcoming" ? scheduledStartTime : startTime,
-                                                    { zone: "UTC" }
-                                                )
-                                                    .setZone(this.state.tz)
-                                                    .setLocale("en")
-                                                    .toFormat("dd LLL yyyy")}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className="font-light text-2xl mt-1 justify-center text-center">
-                                        {status === "video" ? (
-                                            <span>
-                                                {DateTime.fromISO(publishedAt, { zone: "UTC" })
-                                                    .setZone(this.state.tz)
-                                                    .setLocale("en")
-                                                    .toFormat("HH:mm:ss")}
-                                            </span>
-                                        ) : (
-                                            <span>
-                                                {DateTime.fromSeconds(
-                                                    status === "upcoming" ? scheduledStartTime : startTime,
-                                                    { zone: "UTC" }
-                                                )
-                                                    .setZone(this.state.tz)
-                                                    .setLocale("en")
-                                                    .toFormat("HH:mm:ss")}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className="font-semibold text-sm mt-1 justify-center text-center text-gray-300">
-                                        {status === "video"
-                                            ? "Published at"
-                                            : status !== "upcoming"
-                                            ? "Start time"
-                                            : "Scheduled start time"}{" "}
-                                        {"("}
-                                        {this.state.tz}
-                                        {")"}
-                                    </div>
-                                </div>
-                                {status !== "video" && (
-                                    <div className="flex flex-col">
-                                        <div className="font-bold justify-center text-center">
-                                            {status === "upcoming" ? (
-                                                <span>XX/XX/20XX</span>
-                                            ) : (
-                                                <span>
-                                                    {DateTime.fromSeconds(
-                                                        status === "past" ? endTime : startTime,
-                                                        { zone: "UTC" }
-                                                    )
-                                                        .setZone(this.state.tz)
-                                                        .setLocale("en")
-                                                        .toFormat("dd LLL yyyy")}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div className="font-light text-2xl mt-1 justify-center text-center">
-                                            {status === "upcoming" ? (
-                                                <span>N/A</span>
-                                            ) : status === "live" ? (
-                                                <TimeTicker startTime={startTime} raw />
-                                            ) : (
-                                                <span>{durationToText(endTime - startTime)}</span>
-                                            )}
-                                        </div>
-                                        <div className="font-semibold text-sm mt-1 justify-center text-center text-gray-300">
-                                            {is_premiere ? "Video" : "Stream"} Duration
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+                            <TimeVideoInfoBlock
+                                scheduledStartTime={scheduledStartTime}
+                                startTime={startTime}
+                                endTime={endTime}
+                                duration={duration}
+                                publishedAt={publishedAt}
+                                status={status}
+                                isPremiere={is_premiere}
+                                tz={this.state.tz}
+                            />
                             {!["upcoming", "video"].includes(status) && (
                                 <>
                                     <div className="block lg:hidden text-center mt-4 text-lg font-bold">
@@ -761,10 +448,9 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                                                             : averageViewers.toLocaleString()}
                                                     </span>
                                                 ) : (
-                                                    <CountUpViewersClass
+                                                    <CountUp
                                                         initialValue={viewers}
-                                                        updateKey="viewers"
-                                                        callback={this.callbackViewersUpdater}
+                                                        onMounted={(cb) => (this.viewersCb = cb)}
                                                     />
                                                 )}
                                             </div>
@@ -781,10 +467,9 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                                                             : peakViewers.toLocaleString()}
                                                     </span>
                                                 ) : (
-                                                    <CountUpViewersClass
+                                                    <CountUp
                                                         initialValue={peakViewers}
-                                                        updateKey="peakViewers"
-                                                        callback={this.callbackViewersUpdater}
+                                                        onMounted={(cb) => (this.peakViewersCb = cb)}
                                                     />
                                                 )}
                                             </div>

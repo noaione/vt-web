@@ -152,7 +152,7 @@ class SchedulesPage extends React.Component<{}, SchedulesPageState> {
     render() {
         const { loadedData, isLoading, progressBar } = this.state;
         return (
-            <>
+            <React.Fragment key="schedulespage-fragment">
                 <Head>
                     <MetadataHead.Base />
                     <title>Schedules :: VTuber API</title>
@@ -225,7 +225,7 @@ class SchedulesPage extends React.Component<{}, SchedulesPageState> {
                         </button>
                     </div>
                 </main>
-            </>
+            </React.Fragment>
         );
     }
 }

@@ -16,7 +16,7 @@ export function capitalizeLetters(text: string) {
     return text.slice(0, 1).toUpperCase() + text.slice(1);
 }
 
-export function isType(data: any, type: JSTypeof): data is typeof data {
+export function isType<T>(data: T, type: JSTypeof): data is typeof data {
     if (type === "array" && Array.isArray(data)) {
         return true;
     }
@@ -93,4 +93,21 @@ export function mapBoolean<T extends any>(input_data: T): boolean {
             break;
     }
     return fstat;
+}
+
+export function zeroPad(num: number) {
+    return Math.floor(num).toString().padStart(2, "0");
+}
+
+export function durationToText(seconds: number) {
+    if (seconds < 0) {
+        return "N/A";
+    }
+    const s = seconds % 60;
+    const m = (seconds / 60) % 60;
+    const h = (seconds / 3600) % 60;
+    if (h > 0) {
+        return `${zeroPad(h)}:${zeroPad(m)}:${zeroPad(s)}`;
+    }
+    return `${zeroPad(m)}:${zeroPad(s)}`;
 }
