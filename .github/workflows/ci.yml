@@ -44,5 +44,5 @@ jobs:
         steps.cache-node-modules.outputs.cache-hit != 'true'
     - name: Lint
       run: |
-        pnpm run lint
-        pnpm run type-check
+        yarn run lint
+        yarn run type-check
