@@ -32,6 +32,7 @@ query VTuberChannelHistory($chId:[ID],$platf:PlatformName) {
         channels(id:$chId,limit:1,platforms:[$platf]) {
             items {
                 id
+                room_id
                 name
                 en_name
                 image
@@ -206,7 +207,7 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
     }
 
     render() {
-        const { id, name, en_name, image, group, statistics, history, platform, is_retired } =
+        const { id, room_id, name, en_name, image, group, statistics, history, platform, is_retired } =
             this.props.data;
 
         let { subscriberCount, viewCount } = statistics;
@@ -371,6 +372,7 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
                                                     key={`videosmall-${res.id}`}
                                                     {...res}
                                                     channel_id={id}
+                                                    channel={{ room_id, id, name, image, platform, group }}
                                                 />
                                             );
                                         })}
