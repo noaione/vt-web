@@ -17,7 +17,7 @@ import {
     GROUPS_NAME_MAP,
     platformToShortCode,
     PlatformType,
-    prependWatchUrl,
+    prependVideoURLPage,
     prettyPlatformName,
     selectPlatformColor,
     selectTextColor,
@@ -342,11 +342,11 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                 <Navbar mode="video" noSticky />
                 <main className="antialiased h-full pb-4 mt-6 px-4 mb-6">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-4">
-                        <div className="flex flex-col mx-auto">
-                            <div className="flex justify-center">
+                        <div className="flex flex-col">
+                            <div className="flex flex-col justify-center w-full h-full">
                                 <VideoEmbed
                                     id={embedId}
-                                    url={prependWatchUrl(id, channel_id, room_id, platform)}
+                                    url={prependVideoURLPage(id, channel_id, room_id, platform, status)}
                                     imageClassName="rounded-md shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1"
                                     status={status}
                                     platform={platform}

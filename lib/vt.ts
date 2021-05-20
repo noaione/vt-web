@@ -129,6 +129,29 @@ export function prependWatchUrl(videoId: string, channelId: string, roomId: stri
     }
 }
 
+export function prependVideoURLPage(
+    videoId: string,
+    channelId: string,
+    roomId: string,
+    platform: PlatformType,
+    status: "live" | "upcoming" | "past" | "video" = "past"
+) {
+    if (status === "video" || status === "past") {
+        if (platform === "youtube") {
+            return `https://youtube.com/watch?v=${videoId}`;
+        } else if (platform === "bilibili") {
+            return `https://space.bilibili.com/${channelId}/video`;
+        } else if (platform === "twitch") {
+            return `https://twitch.tv/${channelId}/videos`;
+        } else if (platform === "twitcasting") {
+            return `https://twitcasting.tv/${channelId}/movie/${videoId}`;
+        } else if (platform === "mildom") {
+            return `https://mildom.com/playback/${channelId}/${videoId}`;
+        }
+    }
+    return prependWatchUrl(videoId, channelId, roomId, platform);
+}
+
 export function prettyPlatformName(platform: PlatformType) {
     switch (platform) {
         case "youtube":
