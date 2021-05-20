@@ -206,7 +206,7 @@ export interface ChannelCardProps {
         viewsCount?: HistoryData;
     };
     publishedAt?: string;
-    is_retired: boolean;
+    is_retired?: boolean;
 }
 
 interface ExtraCardsProps {
