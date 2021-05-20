@@ -165,17 +165,17 @@ class SchedulesPage extends React.Component<{}, SchedulesPageState> {
                 </Head>
                 <Navbar mode="schedules" />
                 <main className="antialiased h-full pb-4 mx-4 mt-6">
+                    <LoadingBar
+                        color="#277844"
+                        progress={progressBar}
+                        onLoaderFinished={() => {
+                            setTimeout(() => {
+                                this.setState({ progressBar: 0 });
+                            }, 2500);
+                        }}
+                    />
                     {isLoading ? (
                         <>
-                            <LoadingBar
-                                color="#277844"
-                                progress={progressBar}
-                                onLoaderFinished={() => {
-                                    setTimeout(() => {
-                                        this.setState({ progressBar: 0 });
-                                    }, 2500);
-                                }}
-                            />
                             <VideosPagesSkeleton />
                         </>
                     ) : (

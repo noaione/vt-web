@@ -98,7 +98,7 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
             loadedData: [],
             copyOfData: [],
             isLoading: true,
-            progressBar: 5,
+            progressBar: 0,
             groupSets: [],
 
             filter: "",
@@ -206,17 +206,17 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
                 </Head>
                 <Navbar mode="admin" />
                 <main className="antialiased h-full pb-4 mx-4 mt-6">
+                    <LoadingBar
+                        color="#277844"
+                        progress={progressBar}
+                        onLoaderFinished={() => {
+                            setTimeout(() => {
+                                this.setState({ progressBar: 0 });
+                            }, 2500);
+                        }}
+                    />
                     {isLoading ? (
                         <>
-                            <LoadingBar
-                                color="#277844"
-                                progress={progressBar}
-                                onLoaderFinished={() => {
-                                    setTimeout(() => {
-                                        this.setState({ progressBar: 0 });
-                                    }, 2500);
-                                }}
-                            />
                             <ChannelsPagesSkeleton />
                         </>
                     ) : (
