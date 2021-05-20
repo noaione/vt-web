@@ -5,21 +5,7 @@ import { DateTime } from "luxon";
 
 import { createViewersData, VideoCardProps } from "./VideoCard";
 
-import { platformToShortCode, PlatformType, prettyPlatformName, selectBorderColor } from "../lib/vt";
-
-function prependVideoURLPage(videoId: string, channelId: string, platform: PlatformType) {
-    if (platform === "youtube") {
-        return `https://youtube.com/watch?v=${videoId}`;
-    } else if (platform === "bilibili") {
-        return `https://space.bilibili.com/${channelId}/video`;
-    } else if (platform === "twitch") {
-        return `https://twitch.tv/${channelId}/videos`;
-    } else if (platform === "twitcasting") {
-        return `https://twitcasting.tv/${channelId}/movie/${videoId}`;
-    } else if (platform === "mildom") {
-        return `https://mildom.com/playback/${channelId}/${videoId}`;
-    }
-}
+import { platformToShortCode, prependVideoURLPage, prettyPlatformName, selectBorderColor } from "../lib/vt";
 
 export default class VideoCardSmall extends React.Component<VideoCardProps> {
     render() {
@@ -33,6 +19,7 @@ export default class VideoCardSmall extends React.Component<VideoCardProps> {
             averageViewers,
             peakViewers,
             channel_id,
+            channel: { room_id },
             is_premiere,
         } = this.props;
         const { endTime, publishedAt } = timeData;
@@ -43,7 +30,7 @@ export default class VideoCardSmall extends React.Component<VideoCardProps> {
         }
 
         const borderColor = selectBorderColor(platform);
-        const watchUrl = prependVideoURLPage(id, channel_id, platform);
+        const watchUrl = prependVideoURLPage(id, channel_id, room_id, platform, status);
         let initText = status === "video" ? "Uploaded" : "Streamed";
         if (is_premiere) {
             initText = "Premiered";
