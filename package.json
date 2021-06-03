@@ -8,7 +8,7 @@
     "dev": "next dev -p 6520",
     "devdebug": "cross-env NODE_OPTIONS='--inspect' next dev -p 6520",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 6530",
     "type-check": "tsc --pretty --noEmit",
     "format": "prettier --write .",
     "lint": "eslint --ext ts --ext tsx --ext js pages/ lib/ components/",
