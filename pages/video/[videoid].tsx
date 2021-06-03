@@ -1,5 +1,6 @@
 import React from "react";
 import Head from "next/head";
+import Link from "next/link";
 import { GetStaticPropsContext } from "next";
 
 import { find, get } from "lodash";
@@ -393,16 +394,18 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                                             </span>
                                         </div>
                                     )}
-                                    <a
+                                    <Link
                                         href={`/channel/${platformToShortCode(platform)}-${channel_id}`}
-                                        className="justify-center flex"
+                                        passHref
                                     >
-                                        <img
-                                            className="rounded-full justify-center h-10 object-cover object-center hover:opacity-80 duration-150 transition-opacity ease-in-out"
-                                            src={image}
-                                            loading="lazy"
-                                        />
-                                    </a>
+                                        <a className="justify-center flex">
+                                            <img
+                                                className="rounded-full justify-center h-10 object-cover object-center hover:opacity-80 duration-150 transition-opacity ease-in-out"
+                                                src={image}
+                                                loading="lazy"
+                                            />
+                                        </a>
+                                    </Link>
                                     <div className="justify-start text-left">
                                         <div className="font-semibold">{niceName}</div>
                                         <div className="text-sm font-semibold text-gray-300 tracking-wide justify-start">

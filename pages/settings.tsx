@@ -32,6 +32,8 @@ export default function SettingsPage() {
                         <a
                             className="text-blue-400 hover:text-blue-500 hover:underline transition duration-150"
                             href="https://github.com/noaione/vt-web"
+                            rel="noreferrer noopener"
+                            target="_blank"
                         >
                             https://github.com/noaione/vt-web
                         </a>
@@ -40,7 +42,9 @@ export default function SettingsPage() {
                         It utilize the{" "}
                         <a
                             className="text-blue-400 hover:text-blue-500 hover:underline transition duration-150"
-                            href="https://github.com/noaione/vt-web"
+                            href="https://api.ihateani.me/v2"
+                            rel="noreferrer noopener"
+                            target="_blank"
                         >
                             ihateani.me API
                         </a>{" "}
@@ -53,6 +57,8 @@ export default function SettingsPage() {
                         <a
                             className="text-blue-400 hover:text-blue-500 hover:underline transition duration-150"
                             href={"https://github.com/noaione/vt-web/commit/" + commit}
+                            rel="noreferrer noopener"
+                            target="_blank"
                         >
                             {commit.slice(0, 7)}
                         </a>

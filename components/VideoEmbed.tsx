@@ -62,6 +62,8 @@ export default class VideoEmbed extends React.Component<VideoEmbedProps, VideoEm
                 </p>
                 <a
                     href={url}
+                    rel="noreferrer noopener"
+                    target="_blank"
                     className="font-light text-lg align-middle place-self-center self-center text-blue-300 hover:opacity-80 duration-200 transition-opacity"
                 >
                     Open Stream/Video

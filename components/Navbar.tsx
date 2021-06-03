@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import Router from "next/router";
 
 interface NavbarProps {
@@ -94,12 +95,11 @@ class Navbar extends React.Component<NavbarProps, NavbarState> {
                 <nav className="relative select-none bg-grey lg:flex lg:items-stretch w-full py-3">
                     <div className="w-full relative flex justify-between lg:w-auto pr-4 lg:static lg:block lg:justify-start">
                         <div className="flex flex-row items-center ml-4 mt-2">
-                            <a
-                                href="/"
-                                className="font-semibold text-xl tracking-tight ml-2 text-white hover:opacity-80"
-                            >
-                                VTuber API
-                            </a>
+                            <Link href="/" passHref>
+                                <a className="font-semibold text-xl tracking-tight ml-2 text-white hover:opacity-80">
+                                    VTuber API
+                                </a>
+                            </Link>
                         </div>
                         <button
                             onClick={this.toggleDropdown}
@@ -119,60 +119,65 @@ class Navbar extends React.Component<NavbarProps, NavbarState> {
                         }
                     >
                         <div className="lg:flex lg:items-stretch lg:justify-end ml-auto mr-4">
-                            <a
-                                href={homeUrl}
-                                className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
-                                onClick={(ev) => {
-                                    ev.preventDefault();
-                                    outerThis.navigateLink(homeUrl);
-                                }}
-                            >
-                                Home
-                            </a>
-                            <a
-                                href={livesUrl}
-                                className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
-                                onClick={(ev) => {
-                                    ev.preventDefault();
-                                    outerThis.navigateLink(livesUrl);
-                                }}
-                            >
-                                Lives
-                            </a>
-                            <a
-                                href={scheduleUrl}
-                                className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
-                                onClick={(ev) => {
-                                    ev.preventDefault();
-                                    outerThis.navigateLink(scheduleUrl);
-                                }}
-                            >
-                                Schedules
-                            </a>
-                            <a
-                                href={settingsUrl}
-                                className="px-3 py-2 h-10 w-10 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
-                                onClick={(ev) => {
-                                    ev.preventDefault();
-                                    outerThis.navigateLink(settingsUrl);
-                                }}
-                            >
-                                <i className="ihaicon ihaico-cog" />
-                            </a>
-                            <a
-                                href={loginUrl}
-                                className="px-3 py-2 flex h-10 w-10 items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
-                                onClick={(ev) => {
-                                    ev.preventDefault();
-                                    outerThis.navigateLink(loginUrl, true);
-                                }}
-                            >
-                                {mode === "admin" ? (
-                                    <i className="ihaicon ihaico-exit" />
-                                ) : (
-                                    <i className="ihaicon ihaico-enter" />
-                                )}
-                            </a>
+                            <Link href={homeUrl} passHref>
+                                <a
+                                    className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
+                                    onClick={(ev) => {
+                                        ev.preventDefault();
+                                        outerThis.navigateLink(homeUrl);
+                                    }}
+                                >
+                                    Home
+                                </a>
+                            </Link>
+                            <Link href={livesUrl} passHref>
+                                <a
+                                    className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
+                                    onClick={(ev) => {
+                                        ev.preventDefault();
+                                        outerThis.navigateLink(livesUrl);
+                                    }}
+                                >
+                                    Lives
+                                </a>
+                            </Link>
+                            <Link href={scheduleUrl} passHref>
+                                <a
+                                    className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
+                                    onClick={(ev) => {
+                                        ev.preventDefault();
+                                        outerThis.navigateLink(scheduleUrl);
+                                    }}
+                                >
+                                    Schedules
+                                </a>
+                            </Link>
+                            <Link href={settingsUrl} passHref>
+                                <a
+                                    className="px-3 py-2 h-10 w-10 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
+                                    onClick={(ev) => {
+                                        ev.preventDefault();
+                                        outerThis.navigateLink(settingsUrl);
+                                    }}
+                                >
+                                    <i className="ihaicon ihaico-cog" />
+                                </a>
+                            </Link>
+                            <Link href={loginUrl} passHref>
+                                <a
+                                    className="px-3 py-2 flex h-10 w-10 items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
+                                    onClick={(ev) => {
+                                        ev.preventDefault();
+                                        outerThis.navigateLink(loginUrl, true);
+                                    }}
+                                >
+                                    {mode === "admin" ? (
+                                        <i className="ihaicon ihaico-exit" />
+                                    ) : (
+                                        <i className="ihaicon ihaico-enter" />
+                                    )}
+                                </a>
+                            </Link>
                         </div>
                     </div>
                 </nav>

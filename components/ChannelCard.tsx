@@ -12,6 +12,7 @@ import {
 import { isNone, Nullable, walk } from "../lib/utils";
 import Modal, { CallbackModal } from "./Modal";
 import fetcher from "../lib/fetcher";
+import Link from "next/link";
 
 const MutationQuery = `mutation VTuberRemove($id:String!,$platform:PlatformName!) {
     VTuberRemove(id:$id,platform:$platform) {
@@ -261,16 +262,18 @@ function ChannelCard(props: ChannelCardProps & ExtraCardsProps) {
             <div id={"ch-" + id + "-" + platform} className="flex rounded-lg">
                 <div className={"m-auto shadow-md rounded-lg w-full border " + borderColor}>
                     <div className="relative rounded-lg">
-                        <a href={"/channel/" + shortCode + "-" + id} className="rounded-lg">
-                            <img
-                                src={image}
-                                alt={name + " Channel Image"}
-                                loading="lazy"
-                                className={`w-full object-cover object-center rounded-t-lg ${
-                                    VTRetired && "opacity-50"
-                                }`}
-                            />
-                        </a>
+                        <Link href={"/channel/" + shortCode + "-" + id} passHref>
+                            <a className="rounded-lg">
+                                <img
+                                    src={image}
+                                    alt={name + " Channel Image"}
+                                    loading="lazy"
+                                    className={`w-full object-cover object-center rounded-t-lg ${
+                                        VTRetired && "opacity-50"
+                                    }`}
+                                />
+                            </a>
+                        </Link>
                     </div>
                     <div className="px-4 py-4 text-gray-200 bg-gray-900">
                         <p className="mt-1 uppercase text-sm tracking-wide font-bold text-center">

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 function isNone(data) {
@@ -74,19 +75,22 @@ class Buttons extends React.Component<ButtonsProps> {
         const rel = targetData === "_blank" ? "noopener noreferrer" : null;
         if (use === "a") {
             const restProps = props as unknown as React.AnchorHTMLAttributes<HTMLAnchorElement>;
+            const { href, ...properRestProps } = restProps;
             return (
-                <a
-                    {...restProps}
-                    className={
-                        "inline-block px-6 py-2 text-xs font-medium leading-6 text-center text-white uppercase transition rounded shadow ripple hover:shadow-lg focus:outline-none " +
-                        extraClass +
-                        colored
-                    }
-                    target={targetData}
-                    rel={rel}
-                >
-                    {children}
-                </a>
+                <Link href={href} passHref>
+                    <a
+                        {...properRestProps}
+                        className={
+                            "inline-block px-6 py-2 text-xs font-medium leading-6 text-center text-white uppercase transition rounded shadow ripple hover:shadow-lg focus:outline-none " +
+                            extraClass +
+                            colored
+                        }
+                        target={targetData}
+                        rel={rel}
+                    >
+                        {children}
+                    </a>
+                </Link>
             );
         }
 
