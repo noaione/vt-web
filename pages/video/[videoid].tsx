@@ -1,7 +1,7 @@
 import React from "react";
 import Head from "next/head";
 import Link from "next/link";
-import { GetStaticPropsContext } from "next";
+import { NextPageContext } from "next";
 
 import { find, get } from "lodash";
 import { DateTime } from "luxon";
@@ -103,56 +103,6 @@ async function QueryFetch(videoId: string, platform: PlatformType, querySchema =
     return apiRes;
 }
 
-export async function getStaticProps(context: GetStaticPropsContext) {
-    const { videoid } = context.params;
-    if (!isType(videoid, "string")) {
-        return {
-            notFound: true,
-        };
-    }
-
-    const selectOneVideo = Array.isArray(videoid) ? videoid[0] : videoid;
-
-    const splittedVideoIDS = selectOneVideo.split("-");
-    if (splittedVideoIDS.length < 2) {
-        return {
-            notFound: true,
-        };
-    }
-    const shortCode = splittedVideoIDS[0];
-    const videoId = splittedVideoIDS.slice(1).join("-");
-    const platform = shortCodeToPlatform(shortCode);
-    if (!isType(platform, "string")) {
-        return {
-            notFound: true,
-        };
-    }
-
-    const res = await QueryFetch(videoId, platform);
-    const rawData = walk(res, "data.vtuber.videos.items");
-    if (!Array.isArray(rawData)) {
-        return {
-            notFound: true,
-        };
-    }
-    if (rawData.length < 1) {
-        return {
-            notFound: true,
-        };
-    }
-
-    return {
-        props: { data: rawData[0] },
-    };
-}
-
-export async function getStaticPaths() {
-    return {
-        paths: [],
-        fallback: "blocking",
-    };
-}
-
 function getPreferedTimezone(localStorage: any) {
     const DEFAULTS = "UTC" + DateTime.local().toFormat("ZZ");
     const prefer = localStorage.getItem("vtapi-offsetLoc");
@@ -178,6 +128,49 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
     timerTick?: NodeJS.Timeout;
     viewersCb?: CountUpCallback;
     peakViewersCb?: CountUpCallback;
+
+    static async getInitialProps({ query }: NextPageContext) {
+        const { videoid } = query;
+        if (!isType(videoid, "string")) {
+            return {
+                notFound: true,
+            };
+        }
+
+        const selectOneVideo = Array.isArray(videoid) ? videoid[0] : videoid;
+
+        const splittedVideoIDS = selectOneVideo.split("-");
+        if (splittedVideoIDS.length < 2) {
+            return {
+                notFound: true,
+            };
+        }
+        const shortCode = splittedVideoIDS[0];
+        const videoId = splittedVideoIDS.slice(1).join("-");
+        const platform = shortCodeToPlatform(shortCode);
+        if (!isType(platform, "string")) {
+            return {
+                notFound: true,
+            };
+        }
+
+        const res = await QueryFetch(videoId, platform);
+        const rawData = walk(res, "data.vtuber.videos.items");
+        if (!Array.isArray(rawData)) {
+            return {
+                notFound: true,
+            };
+        }
+        if (rawData.length < 1) {
+            return {
+                notFound: true,
+            };
+        }
+
+        return {
+            data: rawData[0],
+        };
+    }
 
     constructor(props: VideoPageInfoProps) {
         super(props);

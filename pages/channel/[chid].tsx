@@ -1,6 +1,6 @@
 import React from "react";
 import Head from "next/head";
-import { GetStaticPropsContext } from "next";
+import { NextPageContext } from "next";
 
 import CountUp from "react-countup";
 import { get, sortBy } from "lodash";
@@ -179,6 +179,49 @@ interface ChannelPageInfoState {
 }
 
 export default class ChannelPageInfo extends React.Component<ChannelPageInfoProps, ChannelPageInfoState> {
+    static async getInitialProps({ query }: NextPageContext) {
+        const { chid } = query;
+        if (!isType(chid, "string")) {
+            return {
+                notFound: true,
+            };
+        }
+
+        const selectOneChannel = Array.isArray(chid) ? chid[0] : chid;
+
+        const splittedChIds = selectOneChannel.split("-");
+        if (splittedChIds.length < 2) {
+            return {
+                notFound: true,
+            };
+        }
+        const shortCode = splittedChIds[0];
+        const channelId = splittedChIds.slice(1).join("-");
+        const platform = shortCodeToPlatform(shortCode);
+        if (!isType(platform, "string")) {
+            return {
+                notFound: true,
+            };
+        }
+
+        const res = await QueryFetch(channelId, platform);
+        const rawData = walk(res, "data.vtuber.channels.items");
+        if (!Array.isArray(rawData)) {
+            return {
+                notFound: true,
+            };
+        }
+        if (rawData.length < 1) {
+            return {
+                notFound: true,
+            };
+        }
+
+        return {
+            data: rawData[0],
+        };
+    }
+
     constructor(props) {
         super(props);
         this.state = {
@@ -417,54 +460,4 @@ async function QueryFetch(channelId: string, platform: PlatformType, querySchema
         }),
     }).then((res) => res.json());
     return apiRes;
-}
-
-export async function getStaticProps(context: GetStaticPropsContext) {
-    const { chid } = context.params;
-    if (!isType(chid, "string")) {
-        return {
-            notFound: true,
-        };
-    }
-
-    const selectOneChannel = Array.isArray(chid) ? chid[0] : chid;
-
-    const splittedChIds = selectOneChannel.split("-");
-    if (splittedChIds.length < 2) {
-        return {
-            notFound: true,
-        };
-    }
-    const shortCode = splittedChIds[0];
-    const channelId = splittedChIds.slice(1).join("-");
-    const platform = shortCodeToPlatform(shortCode);
-    if (!isType(platform, "string")) {
-        return {
-            notFound: true,
-        };
-    }
-
-    const res = await QueryFetch(channelId, platform);
-    const rawData = walk(res, "data.vtuber.channels.items");
-    if (!Array.isArray(rawData)) {
-        return {
-            notFound: true,
-        };
-    }
-    if (rawData.length < 1) {
-        return {
-            notFound: true,
-        };
-    }
-
-    return {
-        props: { data: rawData[0] },
-    };
-}
-
-export async function getStaticPaths() {
-    return {
-        paths: [],
-        fallback: "blocking",
-    };
 }
