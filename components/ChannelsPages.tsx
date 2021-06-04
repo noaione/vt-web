@@ -1,130 +1,11 @@
-import { filter, get, groupBy, sortBy } from "lodash";
-import React, { useState } from "react";
+import { get, groupBy, sortBy } from "lodash";
+import React from "react";
 
 import BadgeText from "./Badge";
 import ChannelCard, { ChannelCardProps } from "./ChannelCard";
 
 import { GROUPS_NAME_MAP, PlatformType } from "../lib/vt";
 import { capitalizeLetters } from "../lib/utils";
-
-interface GroupChannelProps {
-    data: ChannelCardProps[];
-    group: string;
-    platformFilter: PlatformType[];
-    adminMode?: boolean;
-}
-
-function GroupChannel(props: GroupChannelProps) {
-    const { data, group, platformFilter, adminMode } = props;
-
-    const filteredData = filter(data, (o) => platformFilter.includes(o.platform));
-    if (filteredData.length < 1) {
-        return null;
-    }
-
-    const groupedByPlatform = groupBy(filteredData, "platform");
-    const [YTCards, setYTCards] = useState<ChannelCardProps[]>(
-        sortBy(get(groupedByPlatform, "youtube", []), "publishedAt")
-    );
-    const [TTVCards, setTTVCards] = useState<ChannelCardProps[]>(
-        sortBy(get(groupedByPlatform, "twitch", []), "publishedAt")
-    );
-    const [TWCards, setTWCards] = useState<ChannelCardProps[]>(
-        sortBy(get(groupedByPlatform, "twitcasting", []), "publishedAt")
-    );
-    const [MDCards, setMDCards] = useState<ChannelCardProps[]>(
-        sortBy(get(groupedByPlatform, "mildom", []), "publishedAt")
-    );
-
-    function callbackRemoval(id: string, platform: PlatformType) {
-        if (platform === "youtube") {
-            const filteredCards = YTCards.filter((o) => o.id !== id);
-            setYTCards(filteredCards);
-        } else if (platform === "twitch") {
-            const filteredCards = TTVCards.filter((o) => o.id !== id);
-            setTTVCards(filteredCards);
-        } else if (platform === "twitcasting") {
-            const filteredCards = TWCards.filter((o) => o.id !== id);
-            setTWCards(filteredCards);
-        } else if (platform === "mildom") {
-            const filteredCards = MDCards.filter((o) => o.id !== id);
-            setMDCards(filteredCards);
-        }
-    }
-
-    return (
-        <div id={"group-" + group} className="pb-3 vtubers-group">
-            <h2 className="text-white py-3 text-2xl font-bold">
-                {get(GROUPS_NAME_MAP, group, capitalizeLetters(group))}
-                <BadgeText className="bg-red-500 text-white ml-2 text-lg">{filteredData.length}</BadgeText>
-            </h2>
-            {YTCards.length > 0 && (
-                <>
-                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 items-start mb-2">
-                        {YTCards.map((channel) => {
-                            return (
-                                <ChannelCard
-                                    key={channel.id}
-                                    adminMode={adminMode}
-                                    callbackRemove={callbackRemoval}
-                                    {...channel}
-                                />
-                            );
-                        })}
-                    </div>
-                </>
-            )}
-            {TTVCards.length > 0 && (
-                <>
-                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 items-start mb-2">
-                        {TTVCards.map((channel) => {
-                            return (
-                                <ChannelCard
-                                    key={channel.id}
-                                    adminMode={adminMode}
-                                    callbackRemove={callbackRemoval}
-                                    {...channel}
-                                />
-                            );
-                        })}
-                    </div>
-                </>
-            )}
-            {TWCards.length > 0 && (
-                <>
-                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 items-start mb-2">
-                        {TWCards.map((channel) => {
-                            return (
-                                <ChannelCard
-                                    key={channel.id}
-                                    adminMode={adminMode}
-                                    callbackRemove={callbackRemoval}
-                                    {...channel}
-                                />
-                            );
-                        })}
-                    </div>
-                </>
-            )}
-            {MDCards.length > 0 && (
-                <>
-                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 items-start mb-2">
-                        {MDCards.map((channel) => {
-                            return (
-                                <ChannelCard
-                                    key={channel.id}
-                                    adminMode={adminMode}
-                                    callbackRemove={callbackRemoval}
-                                    {...channel}
-                                />
-                            );
-                        })}
-                    </div>
-                </>
-            )}
-        </div>
-    );
-}
 
 export function groupMember(realData: ChannelCardProps[]): ChannelCardProps[][] {
     const groupedByGroup = groupBy(realData, (o) => o.group);
@@ -139,24 +20,93 @@ export function groupMember(realData: ChannelCardProps[]): ChannelCardProps[][] 
     return sortedGroupData;
 }
 
-interface ChannelsPagesProps {
-    data: ChannelCardProps[];
-    platformTick: Record<PlatformType, boolean>;
-    adminMode?: boolean;
+export interface ChannelsPagesCallback {
+    filter: (filterText: string, platformData: PlatformType[]) => void;
 }
 
-export default class ChannelsPages extends React.Component<ChannelsPagesProps> {
+interface ChannelsPagesProps {
+    data: ChannelCardProps[];
+    adminMode?: boolean;
+    onMounted?: (callbacks: ChannelsPagesCallback) => void;
+    onFiltered?: (rawData: any) => void;
+}
+
+interface ChannelsPagesState {
+    unrenderedIds: { id: string; platform: string }[];
+}
+
+function filterSearch(dataset: ChannelCardProps[], search: string) {
+    if (search.trim() === "") {
+        return dataset;
+    }
+    return dataset.filter((o) => o.name.toLowerCase().includes(search));
+}
+
+export default class ChannelsPages extends React.Component<ChannelsPagesProps, ChannelsPagesState> {
+    constructor(props) {
+        super(props);
+        this.doFilterChange.bind(this);
+        this.state = {
+            unrenderedIds: [],
+        };
+    }
+
+    async componentDidMount() {
+        if (typeof this.props.onMounted === "function") {
+            this.props.onMounted({
+                filter: (a, b) => this.doFilterChange(a, b),
+            });
+        }
+    }
+
+    doFilterChange(filterText: string, platforms: PlatformType[]) {
+        const filtered = filterSearch(this.props.data, filterText);
+        const shouldNotHide = filtered.filter((e) => platforms.includes(e.platform));
+        const shouldBeHidden = this.props.data.filter((e) => {
+            const isExist = shouldNotHide.findIndex((u) => u.id === e.id && u.platform === e.platform);
+            return isExist === -1;
+        });
+        const allIdsAndPlatform = shouldBeHidden.map((r) => ({
+            id: r.id,
+            platform: r.platform,
+        }));
+        this.setState({ unrenderedIds: allIdsAndPlatform }, () => {
+            if (typeof this.props.onFiltered === "function") {
+                this.props.onFiltered(shouldNotHide);
+            }
+        });
+    }
+
+    removeMembersData(id: string, platform: PlatformType) {
+        const { unrenderedIds } = this.state;
+        unrenderedIds.push({ id, platform });
+        this.setState({ unrenderedIds });
+    }
+
     render() {
-        const { data, platformTick, adminMode } = this.props;
-        let realData = [];
+        const { data, adminMode } = this.props;
+        if (data.length < 1) {
+            return (
+                <div className="text-center pb-8 text-2xl font-light text-gray-300">
+                    No registered channels
+                </div>
+            );
+        }
+
+        const { unrenderedIds } = this.state;
+        let realData = [] as ChannelCardProps[];
         if (Array.isArray(data)) {
             realData = data;
         }
 
+        realData = realData.filter((e) => {
+            const isExist = unrenderedIds.findIndex((u) => u.id === e.id && u.platform === e.platform);
+            return isExist === -1;
+        });
         if (realData.length < 1) {
             return (
                 <div className="text-center pb-8 text-2xl font-light text-gray-300">
-                    No registered channels
+                    No matching channels on provided filter/search.
                 </div>
             );
         }
@@ -173,27 +123,105 @@ export default class ChannelsPages extends React.Component<ChannelsPagesProps> {
             });
         });
 
-        const includedPlatform = [];
-        for (const [pl, tick] of Object.entries(platformTick)) {
-            if (tick) {
-                includedPlatform.push(pl);
-            }
-        }
-
         return (
-            <>
+            <div key="channels-pages" id="root">
                 {sortedGroupData.map((items) => {
-                    const dd = { data: items, group: items[0].group };
+                    const groupName = items[0].group;
+                    const groupedByPlatform = groupBy(items, "platform");
+                    const YTCards = sortBy(
+                        get(groupedByPlatform, "youtube", []),
+                        "publishedAt"
+                    ) as ChannelCardProps[];
+                    const TTVCards = sortBy(
+                        get(groupedByPlatform, "twitch", []),
+                        "publishedAt"
+                    ) as ChannelCardProps[];
+                    const TWCards = sortBy(
+                        get(groupedByPlatform, "twitcasting", []),
+                        "publishedAt"
+                    ) as ChannelCardProps[];
+                    const MDCards = sortBy(
+                        get(groupedByPlatform, "mildom", []),
+                        "publishedAt"
+                    ) as ChannelCardProps[];
                     return (
-                        <GroupChannel
-                            key={dd.group}
-                            platformFilter={includedPlatform}
-                            adminMode={adminMode}
-                            {...dd}
-                        />
+                        <div
+                            key={`groupsets-${groupName}`}
+                            id={"group-" + groupName}
+                            className="pb-3 vtubers-group"
+                        >
+                            <h2
+                                key={`groupsets-header-text-${groupName}`}
+                                className="text-white py-3 text-2xl font-bold"
+                            >
+                                {get(GROUPS_NAME_MAP, groupName, capitalizeLetters(groupName))}
+                                <BadgeText
+                                    key={`groupsets-badge-text-${groupName}`}
+                                    className="bg-red-500 text-white ml-2 text-lg"
+                                >
+                                    {items.length}
+                                </BadgeText>
+                            </h2>
+                            {YTCards.length > 0 && (
+                                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 items-start mb-2">
+                                    {YTCards.map((channel) => {
+                                        return (
+                                            <ChannelCard
+                                                key={`${channel.platform}-${channel.group}-${channel.id}`}
+                                                adminMode={adminMode}
+                                                callbackRemove={this.removeMembersData}
+                                                {...channel}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                            )}
+                            {TTVCards.length > 0 && (
+                                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 items-start mb-2">
+                                    {TTVCards.map((channel) => {
+                                        return (
+                                            <ChannelCard
+                                                key={`${channel.platform}-${channel.group}-${channel.id}`}
+                                                adminMode={adminMode}
+                                                callbackRemove={this.removeMembersData}
+                                                {...channel}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                            )}
+                            {TWCards.length > 0 && (
+                                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 items-start mb-2">
+                                    {TWCards.map((channel) => {
+                                        return (
+                                            <ChannelCard
+                                                key={`${channel.platform}-${channel.group}-${channel.id}`}
+                                                adminMode={adminMode}
+                                                callbackRemove={this.removeMembersData}
+                                                {...channel}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                            )}
+                            {MDCards.length > 0 && (
+                                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 items-start mb-2">
+                                    {MDCards.map((channel) => {
+                                        return (
+                                            <ChannelCard
+                                                key={`${channel.platform}-${channel.group}-${channel.id}`}
+                                                adminMode={adminMode}
+                                                callbackRemove={this.removeMembersData}
+                                                {...channel}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
                     );
                 })}
-            </>
+            </div>
         );
     }
 }

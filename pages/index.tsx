@@ -7,7 +7,7 @@ import LoadingBar from "react-top-loading-bar";
 import { Link as ScrollTo } from "react-scroll";
 import { Switch } from "@headlessui/react";
 
-import ChannelsPages, { groupMember } from "../components/ChannelsPages";
+import ChannelsPages, { ChannelsPagesCallback, groupMember } from "../components/ChannelsPages";
 import ChannelsPagesSkeleton from "../components/ChannelsPagesSkeleton";
 import { ChannelCardProps } from "../components/ChannelCard";
 import GroupModal, { CallbackModal } from "../components/GroupModal";
@@ -59,13 +59,6 @@ async function getAllChannelsAsync(cursor = "", page = 1, cb: (current: number, 
     }
 }
 
-function filterSearch(dataset: ChannelCardProps[], search: string) {
-    if (search === "" || search === " ") {
-        return dataset;
-    }
-    return filter(dataset, (o) => o.name.toLowerCase().includes(search));
-}
-
 interface GroupCallbackData {
     id: string;
     name: string;
@@ -74,16 +67,17 @@ interface GroupCallbackData {
 
 interface HomepageChannelState {
     loadedData: ChannelCardProps[];
-    copyOfData: ChannelCardProps[];
     isLoading: boolean;
     progressBar: number;
     groupSets: GroupCallbackData[];
     filter: string;
     platformFilter: Record<PlatformType, boolean>;
+    platformList: PlatformType[];
 }
 
 export default class HomepageChannelsPage extends React.Component<{}, HomepageChannelState> {
     modalCb?: CallbackModal;
+    pagesCb?: ChannelsPagesCallback;
 
     constructor(props) {
         super(props);
@@ -91,12 +85,12 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
         this.filterGroupModalData = this.filterGroupModalData.bind(this);
         this.onPlatformTick = this.onPlatformTick.bind(this);
         this.onChangeData = this.onChangeData.bind(this);
+        this.doFilterChange = this.doFilterChange.bind(this);
         this.openModal = this.openModal.bind(this);
         this.scrollTop = this.scrollTop.bind(this);
 
         this.state = {
             loadedData: [],
-            copyOfData: [],
             isLoading: true,
             progressBar: 0,
             groupSets: [],
@@ -109,6 +103,7 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
                 twitcasting: true,
                 mildom: true,
             },
+            platformList: ["youtube", "bilibili", "twitcasting", "twitch", "mildom"],
         };
     }
 
@@ -121,7 +116,7 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
         const loadedData = await getAllChannelsAsync("", 1, setLoadData);
         const sortedGroupData = groupMember(loadedData);
 
-        this.setState({ loadedData, copyOfData: loadedData, isLoading: false });
+        this.setState({ loadedData, isLoading: false });
         const configuredCallback: GroupCallbackData[] = [];
         sortedGroupData.forEach((items) => {
             const grp = items[0].group;
@@ -164,16 +159,38 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
     }
 
     onPlatformTick(platform: PlatformType) {
-        const { platformFilter } = this.state;
+        const { platformFilter, filter } = this.state;
         platformFilter[platform] = !platformFilter[platform];
-        this.setState({ platformFilter });
-        this.filterGroupModalData();
+        const includePlatform = Object.entries(platformFilter)
+            .map((plat) => {
+                const [name, tick] = plat as [PlatformType, boolean];
+                if (tick) return name;
+                return undefined;
+            })
+            .filter((e) => typeof e === "string");
+        this.setState({ platformList: includePlatform }, () => {
+            this.doFilterChange(filter, includePlatform);
+        });
     }
 
     onChangeData(event: React.ChangeEvent<HTMLInputElement>) {
-        const filtered = filterSearch(this.state.copyOfData, event.target.value);
-        this.setState({ loadedData: filtered, filter: event.target.value });
-        this.filterGroupModalData(filtered);
+        this.setState({ filter: event.target.value }, () => {
+            const { platformFilter } = this.state;
+            const includePlatform = Object.entries(platformFilter)
+                .map((plat) => {
+                    const [name, tick] = plat as [PlatformType, boolean];
+                    if (tick) return name;
+                    return undefined;
+                })
+                .filter((e) => typeof e === "string");
+            this.doFilterChange(event.target.value, includePlatform);
+        });
+    }
+
+    doFilterChange(filterText: string, platforms: PlatformType[]) {
+        if (this.pagesCb) {
+            this.pagesCb.filter(filterText, platforms);
+        }
     }
 
     openModal() {
@@ -216,9 +233,7 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
                         }}
                     />
                     {isLoading ? (
-                        <>
-                            <ChannelsPagesSkeleton />
-                        </>
+                        <ChannelsPagesSkeleton />
                     ) : (
                         <>
                             <div className="my-4">
@@ -228,7 +243,7 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
                                         type="text"
                                         value={this.state.filter}
                                         onChange={this.onChangeData}
-                                        className="form-input mt-1 block w-full md:w-1/2 lg:w-1/3 bg-gray-700"
+                                        className="form-input mt-1 block w-full md:w-1/2 lg:w-1/3 !bg-gray-700 rounded-lg"
                                     />
                                 </label>
                                 <div className="mt-3">
@@ -342,7 +357,11 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
                                     </div>
                                 </div>
                             </div>
-                            <ChannelsPages data={loadedData} platformTick={this.state.platformFilter} />
+                            <ChannelsPages
+                                data={loadedData}
+                                onFiltered={this.filterGroupModalData}
+                                onMounted={(cb) => (this.pagesCb = cb)}
+                            />
                         </>
                     )}
                     <GroupModal onMounted={(callbacks) => (this.modalCb = callbacks)}>
