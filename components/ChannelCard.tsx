@@ -154,7 +154,6 @@ class RetireButton extends React.Component<RetireButtonProps, DeleteButtonState>
             platform: this.props.platform,
             retire: !this.props.retired,
         };
-        console.info(process.env);
 
         try {
             const requested = await fetcher("/api/retire", {
