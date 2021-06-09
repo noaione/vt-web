@@ -16,6 +16,7 @@ import Navbar from "../components/Navbar";
 
 import { capitalizeLetters } from "../lib/utils";
 import { GROUPS_NAME_MAP, ihaAPIQuery, PlatformType } from "../lib/vt";
+import NoteEditorModal, { EditorPropsCallbacks, NoteData } from "../components/NoteEditor";
 
 const ChannelQuerySchemas = `query VTuberChannel($cursor:String) {
     vtuber {
@@ -33,6 +34,7 @@ const ChannelQuerySchemas = `query VTuberChannel($cursor:String) {
                     viewCount
                 }
                 is_retired
+                extraNote
             }
             pageInfo {
                 results_per_page
@@ -77,7 +79,9 @@ interface HomepageChannelState {
 
 export default class AdminChannelPages extends React.Component<{}, HomepageChannelState> {
     modalCb?: CallbackModal;
+    editorCb?: EditorPropsCallbacks;
     pagesCb?: ChannelsPagesCallback;
+    broadCaster?: BroadcastChannel;
 
     constructor(props) {
         super(props);
@@ -88,6 +92,8 @@ export default class AdminChannelPages extends React.Component<{}, HomepageChann
         this.doFilterChange = this.doFilterChange.bind(this);
         this.openModal = this.openModal.bind(this);
         this.scrollTop = this.scrollTop.bind(this);
+        this.triggerNoteEditor = this.triggerNoteEditor.bind(this);
+        this.broadcastNoteUpdate = this.broadcastNoteUpdate.bind(this);
 
         this.state = {
             loadedData: [],
@@ -127,6 +133,13 @@ export default class AdminChannelPages extends React.Component<{}, HomepageChann
             });
         });
         this.callbackGroupSets(configuredCallback);
+        this.broadCaster = new BroadcastChannel("AdminNoteEditor");
+    }
+
+    componentWillUnmount() {
+        if (this.broadCaster) {
+            this.broadCaster.close();
+        }
     }
 
     callbackGroupSets(groupSets: GroupCallbackData[]) {
@@ -209,6 +222,19 @@ export default class AdminChannelPages extends React.Component<{}, HomepageChann
         }
     }
 
+    triggerNoteEditor(data: NoteData) {
+        if (this.editorCb) {
+            this.editorCb.showModal(data);
+        }
+    }
+
+    broadcastNoteUpdate(data: NoteData) {
+        if (this.broadCaster) {
+            console.info("BrodcasterSend:", data);
+            this.broadCaster.postMessage(JSON.stringify(data));
+        }
+    }
+
     render() {
         const { loadedData, isLoading, progressBar } = this.state;
         const outerThis = this;
@@ -245,7 +271,7 @@ export default class AdminChannelPages extends React.Component<{}, HomepageChann
                                         type="text"
                                         value={this.state.filter}
                                         onChange={this.onChangeData}
-                                        className="form-input mt-1 block w-full md:w-1/2 lg:w-1/3 bg-gray-700 border-2 border-gray-700 focus:border-blue-500"
+                                        className="form-input mt-1 block w-full md:w-1/2 lg:w-1/3 !bg-gray-700 rounded-lg"
                                     />
                                 </label>
                                 <div className="mt-3">
@@ -363,6 +389,7 @@ export default class AdminChannelPages extends React.Component<{}, HomepageChann
                                 data={loadedData}
                                 onFiltered={this.filterGroupModalData}
                                 onMounted={(cb) => (this.pagesCb = cb)}
+                                callbackNoteEdit={this.triggerNoteEditor}
                                 adminMode
                             />
                         </>
@@ -391,6 +418,10 @@ export default class AdminChannelPages extends React.Component<{}, HomepageChann
                             );
                         })}
                     </GroupModal>
+                    <NoteEditorModal
+                        onMounted={(cb) => (this.editorCb = cb)}
+                        onModalClose={this.broadcastNoteUpdate}
+                    />
                     <div className="flex items-end justify-end fixed bottom-0 right-0 mb-6 mr-6 z-20">
                         <button
                             onClick={this.openModal}

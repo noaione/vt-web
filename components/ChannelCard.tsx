@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
 
 import Buttons from "./Buttons";
+import Modal, { CallbackModal } from "./Modal";
+import { NoteData } from "./NoteEditor";
 
 import {
     GROUPS_NAME_MAP,
@@ -9,10 +12,8 @@ import {
     selectBorderColor,
     selectTextColor,
 } from "../lib/vt";
-import { isNone, Nullable, walk } from "../lib/utils";
-import Modal, { CallbackModal } from "./Modal";
 import fetcher from "../lib/fetcher";
-import Link from "next/link";
+import { isNone, Nullable, walk } from "../lib/utils";
 
 const MutationQuery = `mutation VTuberRemove($id:String!,$platform:PlatformName!) {
     VTuberRemove(id:$id,platform:$platform) {
@@ -207,18 +208,45 @@ export interface ChannelCardProps {
     };
     publishedAt?: string;
     is_retired?: boolean;
+    extraNote?: Nullable<string>;
 }
 
 interface ExtraCardsProps {
     adminMode?: boolean;
     callbackRemove: (id: string, platform: PlatformType) => void;
+    callbackNoteEdit?: (data: NoteData) => void;
 }
 
 function ChannelCard(props: ChannelCardProps & ExtraCardsProps) {
-    const { id, name, image, platform, statistics, is_retired, adminMode } = props;
+    const { id, name, image, platform, statistics, is_retired, extraNote, adminMode } = props;
     const { subscriberCount, viewCount } = statistics;
 
     const [VTRetired, setVTRetired] = useState(is_retired);
+    const [noteData, setNote] = useState(extraNote || "");
+
+    function processBroadcastEventData(data: string) {
+        const received = JSON.parse(data) as NoteData;
+        const isValid = received.id === id && received.platform === platform;
+        if (isValid) {
+            console.info("BrodcasterReceive:", id, name, platform);
+            setNote(received.note);
+        }
+    }
+
+    useEffect(() => {
+        /**
+         * Scuffed way to update the note data :)
+         * This would listen for any receiving data from the modal submit
+         * I hope I find better solution but this is fine™
+         */
+        const receiver = new BroadcastChannel("AdminNoteEditor");
+        receiver.onmessage = (ev) => {
+            processBroadcastEventData(ev.data);
+        };
+        return () => {
+            receiver.close();
+        };
+    });
 
     let shortCode;
     switch (platform) {
@@ -281,6 +309,22 @@ function ChannelCard(props: ChannelCardProps & ExtraCardsProps) {
                             {VTRetired && <span className="text-gray-400 ml-1 text-sm">{"(retired)"}</span>}
                         </p>
                         <p className="mt-2 text-white text-lg font-semibold text-center">{name}</p>
+                        {adminMode && (
+                            <div className="flex flex-col justify-center">
+                                <div className="text-center">
+                                    <button
+                                        className="text-yellow-500 hover:text-yellow-600 hover:underline transition text-sm mt-1 focus:outline-none"
+                                        onClick={() => {
+                                            if (props.callbackNoteEdit) {
+                                                props.callbackNoteEdit({ id, platform, note: noteData });
+                                            }
+                                        }}
+                                    >
+                                        Edit Note
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                     <div className={"px-4 py-4 text-gray-200 bg-gray-900 border-t " + borderColor}>
                         <p>

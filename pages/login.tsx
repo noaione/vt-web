@@ -10,6 +10,7 @@ import withSession, { NextServerSideContextWithSession, SimpleUser } from "../li
 
 interface LoginPageState {
     errorMsg: string;
+    password: string;
 }
 
 class LoginPage extends React.Component<{}, LoginPageState> {
@@ -19,11 +20,12 @@ class LoginPage extends React.Component<{}, LoginPageState> {
         this.setErrorMessage = this.setErrorMessage.bind(this);
         this.state = {
             errorMsg: "",
+            password: "",
         };
     }
 
     setErrorMessage(message) {
-        this.setState({ errorMsg: message });
+        this.setState({ errorMsg: message, password: "" });
     }
 
     async onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -73,8 +75,12 @@ class LoginPage extends React.Component<{}, LoginPageState> {
                                     type="password"
                                     name="password"
                                     placeholder="********"
-                                    required
                                     className="form-input bg-gray-700 border border-gray-700 focus:outline-none focus:border-blue-500 rounded-lg"
+                                    value={this.state.password}
+                                    onChange={(ev) =>
+                                        this.setState({ password: ev.target.value, errorMsg: "" })
+                                    }
+                                    required
                                 />
                             </label>
                             {this.state.errorMsg && (

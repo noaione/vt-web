@@ -12,6 +12,8 @@ import Navbar from "../../components/Navbar";
 import VideoCardSmall from "../../components/VideoCardSmall";
 import { ChannelCardProps } from "../../components/ChannelCard";
 import { VideoCardProps } from "../../components/VideoCard";
+import Markdownify from "../../components/Markdown";
+import InfoIcon from "../../components/Icon/InfoIcon";
 
 import { capitalizeLetters, isType, walk } from "../../lib/utils";
 import {
@@ -54,6 +56,7 @@ query VTuberChannelHistory($chId:[ID],$platf:PlatformName) {
                 }
                 publishedAt
                 is_retired
+                extraNote
             }
         }
     }
@@ -250,8 +253,19 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
     }
 
     render() {
-        const { id, room_id, name, en_name, image, group, statistics, history, platform, is_retired } =
-            this.props.data;
+        const {
+            id,
+            room_id,
+            name,
+            en_name,
+            image,
+            group,
+            statistics,
+            history,
+            platform,
+            is_retired,
+            extraNote,
+        } = this.props.data;
 
         let { subscriberCount, viewCount } = statistics;
         subscriberCount = subscriberCount || 0;
@@ -336,7 +350,7 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
                     <hr className="mt-4" />
                     <div className="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 justify-center">
                         <div className="flex justify-center">
-                            <ResponsiveContainer width="80%" height={420}>
+                            <ResponsiveContainer width="100%" height={420}>
                                 <AreaChart
                                     data={reparseHistory(history.subscribersCount)}
                                     margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
@@ -366,7 +380,7 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
                             </ResponsiveContainer>
                         </div>
                         <div className="flex justify-center">
-                            <ResponsiveContainer width="80%" height={420}>
+                            <ResponsiveContainer width="100%" height={420}>
                                 <AreaChart
                                     data={reparseHistory(history.viewsCount)}
                                     margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
@@ -397,6 +411,20 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
                         </div>
                     </div>
                     <hr className="mt-4" />
+                    {typeof extraNote === "string" && extraNote.replace(/\s+/, "").length > 0 && (
+                        <>
+                            <div className="mt-4 border bg-[#1f537180] p-[0.4rem] rounded-lg border-blue-400 border-opacity-50">
+                                <div className="w-full p-[0.4rem] text-lg font-bold flex flex-row items-center gap-1">
+                                    <InfoIcon className="w-[1.1rem] h-[1.1rem]" />
+                                    <span>
+                                        Note <span className="font-light text-sm">from WebAdmin</span>
+                                    </span>
+                                </div>
+                                <Markdownify>{extraNote}</Markdownify>
+                            </div>
+                            <hr className="mt-4" />
+                        </>
+                    )}
                     <div className="mt-4">
                         <span className="text-lg font-semibold">Videos (Last 20 Videos)</span>
                     </div>

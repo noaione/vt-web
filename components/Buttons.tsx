@@ -47,7 +47,7 @@ class Buttons extends React.Component<ButtonsProps> {
 
         const colorMapping = {
             primary: "bg-blue-500 hover:bg-blue-600",
-            success: "bg-green-500 hover:bg-blue-600",
+            success: "bg-green-500 hover:bg-green-600",
             warning: "bg-yellow-600 hover:bg-yellow-700",
             danger: "bg-red-500 hover:bg-red-600",
             dark: "bg-gray-700 hover:bg-gray-800",

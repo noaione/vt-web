@@ -2,8 +2,12 @@ import React from "react";
 import {
     Modal as ModalMain,
     ModalBody as ModalMainBody,
+    ModalBodyProps as ModalMainBodyProps,
     ModalFooter as ModalMainFooter,
+    ModalFooterProps as ModalMainFooterProps,
     ModalHeader as ModalMainHead,
+    ModalHeaderProps as ModalMainHeadProps,
+    ModalProps as ModalMainProps,
 } from "reactstrap";
 
 interface ModalState {
@@ -17,39 +21,41 @@ export interface CallbackModal {
     toggleModal?: () => void;
 }
 
-interface ModalProps {
+interface ModalProps extends ModalMainProps {
     onMounted?: (callbacks: CallbackModal) => void;
 }
 
-class ModalHead extends React.Component {
-    render() {
-        return <ModalMainHead className="font-bold border-gray-500">{this.props.children}</ModalMainHead>;
-    }
+function ModalHead(props: ModalMainHeadProps) {
+    const { className, children, ...rest } = props;
+    return (
+        <ModalMainHead
+            {...rest}
+            className={`font-bold border-gray-500 ${typeof className === "string" ? className : ""}`}
+        >
+            {children}
+        </ModalMainHead>
+    );
 }
 
-class ModalBody extends React.Component {
-    render() {
-        return (
-            <ModalMainBody className="flex flex-col grid-cols-1 gap-2 flex-wrap flex-grow">
-                {this.props.children}
-            </ModalMainBody>
-        );
-    }
+function ModalBody(props: ModalMainBodyProps) {
+    const { className, children, ...rest } = props;
+    return (
+        <ModalMainBody
+            {...rest}
+            className={`flex flex-col grid-cols-1 gap-2 ${typeof className === "string" ? className : ""}`}
+        >
+            {children}
+        </ModalMainBody>
+    );
 }
 
-interface FooterExtra {
-    outerClassName?: string;
-}
-
-class ModalFooter extends React.Component<FooterExtra> {
-    constructor(props: FooterExtra) {
-        super(props);
-    }
-
-    render() {
-        const { outerClassName, children } = this.props;
-        return <ModalMainFooter className={outerClassName ?? ""}>{children}</ModalMainFooter>;
-    }
+function ModalFooter(props: ModalMainFooterProps) {
+    const { className, children, ...rest } = props;
+    return (
+        <ModalMainFooter {...rest} className={className || ""}>
+            {children}
+        </ModalMainFooter>
+    );
 }
 
 class Modal extends React.Component<ModalProps, ModalState> {
@@ -105,11 +111,15 @@ class Modal extends React.Component<ModalProps, ModalState> {
     }
 
     render() {
+        // Extract out the onMounted
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { onMounted, contentClassName, ...props } = this.props;
         return (
             <ModalMain
+                {...props}
+                contentClassName={`bg-gray-700 ${contentClassName ?? ""}`}
                 isOpen={this.state.show}
                 toggle={this.toggleModal}
-                contentClassName="bg-gray-700"
                 scrollable
                 centered
             >

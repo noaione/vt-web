@@ -3,6 +3,7 @@ import React from "react";
 
 import BadgeText from "./Badge";
 import ChannelCard, { ChannelCardProps } from "./ChannelCard";
+import { NoteData } from "./NoteEditor";
 
 import { GROUPS_NAME_MAP, PlatformType } from "../lib/vt";
 import { capitalizeLetters } from "../lib/utils";
@@ -29,6 +30,7 @@ interface ChannelsPagesProps {
     adminMode?: boolean;
     onMounted?: (callbacks: ChannelsPagesCallback) => void;
     onFiltered?: (rawData: any) => void;
+    callbackNoteEdit?: (data: NoteData) => void;
 }
 
 interface ChannelsPagesState {
@@ -170,6 +172,7 @@ export default class ChannelsPages extends React.Component<ChannelsPagesProps, C
                                                 key={`${channel.platform}-${channel.group}-${channel.id}`}
                                                 adminMode={adminMode}
                                                 callbackRemove={this.removeMembersData}
+                                                callbackNoteEdit={this.props.callbackNoteEdit}
                                                 {...channel}
                                             />
                                         );
@@ -184,6 +187,7 @@ export default class ChannelsPages extends React.Component<ChannelsPagesProps, C
                                                 key={`${channel.platform}-${channel.group}-${channel.id}`}
                                                 adminMode={adminMode}
                                                 callbackRemove={this.removeMembersData}
+                                                callbackNoteEdit={this.props.callbackNoteEdit}
                                                 {...channel}
                                             />
                                         );
@@ -198,6 +202,7 @@ export default class ChannelsPages extends React.Component<ChannelsPagesProps, C
                                                 key={`${channel.platform}-${channel.group}-${channel.id}`}
                                                 adminMode={adminMode}
                                                 callbackRemove={this.removeMembersData}
+                                                callbackNoteEdit={this.props.callbackNoteEdit}
                                                 {...channel}
                                             />
                                         );
@@ -212,6 +217,7 @@ export default class ChannelsPages extends React.Component<ChannelsPagesProps, C
                                                 key={`${channel.platform}-${channel.group}-${channel.id}`}
                                                 adminMode={adminMode}
                                                 callbackRemove={this.removeMembersData}
+                                                callbackNoteEdit={this.props.callbackNoteEdit}
                                                 {...channel}
                                             />
                                         );

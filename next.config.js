@@ -38,7 +38,7 @@ module.exports = {
             })
         );
 
-        if (!isServer) {
+        if (!isServer && !dev) {
             Object.assign(config.resolve.alias, {
                 react: "preact/compat",
                 "react-dom/test-utils": "preact/test-utils",

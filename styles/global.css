@@ -4,5 +4,6 @@
 @import "./ihaicon.css";
 @import "./base.css";
 @import "./bootstrap-modal.css";
+@import "./react-md.css";
 
 @import "tailwindcss/utilities";

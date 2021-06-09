@@ -211,7 +211,33 @@ export function shortCodeToPlatform(shortCode: string): Nullable<PlatformType> {
     }
 }
 
-export async function ihaAPIQuery(gqlSchemas: string, cursor: string = "", extraVariables = {}) {
+interface GQLDataErrorLocation {
+    line: number;
+    column: number;
+}
+
+interface GQLDataErrorExtension {
+    code: string;
+    timestamp: string;
+}
+
+interface GQLDataError {
+    message: string;
+    locations: GQLDataErrorLocation[];
+    path: any[];
+    extensions?: GQLDataErrorExtension;
+}
+
+interface GQLDataResponse<T> {
+    data?: T;
+    errors?: GQLDataError[];
+}
+
+export async function ihaAPIQuery<T = any>(
+    gqlSchemas: string,
+    cursor: string = "",
+    extraVariables = {}
+): Promise<GQLDataResponse<T>> {
     const mergedVariables = Object.assign({}, extraVariables, { cursor });
     const apiRes = await fetcher("https://api.ihateani.me/v2/graphql", {
         method: "POST",
