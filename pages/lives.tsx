@@ -31,6 +31,11 @@ const VideoQuerySchemas = `query VTuberLives($cursor:String,$groups:[String],$pl
                     scheduledStartTime
                     startTime
                 }
+                mentions {
+                    id
+                    name
+                    en_name
+                }
                 status
                 thumbnail
                 viewers

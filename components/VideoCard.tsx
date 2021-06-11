@@ -1,8 +1,11 @@
 import React from "react";
 
 import Buttons from "./Buttons";
+import { ChannelCardProps } from "./ChannelCard";
 
 import { DateTime } from "luxon";
+import ReactTooltip from "react-tooltip";
+
 import { isType, Nullable } from "../lib/utils";
 import {
     GROUPS_NAME_MAP,
@@ -14,7 +17,6 @@ import {
     selectTextColor,
     VideoType,
 } from "../lib/vt";
-import { ChannelCardProps } from "./ChannelCard";
 
 function getPreferedTimezone(localStorage) {
     const DEFAULTS = "UTC" + DateTime.local().toFormat("ZZ");
@@ -50,6 +52,42 @@ export function createViewersData(viewers?: number, peakViewers?: number) {
     return null;
 }
 
+interface MentionedProps {
+    mentions?: ChannelCardProps[];
+}
+
+function MentionedChannels(props: MentionedProps) {
+    const { mentions } = props;
+
+    if (!Array.isArray(mentions)) {
+        return null;
+    }
+    if (mentions.length < 1) {
+        return null;
+    }
+
+    return (
+        <>
+            <p>
+                <span className="font-bold" data-tip="This might not be accurate!">
+                    Collabed with
+                </span>{" "}
+                {mentions.map((mention, idx) => {
+                    const selectName = mention.en_name || mention.name;
+                    const addComma = idx + 1 !== mentions.length;
+                    return (
+                        <span key={`mention-${mention.id}`}>
+                            {selectName}
+                            {addComma && ", "}
+                        </span>
+                    );
+                })}
+            </p>
+            <ReactTooltip place="right" type="info" effect="solid" />
+        </>
+    );
+}
+
 export interface VideoCardProps {
     id: string;
     title: string;
@@ -64,6 +102,7 @@ export interface VideoCardProps {
     };
     status: VideoType;
     thumbnail?: Nullable<string>;
+    mentions?: ChannelCardProps[];
     viewers?: Nullable<number>;
     peakViewers?: Nullable<number>;
     averageViewers?: Nullable<number>;
@@ -96,6 +135,7 @@ class VideoCard extends React.Component<VideoCardProps, VideoCardState> {
             channel,
             timeData,
             status,
+            mentions,
             viewers,
             peakViewers,
             platform,
@@ -171,6 +211,7 @@ class VideoCard extends React.Component<VideoCardProps, VideoCardState> {
                             <p>
                                 <span className="font-bold">Start</span>: {properStartTime}
                             </p>
+                            <MentionedChannels mentions={mentions} />
                             {viewersJSX}
                         </div>
                         <div className="rounded-b-lg px-4 py-4 mt-0 flex gap-2">
