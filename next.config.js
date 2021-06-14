@@ -66,4 +66,7 @@ module.exports = {
 
         return config;
     },
+    publicRuntimeConfig: {
+        TOKEN_SECRET: process.env.TOKEN_SECRET,
+    },
 };

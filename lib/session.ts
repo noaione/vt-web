@@ -1,8 +1,11 @@
 import { GetServerSidePropsContext, NextApiRequest } from "next";
 import { Handler, withIronSession } from "next-iron-session";
+import getConfig from "next/config";
 import { NextApiRequestCookies } from "next/dist/next-server/server/api-utils";
 
 import type { IncomingMessage } from "http";
+
+const { publicRuntimeConfig } = getConfig();
 
 interface SessionClass {
     /**
@@ -53,7 +56,7 @@ export interface NextServerSideContextWithSession extends Omit<GetServerSideProp
 
 export default function withSession(session: Handler) {
     return withIronSession(session, {
-        password: process.env.TOKEN_SECRET,
+        password: process.env.TOKEN_SECRET || publicRuntimeConfig.TOKEN_SECRET,
         cookieName: "vtapi/iron/token",
         cookieOptions: {
             secure: process.env.NODE_ENV === "production" ? true : false,

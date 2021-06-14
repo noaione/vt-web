@@ -24,7 +24,7 @@ class LoginPage extends React.Component<{}, LoginPageState> {
         };
     }
 
-    setErrorMessage(message) {
+    setErrorMessage(message: string) {
         this.setState({ errorMsg: message, password: "" });
     }
 
