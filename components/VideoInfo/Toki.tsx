@@ -21,7 +21,7 @@ export default function Toki(props: TokiProps) {
         return <TimeTicker startTime={startTime} />;
     }
     if (status === "upcoming") {
-        return <VideoTimeAgo timeData={scheduledStartTime} isPremiere={isPremiere} />;
+        return <VideoTimeAgo timeData={scheduledStartTime} isPremiere={isPremiere} isScheduled />;
     }
     if (status === "past") {
         return <VideoTimeAgo timeData={endTime} isPremiere={isPremiere} />;
