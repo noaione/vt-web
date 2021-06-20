@@ -8,6 +8,7 @@ import { isNone, isType } from "../../lib/utils";
 interface VideoTimeAgoProps {
     timeData: string | number;
     isPremiere?: boolean;
+    isScheduled?: boolean;
     /**
      * This override isPremiere
      */
@@ -15,7 +16,7 @@ interface VideoTimeAgoProps {
 }
 
 export default function VideoTimeAgo(props: VideoTimeAgoProps) {
-    const { timeData, isPremiere, isVideo } = props;
+    const { timeData, isPremiere, isScheduled, isVideo } = props;
     if (isNone(timeData)) {
         return null;
     }
@@ -43,7 +44,11 @@ export default function VideoTimeAgo(props: VideoTimeAgoProps) {
     const asSeconds = parsedJSDate.getTime() / 1000;
 
     const isFuture = DateTime.utc().toSeconds() >= asSeconds;
+    const isFuture5Min = DateTime.utc().toSeconds() + 5 * 60 >= asSeconds;
     let spanText = isFuture ? "Streamed" : "Streaming";
+    if (isFuture5Min && isScheduled) {
+        spanText = "Should be streaming";
+    }
     if (isPremiere) {
         spanText = isFuture ? "Premiered" : "Premiering";
     }
