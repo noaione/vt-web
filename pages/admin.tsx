@@ -13,10 +13,11 @@ import { ChannelCardProps } from "../components/ChannelCard";
 import GroupModal, { CallbackModal } from "../components/GroupModal";
 import MetadataHead from "../components/MetadataHead";
 import Navbar from "../components/Navbar";
+import NoteEditorModal, { EditorPropsCallbacks, NoteData } from "../components/NoteEditor";
 
 import { capitalizeLetters } from "../lib/utils";
 import { GROUPS_NAME_MAP, ihaAPIQuery, PlatformType } from "../lib/vt";
-import NoteEditorModal, { EditorPropsCallbacks, NoteData } from "../components/NoteEditor";
+import withSession, { NextServerSideContextWithSession, SimpleUser } from "../lib/session";
 
 const ChannelQuerySchemas = `query VTuberChannel($cursor:String) {
     vtuber {
@@ -437,3 +438,17 @@ export default class AdminChannelPages extends React.Component<{}, HomepageChann
         );
     }
 }
+
+export const getServerSideProps = withSession(async function ({ req }: NextServerSideContextWithSession) {
+    const user = req.session.get<SimpleUser>("user");
+    if (!user) {
+        return {
+            redirect: {
+                destination: "/login",
+                permanent: false,
+            },
+        };
+    }
+
+    return { props: {} };
+});
