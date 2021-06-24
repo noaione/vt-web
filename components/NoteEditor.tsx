@@ -8,7 +8,7 @@ import { ChannelCardProps } from "./ChannelCard";
 import { isNone, Nullable } from "../lib/utils";
 import { ihaAPIQuery, PlatformType } from "../lib/vt";
 
-const MutationNote = `mutation SetNote(id:String!,platform:PlatformName!,note:String) {
+const MutationNote = `mutation SetNote($id:String!,$platform:PlatformName!,$note:String) {
     VTuberSetNote(id:$id,platform:$platform,newNote:$note) {
         id
         extraNote
