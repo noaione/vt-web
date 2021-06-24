@@ -3,17 +3,10 @@ import React from "react";
 import Buttons from "./Buttons";
 import Markdownify from "./Markdown";
 import Modal, { CallbackModal } from "./Modal";
-import { ChannelCardProps } from "./ChannelCard";
 
 import { isNone, Nullable } from "../lib/utils";
-import { ihaAPIQuery, PlatformType } from "../lib/vt";
-
-const MutationNote = `mutation SetNote($id:String!,$platform:PlatformName!,$note:String) {
-    VTuberSetNote(id:$id,platform:$platform,newNote:$note) {
-        id
-        extraNote
-    }
-}`;
+import { PlatformType } from "../lib/vt";
+import fetcher from "../lib/fetcher";
 
 function isNumber(data: any): data is number {
     if (typeof data === "number") {
@@ -130,10 +123,17 @@ export default class NoteEditorModal extends React.Component<NoteEditorProps, No
         }
         this.setState({ submit: true });
         try {
-            const res = await ihaAPIQuery<{ VTuberSetNote: ChannelCardProps }>(MutationNote, "", {
+            const jsonBody = {
                 id: this.state.currentId,
                 platform: this.state.currentPlatform,
                 note: this.state.currentNote,
+            };
+            const res = await fetcher("/api/note", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(jsonBody),
             });
             const walkData = simpleWalk(res, "data.VTuberSetNote.id");
             if (typeof walkData !== "string") {
