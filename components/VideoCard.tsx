@@ -69,7 +69,7 @@ function MentionedChannels(props: MentionedProps) {
     return (
         <>
             <p>
-                <span className="font-bold" data-tip="This might not be accurate!">
+                <span className="font-bold dotted-line" data-tip="This might not be accurate!">
                     Collabed with
                 </span>{" "}
                 {mentions.map((mention, idx) => {
