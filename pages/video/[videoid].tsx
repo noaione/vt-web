@@ -418,7 +418,7 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                                             className="font-bold dotted-line"
                                             data-tip="This might not be accurate!"
                                         >
-                                            Collabed with
+                                            Collabing with
                                         </span>
                                     </p>
                                     <ReactTooltip place="top" type="info" effect="solid" />
