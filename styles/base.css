@@ -62,3 +62,8 @@ body {
 .border-youtube {
     @apply border-red-500;
 }
+
+.dotted-line {
+    @apply underline;
+    text-decoration-style: dotted;
+}
