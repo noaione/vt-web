@@ -1,8 +1,8 @@
 import React from "react";
 import Head from "next/head";
-import Link from "next/link";
 import { NextPageContext } from "next";
 
+import ReactTooltip from "react-tooltip";
 import { find, get } from "lodash";
 import { DateTime } from "luxon";
 
@@ -12,6 +12,8 @@ import Navbar from "../../components/Navbar";
 import { VideoCardProps } from "../../components/VideoCard";
 import TimeVideoInfoBlock from "../../components/VideoInfo/TimeBlock";
 import Toki, { TokiProps } from "../../components/VideoInfo/Toki";
+import VideoEmbed from "../../components/VideoEmbed";
+import UserCard from "../../components/UserCard";
 
 import { capitalizeLetters, isType, walk } from "../../lib/utils";
 import {
@@ -24,7 +26,7 @@ import {
     selectTextColor,
     shortCodeToPlatform,
 } from "../../lib/vt";
-import VideoEmbed from "../../components/VideoEmbed";
+import { ChannelCardProps } from "../../components/ChannelCard";
 
 const QueryVideos = `
 query VTuberChannelHistory($id:[ID],$platf:PlatformName) {
@@ -47,6 +49,14 @@ query VTuberChannelHistory($id:[ID],$platf:PlatformName) {
                     room_id
                     en_name
                     image
+                }
+                mentions {
+                    id
+                    name
+                    en_name
+                    image
+                    platform
+                    group
                 }
                 channel_id
                 viewers
@@ -78,6 +88,14 @@ query VTuberVideoUpdate($id:[ID],$platf:PlatformName) {
                     scheduledStartTime
                     publishedAt
                     duration
+                }
+                mentions {
+                    id
+                    name
+                    en_name
+                    image
+                    platform
+                    group
                 }
             }
         }
@@ -122,6 +140,7 @@ interface VideoPageInfoState extends Omit<TokiProps, "isPremiere"> {
     viewers?: number;
     peakViewers?: number;
     averageViewers?: number;
+    mentions?: ChannelCardProps[];
 }
 
 export default class VideoPageInfo extends React.Component<VideoPageInfoProps, VideoPageInfoState> {
@@ -184,6 +203,7 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
         } = this.props.data;
         this.state = {
             tz: "UTC+09:00",
+            mentions: [],
             scheduledStartTime,
             startTime,
             endTime,
@@ -223,6 +243,7 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
         const {
             status,
             timeData: { scheduledStartTime, startTime, endTime, publishedAt, duration },
+            mentions,
             averageViewers,
             peakViewers,
             viewers,
@@ -235,6 +256,7 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
             publishedAt,
             averageViewers,
             duration,
+            mentions,
         });
         if (this.peakViewersCb) {
             this.peakViewersCb.update(peakViewers);
@@ -275,6 +297,7 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
             group,
             platform,
             is_premiere,
+            mentions,
             is_member,
         } = this.props.data;
 
@@ -376,49 +399,55 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                             <div className="text-xl font-bold mx-auto">{title}</div>
                             <div className="flex flex-col">
                                 <div className="mt-4 flex flex-row lg:justify-center items-center text-center gap-2">
-                                    {status === "live" && (
-                                        <div className="hidden lg:flex flex-row items-center gap-1">
-                                            <div className="flex h-3 w-3">
-                                                <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-red-400 opacity-75" />
-                                                <span className="w-3 h-3 inline-flex rounded-full bg-red-500" />
-                                            </div>
-                                            <span className="uppercase ml-1 text-sm font-bold tracking-wider text-red-400">
-                                                Live
-                                            </span>
-                                        </div>
-                                    )}
-                                    <Link
-                                        href={`/channel/${platformToShortCode(platform)}-${channel_id}`}
-                                        passHref
-                                    >
-                                        <a className="justify-center flex">
-                                            <img
-                                                className="rounded-full justify-center h-10 object-cover object-center hover:opacity-80 duration-150 transition-opacity ease-in-out"
-                                                src={image}
-                                                loading="lazy"
-                                            />
-                                        </a>
-                                    </Link>
-                                    <div className="justify-start text-left">
-                                        <div className="font-semibold">{niceName}</div>
-                                        <div className="text-sm font-semibold text-gray-300 tracking-wide justify-start">
-                                            {orgzName}
-                                        </div>
-                                    </div>
-                                    {status === "live" && (
-                                        <div className="flex lg:hidden flex-row items-center gap-1 ml-2">
-                                            {/* Mobile version */}
-                                            <div className="flex h-3 w-3">
-                                                <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-red-400 opacity-75" />
-                                                <span className="w-3 h-3 inline-flex rounded-full bg-red-500" />
-                                            </div>
-                                            <span className="uppercase ml-1 text-sm font-bold tracking-wider text-red-400">
-                                                Live
-                                            </span>
-                                        </div>
-                                    )}
+                                    <UserCard
+                                        isLive={status === "live"}
+                                        platform={platform}
+                                        channel={{
+                                            id: channel_id,
+                                            name: niceName,
+                                            group: orgzName,
+                                            image,
+                                        }}
+                                    />
                                 </div>
                             </div>
+                            {Array.isArray(mentions) && mentions.length > 0 && (
+                                <div className="flex flex-col">
+                                    <p className="lg:text-center mt-4">
+                                        <span
+                                            className="font-bold dotted-line"
+                                            data-tip="This might not be accurate!"
+                                        >
+                                            Collabed with
+                                        </span>
+                                    </p>
+                                    <ReactTooltip place="top" type="info" effect="solid" />
+                                    <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 lg:justify-center items-center text-center gap-2">
+                                        {mentions.map((channel) => {
+                                            const { id, platform, group, image } = channel;
+                                            const niceName = channel.en_name || channel.name;
+                                            const orgzName = get(
+                                                GROUPS_NAME_MAP,
+                                                group,
+                                                capitalizeLetters(group)
+                                            );
+                                            return (
+                                                <UserCard
+                                                    key={`mention-${platform}-${id}`}
+                                                    platform={platform}
+                                                    channel={{
+                                                        name: niceName,
+                                                        group: orgzName,
+                                                        id,
+                                                        image,
+                                                    }}
+                                                />
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
                             <TimeVideoInfoBlock
                                 scheduledStartTime={scheduledStartTime}
                                 startTime={startTime}
