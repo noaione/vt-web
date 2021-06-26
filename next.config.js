@@ -27,9 +27,6 @@ function useESBuildLoader(config, options) {
 }
 
 module.exports = {
-    future: {
-        webpack5: true,
-    },
     productionBrowserSourceMaps: true,
     webpack: (config, { dev, isServer, webpack }) => {
         config.plugins.push(
