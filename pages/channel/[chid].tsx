@@ -3,6 +3,7 @@ import Head from "next/head";
 import { NextPageContext } from "next";
 
 import CountUp from "react-countup";
+import InfiniteScroll from "react-infinite-scroll-component";
 import { get, sortBy } from "lodash";
 import { DateTime } from "luxon";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -15,7 +16,7 @@ import { VideoCardProps } from "../../components/VideoCard";
 import Markdownify from "../../components/Markdown";
 import InfoIcon from "../../components/Icon/InfoIcon";
 
-import { capitalizeLetters, isType, walk } from "../../lib/utils";
+import { capitalizeLetters, isType, Nullable, walk } from "../../lib/utils";
 import {
     GROUPS_NAME_MAP,
     platformToShortCode,
@@ -64,9 +65,9 @@ query VTuberChannelHistory($chId:[ID],$platf:PlatformName) {
 `;
 
 const QueryVideos = `
-query VTuberChannelHistory($chId:[ID],$platf:PlatformName,$sort:String) {
+query VTuberChannelHistory($chId:[ID],$platf:PlatformName,$sort:String,$cur:String) {
     vtuber {
-        videos(channel_id:$chId,limit:20,platforms:[$platf],sort_by:$sort) {
+        videos(channel_id:$chId,limit:20,platforms:[$platf],sort_by:$sort,cursor:$cur) {
             items {
                 id
                 title
@@ -82,6 +83,10 @@ query VTuberChannelHistory($chId:[ID],$platf:PlatformName,$sort:String) {
                 group
                 platform
                 is_premiere
+            }
+            pageInfo {
+                nextCursor
+                hasNextPage
             }
         }
     }
@@ -179,6 +184,8 @@ interface ChannelPageInfoProps {
 interface ChannelPageInfoState {
     videosLoading: boolean;
     videosData: VideoCardProps[];
+    hasMore: boolean;
+    nextCursor: Nullable<string>;
 }
 
 export default class ChannelPageInfo extends React.Component<ChannelPageInfoProps, ChannelPageInfoState> {
@@ -227,29 +234,46 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
 
     constructor(props) {
         super(props);
+        this.videosLoaderData = this.videosLoaderData.bind(this);
         this.state = {
             videosData: [],
             videosLoading: true,
+            hasMore: true,
+            nextCursor: null,
         };
     }
 
-    async componentDidMount() {
+    videosLoaderData() {
         const { id, platform } = this.props.data;
-
-        let res: any;
-        try {
-            res = await QueryFetch(id, platform, QueryVideos);
-        } catch (e) {
-            this.setState({ videosLoading: false });
+        const { hasMore, nextCursor } = this.state;
+        if (!hasMore) {
             return;
         }
-        let videosData: VideoCardProps[] = walk(res, "data.vtuber.videos.items") || [];
-        if (platform === "youtube") {
-            videosData = sortBy(videosData, (o) => o.timeData.endTime).reverse();
-        } else {
-            videosData = sortBy(videosData, (o) => o.timeData.publishedAt).reverse();
-        }
-        this.setState({ videosData, videosLoading: false });
+        QueryFetch(id, platform, QueryVideos, { cur: nextCursor }).then((res) => {
+            let videosData: VideoCardProps[] = walk(res, "data.vtuber.videos.items") || [];
+            const paginationInfo = walk(res, "data.vtuber.videos.pageInfo") || {};
+            if (platform === "youtube") {
+                videosData = sortBy(videosData, (o) => o.timeData.endTime).reverse();
+            } else {
+                videosData = sortBy(videosData, (o) => o.timeData.publishedAt).reverse();
+            }
+            let hasMore = true;
+            console.log(
+                "%c[Pagination]" + "%c Next cursor: " + `%c${paginationInfo.nextCursor}`,
+                "color: blue; padding: 3px; background-color: #fff; border-radius: 4px; font-weight: 700",
+                "color:white; font-weight: 700; font-size: 14px;",
+                "color: aqua; background-color: #000; padding: 4px;"
+            );
+            if (!paginationInfo.hasNextPage) {
+                hasMore = false;
+            }
+            const nextCursor = paginationInfo.nextCursor || null;
+            this.setState((o) => ({
+                videosData: o.videosData.concat(videosData),
+                hasMore,
+                nextCursor,
+            }));
+        });
     }
 
     render() {
@@ -426,49 +450,53 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
                         </>
                     )}
                     <div className="mt-4">
-                        <span className="text-lg font-semibold">Videos (Last 20 Videos)</span>
+                        <span className="text-lg font-semibold">Videos</span>
                     </div>
-                    {this.state.videosLoading ? (
-                        <>
-                            <VideoCollectionSkeleton border={platform} />
-                        </>
-                    ) : (
-                        <>
-                            {this.state.videosData.length > 0 ? (
-                                <>
-                                    <div className="mt-4 grid mx-6 md:mx-16 lg:mx-24 grid-cols-1 md:grid-cols-3 lg:grid-cols-5 justify-center gap-4 items-start">
-                                        {this.state.videosData.map((res) => {
-                                            return (
-                                                <VideoCardSmall
-                                                    key={`videosmall-${res.id}`}
-                                                    {...res}
-                                                    channel_id={id}
-                                                    channel={{ room_id, id, name, image, platform, group }}
-                                                />
-                                            );
-                                        })}
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <div className="mt-2 text-2xl font-light">
-                                        No past live stream or video are found.
-                                    </div>
-                                </>
-                            )}
-                        </>
-                    )}
+                    <InfiniteScroll
+                        dataLength={this.state.videosData.length}
+                        next={this.videosLoaderData}
+                        hasMore={this.state.hasMore}
+                        loader={<VideoCollectionSkeleton border={platform} />}
+                        endMessage={
+                            <div className="my-6 text-xl font-light text-center">
+                                Uh oh, seems like you reach the end of the list :&gt;
+                            </div>
+                        }
+                    >
+                        <div className="mt-4 grid mx-6 md:mx-16 lg:mx-24 grid-cols-1 md:grid-cols-3 lg:grid-cols-5 justify-center gap-4 items-start">
+                            {this.state.videosData.map((res) => {
+                                return (
+                                    <VideoCardSmall
+                                        key={`videosmall-${res.id}`}
+                                        {...res}
+                                        channel_id={id}
+                                        channel={{ room_id, id, name, image, platform, group }}
+                                    />
+                                );
+                            })}
+                        </div>
+                    </InfiniteScroll>
                 </main>
             </>
         );
     }
 }
 
-async function QueryFetch(channelId: string, platform: PlatformType, querySchema = QueryChannel) {
-    const variables: { [key: string]: any } = {
+type AnyDict = { [key: string]: any };
+
+async function QueryFetch(
+    channelId: string,
+    platform: PlatformType,
+    querySchema = QueryChannel,
+    extraVariables?: AnyDict
+) {
+    let variables: AnyDict = {
         chId: channelId,
         platf: platform,
     };
+    if (typeof extraVariables === "object" && Object.keys(extraVariables).length > 0) {
+        variables = Object.assign({}, variables, extraVariables);
+    }
     if (querySchema === QueryVideos) {
         if (platform === "youtube") {
             variables.sort = "timeData.endTime";
