@@ -83,7 +83,11 @@ export default class VideoCardSmall extends React.Component<VideoCardProps> {
                             {viewersJSX}
                         </div>
                         <div className="my-2 mx-2">
-                            <Link href={`/video/${platformToShortCode(platform)}-${id}`} passHref>
+                            <Link
+                                href={`/video/${platformToShortCode(platform)}-${id}`}
+                                prefetch={false}
+                                passHref
+                            >
                                 <a className="text-sm uppercase tracking-wide text-blue-400 hover:text-blue-300 duration-200 transition-colors">
                                     Info
                                 </a>
