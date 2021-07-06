@@ -1,4 +1,4 @@
-import { Action, configureStore, ThunkAction, applyMiddleware } from "@reduxjs/toolkit";
+import { Action, applyMiddleware, configureStore, ThunkAction } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { composeWithDevTools } from "redux-devtools-extension";
 
