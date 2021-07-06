@@ -1,19 +1,18 @@
-import { get } from "lodash";
 import Head from "next/head";
 import React from "react";
+import { connect, ConnectedProps } from "react-redux";
 
 import LoadingBar from "react-top-loading-bar";
-import { Link as ScrollTo } from "react-scroll";
 
 import MetadataHead from "../components/MetadataHead";
 import Navbar from "../components/Navbar";
-import GroupModal, { CallbackModal } from "../components/GroupModal";
+import { getLocalStorageData } from "../components/SettingsComponents/helper";
 import { VideoCardProps } from "../components/VideoCard";
-import VideosPages, { groupMember } from "../components/VideosPages";
+import VideosPages from "../components/VideosPages";
 import VideosPagesSkeleton from "../components/VideosPagesSkeleton";
 
-import { capitalizeLetters } from "../lib/utils";
-import { getGroupsAndPlatformsFilters, GROUPS_NAME_MAP, ihaAPIQuery } from "../lib/vt";
+import { mapBoolean } from "../lib/utils";
+import { getGroupsAndPlatformsFilters, ihaAPIQuery } from "../lib/vt";
 
 const VideoQuerySchemas = `query VTuberLives($cursor:String,$groups:[String],$platform:[PlatformName]) {
     vtuber {
@@ -75,31 +74,31 @@ async function getAllLivesQuery(
     }
 }
 
-interface GroupCallbackData {
-    id: string;
-    name: string;
-    total: number;
-}
-
 interface LivesPageState {
-    loadedData: VideoCardProps[];
+    sortedBy: "time" | "group";
+    freeChat: boolean;
     isLoading: boolean;
     progressBar: number;
-    groupSets: GroupCallbackData[];
+    offsetLoc: string;
 }
 
-class LivesPage extends React.Component<{}, LivesPageState> {
-    modalCb?: CallbackModal;
+const mapDispatch = {
+    resetState: () => ({ type: "videos/resetState" }),
+    startNewData: (payload: VideoCardProps[]) => ({ type: "videos/bulkAddVideo", payload }),
+};
 
+const connector = connect(null, mapDispatch);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+class LivesPage extends React.Component<PropsFromRedux, LivesPageState> {
     constructor(props) {
         super(props);
-        this.callbackGroupSets = this.callbackGroupSets.bind(this);
-        this.openModal = this.openModal.bind(this);
         this.state = {
-            loadedData: [],
             isLoading: true,
             progressBar: 0,
-            groupSets: [],
+            freeChat: false,
+            sortedBy: "group",
+            offsetLoc: "UTC+09:00",
         };
     }
 
@@ -109,47 +108,21 @@ class LivesPage extends React.Component<{}, LivesPageState> {
         function setLoadData(current: number, total: number) {
             selfthis.setState({ progressBar: (current / total) * 100 });
         }
+        const sortedBy = getLocalStorageData(localStorage, "vtapi.sortBy", "group");
+        const enableFreeChat = getLocalStorageData(localStorage, "vtapi.fcEnabled", "false");
+        const offsetLoc = getLocalStorageData(localStorage, "vtapi.offsetLoc", "UTC+09:00");
+        this.setState({ sortedBy, freeChat: mapBoolean(enableFreeChat), offsetLoc });
 
         const extraVars = getGroupsAndPlatformsFilters(localStorage);
 
         const loadedData = await getAllLivesQuery("", 1, extraVars, setLoadData);
-        const sortedGroupData = groupMember(loadedData);
-
-        this.setState({ loadedData, isLoading: false });
-        const configuredCallback: GroupCallbackData[] = [];
-        sortedGroupData.forEach((items) => {
-            const grp = items[0].group;
-            configuredCallback.push({
-                id: grp,
-                name: get(GROUPS_NAME_MAP, grp, capitalizeLetters(grp)),
-                total: items.length,
-            });
-        });
-        this.callbackGroupSets(configuredCallback);
-    }
-
-    callbackGroupSets(groupSets: GroupCallbackData[]) {
-        this.setState({ groupSets });
-    }
-
-    openModal() {
-        if (this.modalCb) {
-            this.modalCb.showModal();
-        }
-    }
-
-    scrollTop() {
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth",
-        });
-        if (this.modalCb) {
-            this.modalCb.hideModal();
-        }
+        this.props.resetState();
+        this.props.startNewData(loadedData);
+        this.setState({ isLoading: false });
     }
 
     render() {
-        const { loadedData, isLoading, progressBar } = this.state;
+        const { isLoading, freeChat, sortedBy, progressBar, offsetLoc } = this.state;
         return (
             <React.Fragment key="livespage">
                 <Head>
@@ -174,59 +147,14 @@ class LivesPage extends React.Component<{}, LivesPageState> {
                         }}
                     />
                     {isLoading ? (
-                        <>
-                            <VideosPagesSkeleton addViewers />
-                        </>
+                        <VideosPagesSkeleton addViewers />
                     ) : (
-                        <VideosPages key="videospage" data={loadedData} />
+                        <VideosPages enableFreeChat={freeChat} sortedData={sortedBy} timezone={offsetLoc} />
                     )}
-                    <GroupModal onMounted={(cb) => (this.modalCb = cb)}>
-                        <button onClick={this.scrollTop} className="cursor-pointer flex flex-wrap">
-                            <span className="text-center text-xs w-full px-2 py-2 bg-green-700 rounded uppercase shadow-lg hover:shadow-xl hover:bg-green-800 transition-all duration-200">
-                                Scroll to Top
-                            </span>
-                        </button>
-                        {this.state.groupSets.map((res) => {
-                            return (
-                                <>
-                                    <ScrollTo
-                                        key={"scroller-" + res.id}
-                                        className="cursor-pointer flex flex-wrap"
-                                        to={"group-" + res.id}
-                                        smooth={true}
-                                        spy={true}
-                                    >
-                                        <span
-                                            key={"scrollerInner-" + res.id}
-                                            className="text-center text-sm w-full px-2 py-2 bg-gray-800 rounded uppercase shadow-lg hover:shadow-xl hover:bg-gray-900 transition-all duration-200"
-                                        >
-                                            {res.name}{" "}
-                                            <span
-                                                key={"scrollerInner2-" + res.id}
-                                                className="rounded bg-red-600 px-2 ml-1"
-                                            >
-                                                {res.total}
-                                            </span>
-                                        </span>
-                                    </ScrollTo>
-                                </>
-                            );
-                        })}
-                    </GroupModal>
-                    <div className="flex items-end justify-end fixed bottom-0 right-0 mb-6 mr-6 z-20">
-                        <button
-                            onClick={this.openModal}
-                            className={
-                                "block w-16 h-16 text-xl rounded-full transition-all shadow hover:shadow-lg focus:outline-none text-center transform hover:scale-110 text-white bg-gray-700"
-                            }
-                        >
-                            <span className="ihaicon ihaico-users" />
-                        </button>
-                    </div>
                 </main>
             </React.Fragment>
         );
     }
 }
 
-export default LivesPage;
+export default connector(LivesPage);
