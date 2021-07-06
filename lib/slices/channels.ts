@@ -27,10 +27,10 @@ function filterChannelSearch(allData: ChannelCardProps[], searchQuery: string, p
         if (!name && !en_name) {
             return false;
         }
-        if (realEnName.includes(searchQuery)) {
+        if (realEnName.toLowerCase().includes(searchQuery)) {
             return true;
         }
-        if (realJPName.includes(searchQuery)) {
+        if (realJPName.toLowerCase().includes(searchQuery)) {
             return true;
         }
         return false;
