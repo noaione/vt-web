@@ -1,21 +1,18 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
-import { filter, get } from "lodash";
 import React from "react";
 import Head from "next/head";
 
+import { connect, ConnectedProps } from "react-redux";
 import LoadingBar from "react-top-loading-bar";
-import { Link as ScrollTo } from "react-scroll";
-import { Switch } from "@headlessui/react";
 
-import ChannelsPages, { ChannelsPagesCallback, groupMember } from "../components/ChannelsPages";
+import ChannelsPages from "../components/ChannelsPages";
 import ChannelsPagesSkeleton from "../components/ChannelsPagesSkeleton";
 import { ChannelCardProps } from "../components/ChannelCard";
-import GroupModal, { CallbackModal } from "../components/GroupModal";
 import MetadataHead from "../components/MetadataHead";
+import ChannelsComponent from "../components/ChannelsComponents";
 import Navbar from "../components/Navbar";
 
-import { capitalizeLetters } from "../lib/utils";
-import { GROUPS_NAME_MAP, ihaAPIQuery, PlatformType } from "../lib/vt";
+import { ihaAPIQuery } from "../lib/vt";
 
 const ChannelQuerySchemas = `query VTuberChannel($cursor:String) {
     vtuber {
@@ -59,51 +56,25 @@ async function getAllChannelsAsync(cursor = "", page = 1, cb: (current: number, 
     }
 }
 
-interface GroupCallbackData {
-    id: string;
-    name: string;
-    total: number;
-}
+const mapDispatch = {
+    resetState: () => ({ type: "channels/resetState" }),
+    startNewData: (payload: ChannelCardProps[]) => ({ type: "channels/bulkAddChannel", payload }),
+};
+const connector = connect(null, mapDispatch);
+type PropsFromRedux = ConnectedProps<typeof connector>;
 
 interface HomepageChannelState {
-    loadedData: ChannelCardProps[];
     isLoading: boolean;
     progressBar: number;
-    groupSets: GroupCallbackData[];
-    filter: string;
-    platformFilter: Record<PlatformType, boolean>;
-    platformList: PlatformType[];
 }
 
-export default class HomepageChannelsPage extends React.Component<{}, HomepageChannelState> {
-    modalCb?: CallbackModal;
-    pagesCb?: ChannelsPagesCallback;
-
+class HomepageChannelsPage extends React.Component<PropsFromRedux, HomepageChannelState> {
     constructor(props) {
         super(props);
-        this.callbackGroupSets = this.callbackGroupSets.bind(this);
-        this.filterGroupModalData = this.filterGroupModalData.bind(this);
-        this.onPlatformTick = this.onPlatformTick.bind(this);
-        this.onChangeData = this.onChangeData.bind(this);
-        this.doFilterChange = this.doFilterChange.bind(this);
-        this.openModal = this.openModal.bind(this);
-        this.scrollTop = this.scrollTop.bind(this);
 
         this.state = {
-            loadedData: [],
             isLoading: true,
             progressBar: 0,
-            groupSets: [],
-
-            filter: "",
-            platformFilter: {
-                youtube: true,
-                bilibili: true,
-                twitch: true,
-                twitcasting: true,
-                mildom: true,
-            },
-            platformList: ["youtube", "bilibili", "twitcasting", "twitch", "mildom"],
         };
     }
 
@@ -114,104 +85,13 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
         }
 
         const loadedData = await getAllChannelsAsync("", 1, setLoadData);
-        const sortedGroupData = groupMember(loadedData);
-
-        this.setState({ loadedData, isLoading: false });
-        const configuredCallback: GroupCallbackData[] = [];
-        sortedGroupData.forEach((items) => {
-            const grp = items[0].group;
-            configuredCallback.push({
-                id: grp,
-                name: get(GROUPS_NAME_MAP, grp, capitalizeLetters(grp)),
-                total: items.length,
-            });
-        });
-        this.callbackGroupSets(configuredCallback);
-    }
-
-    callbackGroupSets(groupSets: GroupCallbackData[]) {
-        this.setState({ groupSets });
-    }
-
-    filterGroupModalData(rawData = null) {
-        const { platformFilter } = this.state;
-        const includedPlatform = [];
-        for (const [pl, tick] of Object.entries(platformFilter)) {
-            if (tick) {
-                includedPlatform.push(pl);
-            }
-        }
-
-        const loadedData = rawData || this.state.loadedData;
-
-        const filteredData = filter(loadedData, (o) => includedPlatform.includes(o.platform));
-        const sortedGroupData = groupMember(filteredData);
-        const configuredCallback = [];
-        sortedGroupData.forEach((items) => {
-            const grp = items[0].group;
-            configuredCallback.push({
-                id: grp,
-                name: get(GROUPS_NAME_MAP, grp, capitalizeLetters(grp)),
-                total: items.length,
-            });
-        });
-        this.callbackGroupSets(configuredCallback);
-    }
-
-    onPlatformTick(platform: PlatformType) {
-        const { platformFilter, filter } = this.state;
-        platformFilter[platform] = !platformFilter[platform];
-        const includePlatform = Object.entries(platformFilter)
-            .map((plat) => {
-                const [name, tick] = plat as [PlatformType, boolean];
-                if (tick) return name;
-                return undefined;
-            })
-            .filter((e) => typeof e === "string");
-        this.setState({ platformList: includePlatform }, () => {
-            this.doFilterChange(filter, includePlatform);
-        });
-    }
-
-    onChangeData(event: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({ filter: event.target.value }, () => {
-            const { platformFilter } = this.state;
-            const includePlatform = Object.entries(platformFilter)
-                .map((plat) => {
-                    const [name, tick] = plat as [PlatformType, boolean];
-                    if (tick) return name;
-                    return undefined;
-                })
-                .filter((e) => typeof e === "string");
-            this.doFilterChange(event.target.value, includePlatform);
-        });
-    }
-
-    doFilterChange(filterText: string, platforms: PlatformType[]) {
-        if (this.pagesCb) {
-            this.pagesCb.filter(filterText, platforms);
-        }
-    }
-
-    openModal() {
-        if (this.modalCb) {
-            this.modalCb.showModal();
-        }
-    }
-
-    scrollTop() {
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth",
-        });
-        if (this.modalCb) {
-            this.modalCb.hideModal();
-        }
+        this.props.resetState();
+        this.props.startNewData(loadedData);
+        this.setState({ isLoading: false });
     }
 
     render() {
-        const { loadedData, isLoading, progressBar } = this.state;
-        const outerThis = this;
+        const { isLoading, progressBar } = this.state;
 
         return (
             <React.Fragment key="channelsmain-fragment">
@@ -235,171 +115,18 @@ export default class HomepageChannelsPage extends React.Component<{}, HomepageCh
                     {isLoading ? (
                         <ChannelsPagesSkeleton />
                     ) : (
-                        <>
+                        <div className="flex flex-col">
                             <div className="my-4">
-                                <label className="block">
-                                    <span className="text-gray-300 font-semibold">Search</span>
-                                    <input
-                                        type="text"
-                                        value={this.state.filter}
-                                        onChange={this.onChangeData}
-                                        className="form-input mt-1 block w-full md:w-1/2 lg:w-1/3 !bg-gray-700 rounded-lg"
-                                    />
-                                </label>
-                                <div className="mt-3">
-                                    <span className="text-gray-300 font-semibold">Filter Platform</span>
-                                </div>
-                                <div className="mt-1 flex flex-col sm:flex-row gap-4">
-                                    <div className="flex flex-row gap-2">
-                                        <i className="ihaicon ihaico-youtube text-youtube text-2xl -mt-1"></i>
-                                        <Switch
-                                            checked={this.state.platformFilter.youtube}
-                                            onChange={() => outerThis.onPlatformTick("youtube")}
-                                            className={`${
-                                                this.state.platformFilter.youtube
-                                                    ? "bg-red-500"
-                                                    : "bg-gray-600"
-                                            } relative inline-flex items-center h-6 rounded-full w-11`}
-                                        >
-                                            <span className="sr-only">Enable YouTube</span>
-                                            <span
-                                                className={`inline-block w-4 h-4 transform transition ease-in-out duration-200 bg-white rounded-full ${
-                                                    this.state.platformFilter.youtube
-                                                        ? "translate-x-6"
-                                                        : "translate-x-1"
-                                                }`}
-                                            />
-                                        </Switch>
-                                    </div>
-                                    <div className="flex flex-row gap-2">
-                                        <i className="ihaicon ihaico-bilibili text-bili2 text-2xl -mt-1"></i>
-                                        <Switch
-                                            checked={this.state.platformFilter.bilibili}
-                                            onChange={() => outerThis.onPlatformTick("bilibili")}
-                                            className={`${
-                                                this.state.platformFilter.bilibili
-                                                    ? "bg-pl-bili2"
-                                                    : "bg-gray-600"
-                                            } relative inline-flex items-center h-6 rounded-full w-11`}
-                                        >
-                                            <span className="sr-only">Enable BiliBili</span>
-                                            <span
-                                                className={`inline-block w-4 h-4 transform transition ease-in-out duration-200 bg-white rounded-full ${
-                                                    this.state.platformFilter.bilibili
-                                                        ? "translate-x-6"
-                                                        : "translate-x-1"
-                                                }`}
-                                            />
-                                        </Switch>
-                                    </div>
-                                    <div className="flex flex-row gap-2">
-                                        <i className="ihaicon ihaico-twitch text-twitch text-2xl -mt-1"></i>
-                                        <Switch
-                                            checked={this.state.platformFilter.twitch}
-                                            onChange={() => outerThis.onPlatformTick("twitch")}
-                                            className={`${
-                                                this.state.platformFilter.twitch
-                                                    ? "bg-pl-twitch"
-                                                    : "bg-gray-600"
-                                            } relative inline-flex items-center h-6 rounded-full w-11`}
-                                        >
-                                            <span className="sr-only">Enable Twitch</span>
-                                            <span
-                                                className={`inline-block w-4 h-4 transform transition ease-in-out duration-200 bg-white rounded-full ${
-                                                    this.state.platformFilter.twitch
-                                                        ? "translate-x-6"
-                                                        : "translate-x-1"
-                                                }`}
-                                            />
-                                        </Switch>
-                                    </div>
-                                    <div className="flex flex-row gap-2">
-                                        <i className="ihaicon ihaico-twitcasting text-twcast text-2xl -mt-1"></i>
-                                        <Switch
-                                            checked={this.state.platformFilter.twitcasting}
-                                            onChange={() => outerThis.onPlatformTick("twitcasting")}
-                                            className={`${
-                                                this.state.platformFilter.twitcasting
-                                                    ? "bg-pl-twcast"
-                                                    : "bg-gray-600"
-                                            } relative inline-flex items-center h-6 rounded-full w-11`}
-                                        >
-                                            <span className="sr-only">Enable Twitcasting</span>
-                                            <span
-                                                className={`inline-block w-4 h-4 transform transition ease-in-out duration-200 bg-white rounded-full ${
-                                                    this.state.platformFilter.twitcasting
-                                                        ? "translate-x-6"
-                                                        : "translate-x-1"
-                                                }`}
-                                            />
-                                        </Switch>
-                                    </div>
-                                    <div className="flex flex-row gap-2">
-                                        <i className="ihaicon ihaico-mildom_simple text-mildom text-2xl -mt-1"></i>
-                                        <Switch
-                                            checked={this.state.platformFilter.mildom}
-                                            onChange={() => outerThis.onPlatformTick("mildom")}
-                                            className={`${
-                                                this.state.platformFilter.mildom
-                                                    ? "bg-pl-mildom"
-                                                    : "bg-gray-600"
-                                            } relative inline-flex items-center h-6 rounded-full w-11`}
-                                        >
-                                            <span className="sr-only">Enable Mildom</span>
-                                            <span
-                                                className={`inline-block w-4 h-4 transform transition ease-in-out duration-200 bg-white rounded-full ${
-                                                    this.state.platformFilter.mildom
-                                                        ? "translate-x-6"
-                                                        : "translate-x-1"
-                                                }`}
-                                            />
-                                        </Switch>
-                                    </div>
-                                </div>
+                                <ChannelsComponent.Search />
+                                <ChannelsComponent.Platforms />
                             </div>
-                            <ChannelsPages
-                                data={loadedData}
-                                onFiltered={this.filterGroupModalData}
-                                onMounted={(cb) => (this.pagesCb = cb)}
-                            />
-                        </>
+                            <ChannelsPages />
+                        </div>
                     )}
-                    <GroupModal onMounted={(callbacks) => (this.modalCb = callbacks)}>
-                        <button onClick={this.scrollTop} className="cursor-pointer flex flex-wrap">
-                            <span className="text-center text-xs w-full px-2 py-2 bg-green-700 rounded uppercase shadow-lg hover:shadow-xl hover:bg-green-800 transition-all duration-200">
-                                Scroll to Top
-                            </span>
-                        </button>
-                        {this.state.groupSets.map((res) => {
-                            return (
-                                <>
-                                    <ScrollTo
-                                        className="cursor-pointer flex flex-wrap"
-                                        to={"group-" + res.id}
-                                        smooth={true}
-                                        spy={true}
-                                    >
-                                        <span className="text-center text-sm w-full px-2 py-2 bg-gray-800 rounded uppercase shadow-lg hover:shadow-xl hover:bg-gray-900 transition-all duration-200">
-                                            {res.name}{" "}
-                                            <span className="rounded bg-red-600 px-2 ml-1">{res.total}</span>
-                                        </span>
-                                    </ScrollTo>
-                                </>
-                            );
-                        })}
-                    </GroupModal>
-                    <div className="flex items-end justify-end fixed bottom-0 right-0 mb-6 mr-6 z-20">
-                        <button
-                            onClick={this.openModal}
-                            className={
-                                "block w-16 h-16 text-xl rounded-full transition-all shadow hover:shadow-lg focus:outline-none text-center transform hover:scale-110 text-white bg-gray-700"
-                            }
-                        >
-                            <span className="ihaicon ihaico-users" />
-                        </button>
-                    </div>
                 </main>
             </React.Fragment>
         );
     }
 }
+
+export default connector(HomepageChannelsPage);
