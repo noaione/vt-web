@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Link from "next/link";
 
 import Buttons from "./Buttons";
-import Modal, { CallbackModal } from "./Modal";
-import { NoteData } from "./NoteEditor";
+import ChannelsComponent from "./ChannelsComponents";
 
 import {
     GROUPS_NAME_MAP,
@@ -12,178 +11,7 @@ import {
     selectBorderColor,
     selectTextColor,
 } from "../lib/vt";
-import fetcher from "../lib/fetcher";
-import { isNone, Nullable, walk } from "../lib/utils";
-
-const MutationQuery = `mutation VTuberRemove($id:String!,$platform:PlatformName!) {
-    VTuberRemove(id:$id,platform:$platform) {
-        id
-        platform
-        isRemoved
-    }
-}
-
-mutation VTuberRetire($id:String!,$platform:PlatformName!,$retire:Boolean) {
-    VTuberRetired(id:$id,platform:$platform,retire:$retire) {
-        id
-        is_retired
-    }
-}
-`;
-interface DeleteButtonProps {
-    id: string;
-    name: string;
-    platform: PlatformType;
-    callbackRemove: (id: string, platform: PlatformType) => void;
-}
-
-interface DeleteButtonState {
-    isSubmit: boolean;
-}
-
-class DeleteButton extends React.Component<DeleteButtonProps, DeleteButtonState> {
-    modalCb?: CallbackModal;
-
-    constructor(props) {
-        super(props);
-        this.nukeChannelForReal = this.nukeChannelForReal.bind(this);
-        this.handleHide = this.handleHide.bind(this);
-        this.handleShow = this.handleShow.bind(this);
-        this.state = {
-            isSubmit: false,
-        };
-    }
-
-    async nukeChannelForReal() {
-        if (this.state.isSubmit) return;
-        this.setState({
-            isSubmit: true,
-        });
-
-        const GQLRequest = {
-            query: MutationQuery,
-            operationName: "VTuberRemove",
-            variables: {
-                id: this.props.id,
-                platform: this.props.platform,
-            },
-        };
-
-        try {
-            const requested = await fetcher("https://api.ihateani.me/v2/graphql", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                    Authorization: `password ${process.env.IHAAPI_PASSWORD ?? ""}`,
-                },
-                body: JSON.stringify(GQLRequest),
-            });
-            const result = walk(requested, "data.VTuberRemove");
-            if (isNone(result)) {
-                // fuck and raise
-            }
-            this.props.callbackRemove(this.props.id, this.props.platform);
-        } catch (e) {
-            // fuck
-        }
-        this.setState({ isSubmit: false });
-    }
-
-    handleHide() {
-        if (this.modalCb) {
-            this.modalCb.hideModal();
-        }
-    }
-
-    handleShow() {
-        if (this.modalCb && !this.state.isSubmit) {
-            this.modalCb.showModal();
-        }
-    }
-
-    render() {
-        return (
-            <>
-                <Buttons onClick={this.handleShow} btnType="danger" disabled={this.state.isSubmit}>
-                    Delete
-                </Buttons>
-                <Modal onMounted={(cb) => (this.modalCb = cb)}>
-                    <Modal.Head>Are you sure?</Modal.Head>
-                    <Modal.Body>
-                        <div>
-                            This will delete this channel <strong>{this.props.name}</strong> from Database
-                        </div>
-                        <div>This action is irreversible, please make sure!</div>
-                    </Modal.Body>
-                    <Modal.Footer outerClassName="justify-center">
-                        <Buttons onClick={this.nukeChannelForReal} btnType="danger">
-                            Delete
-                        </Buttons>
-                        <Buttons onClick={this.handleHide} btnType="primary">
-                            Cancel
-                        </Buttons>
-                    </Modal.Footer>
-                </Modal>
-            </>
-        );
-    }
-}
-
-interface RetireButtonProps extends Omit<DeleteButtonProps, "callbackRemove"> {
-    retired: boolean;
-    callbackRetire: (isRetired: boolean) => void;
-}
-
-class RetireButton extends React.Component<RetireButtonProps, DeleteButtonState> {
-    constructor(props) {
-        super(props);
-        this.setRetireData = this.setRetireData.bind(this);
-        this.state = {
-            isSubmit: false,
-        };
-    }
-
-    async setRetireData() {
-        if (this.state.isSubmit) return;
-        this.setState({
-            isSubmit: true,
-        });
-
-        const GQLRequest = {
-            id: this.props.id,
-            platform: this.props.platform,
-            retire: !this.props.retired,
-        };
-
-        try {
-            const requested = await fetcher("/api/retire", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(GQLRequest),
-            });
-            const result = walk(requested, "data.VTuberRetired");
-            if (isNone(result)) {
-                // fuck and raise
-            }
-            this.props.callbackRetire(result.is_retired);
-        } catch (e) {
-            // fuck
-        }
-        this.setState({ isSubmit: false });
-    }
-
-    render() {
-        const { retired } = this.props;
-        return (
-            <Buttons onClick={this.setRetireData} btnType="warning" disabled={this.state.isSubmit}>
-                {retired ? "Unretire" : "Retire"}
-            </Buttons>
-        );
-    }
-}
+import { Nullable } from "../lib/utils";
 
 interface HistoryData {
     data: number;
@@ -213,40 +41,11 @@ export interface ChannelCardProps {
 
 interface ExtraCardsProps {
     adminMode?: boolean;
-    callbackRemove: (id: string, platform: PlatformType) => void;
-    callbackNoteEdit?: (data: NoteData) => void;
 }
 
 function ChannelCard(props: ChannelCardProps & ExtraCardsProps) {
-    const { id, name, image, platform, statistics, is_retired, extraNote, adminMode } = props;
+    const { id, name, image, platform, statistics, is_retired, adminMode } = props;
     const { subscriberCount, viewCount } = statistics;
-
-    const [VTRetired, setVTRetired] = useState(is_retired);
-    const [noteData, setNote] = useState(extraNote || "");
-
-    function processBroadcastEventData(data: string) {
-        const received = JSON.parse(data) as NoteData;
-        const isValid = received.id === id && received.platform === platform;
-        if (isValid) {
-            console.info("BrodcasterReceive:", id, name, platform);
-            setNote(received.note);
-        }
-    }
-
-    useEffect(() => {
-        /**
-         * Scuffed way to update the note data :)
-         * This would listen for any receiving data from the modal submit
-         * I hope I find better solution but this is fine™
-         */
-        const receiver = new BroadcastChannel("AdminNoteEditor");
-        receiver.onmessage = (ev) => {
-            processBroadcastEventData(ev.data);
-        };
-        return () => {
-            receiver.close();
-        };
-    });
 
     let shortCode;
     switch (platform) {
@@ -280,10 +79,6 @@ function ChannelCard(props: ChannelCardProps & ExtraCardsProps) {
         ihaIco += "_simple";
     }
 
-    function callbackRetire(isRetired: boolean) {
-        setVTRetired(isRetired);
-    }
-
     return (
         <>
             <div id={"ch-" + id + "-" + platform} className="flex rounded-lg">
@@ -296,7 +91,7 @@ function ChannelCard(props: ChannelCardProps & ExtraCardsProps) {
                                     alt={name + " Channel Image"}
                                     loading="lazy"
                                     className={`w-full object-cover object-center rounded-t-lg ${
-                                        VTRetired && "opacity-50"
+                                        is_retired && "opacity-50"
                                     }`}
                                 />
                             </a>
@@ -306,7 +101,7 @@ function ChannelCard(props: ChannelCardProps & ExtraCardsProps) {
                         <p className="mt-1 uppercase text-sm tracking-wide font-bold text-center">
                             <i className={textCol + " mr-2 ihaicon ihaico-" + ihaIco}></i>
                             {platform}
-                            {VTRetired && <span className="text-gray-400 ml-1 text-sm">{"(retired)"}</span>}
+                            {is_retired && <span className="text-gray-400 ml-1 text-sm">{"(retired)"}</span>}
                         </p>
                         <p className="mt-2 text-white text-lg font-semibold text-center">{name}</p>
                         {adminMode && (
@@ -315,9 +110,9 @@ function ChannelCard(props: ChannelCardProps & ExtraCardsProps) {
                                     <button
                                         className="text-yellow-500 hover:text-yellow-600 hover:underline transition text-sm mt-1 focus:outline-none"
                                         onClick={() => {
-                                            if (props.callbackNoteEdit) {
-                                                props.callbackNoteEdit({ id, platform, note: noteData });
-                                            }
+                                            // if (props.callbackNoteEdit) {
+                                            //     props.callbackNoteEdit({ id, platform, note: noteData });
+                                            // }
                                         }}
                                     >
                                         Edit Note
@@ -346,19 +141,13 @@ function ChannelCard(props: ChannelCardProps & ExtraCardsProps) {
                     >
                         {adminMode ? (
                             <>
-                                <RetireButton
+                                <ChannelsComponent.Retire
                                     id={id}
                                     name={name}
                                     platform={platform}
-                                    retired={VTRetired}
-                                    callbackRetire={callbackRetire}
+                                    retired={is_retired}
                                 />
-                                <DeleteButton
-                                    id={id}
-                                    name={name}
-                                    platform={platform}
-                                    callbackRemove={props.callbackRemove}
-                                />
+                                <ChannelsComponent.Delete id={id} name={name} platform={platform} />
                             </>
                         ) : (
                             <>
