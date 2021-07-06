@@ -43,6 +43,9 @@ export const videosReducer = createSlice({
             videos = videos.filter((e) => !payload.includes(e.id));
             state.videos = videos;
         },
+        resetState: (state) => {
+            state.videos = [];
+        },
     },
 });
 

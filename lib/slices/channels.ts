@@ -43,6 +43,9 @@ export const channelsReducer = createSlice({
             channels = channels.filter((e) => !payload.includes(e.id));
             state.channels = channels;
         },
+        resetState: (state) => {
+            state.channels = [];
+        },
     },
 });
 
