@@ -3,7 +3,7 @@ import Link from "next/link";
 import Router from "next/router";
 
 interface NavbarProps {
-    mode?: "lives" | "schedules" | "settings" | "admin" | "channel" | "video";
+    mode?: "lives" | "schedules" | "videos" | "settings" | "admin" | "channel" | "video";
     noSticky?: boolean;
 }
 
@@ -43,6 +43,7 @@ class Navbar extends React.Component<NavbarProps, NavbarState> {
         let scheduleUrl = "#";
         let loginUrl = "#";
         let settingsUrl = "#";
+        let videosUrl = "#";
 
         let stickyModel = "sticky top-0 z-10";
         if (noSticky) {
@@ -54,26 +55,37 @@ class Navbar extends React.Component<NavbarProps, NavbarState> {
             scheduleUrl = "/schedules";
             loginUrl = "/login";
             settingsUrl = "/settings";
+            videosUrl = "/videos";
         } else if (mode === "schedules") {
             homeUrl = "/";
             livesUrl = "/lives";
             loginUrl = "/login";
             settingsUrl = "/settings";
+            videosUrl = "/videos";
         } else if (mode === "settings") {
             homeUrl = "/";
             livesUrl = "/lives";
             scheduleUrl = "/schedules";
+            videosUrl = "/videos";
+            loginUrl = "/login";
+        } else if (mode === "videos") {
+            homeUrl = "/";
+            livesUrl = "/lives";
+            scheduleUrl = "/schedules";
+            settingsUrl = "/settings";
             loginUrl = "/login";
         } else if (mode === "admin") {
             homeUrl = "/";
             livesUrl = "/lives";
             scheduleUrl = "/schedules";
+            videosUrl = "/videos";
             loginUrl = "/api/logout";
             settingsUrl = "/settings";
         } else if (mode === "channel" || mode === "video") {
             homeUrl = "/";
             livesUrl = "/lives";
             scheduleUrl = "/schedules";
+            videosUrl = "/videos";
             loginUrl = "/login";
             settingsUrl = "/settings";
         } else {
@@ -81,6 +93,7 @@ class Navbar extends React.Component<NavbarProps, NavbarState> {
             scheduleUrl = "/schedules";
             loginUrl = "/login";
             settingsUrl = "/settings";
+            videosUrl = "/videos";
         }
 
         let extraClass = "hidden";
@@ -150,6 +163,17 @@ class Navbar extends React.Component<NavbarProps, NavbarState> {
                                     }}
                                 >
                                     Schedules
+                                </a>
+                            </Link>
+                            <Link href={videosUrl} passHref>
+                                <a
+                                    className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
+                                    onClick={(ev) => {
+                                        ev.preventDefault();
+                                        outerThis.navigateLink(videosUrl);
+                                    }}
+                                >
+                                    Videos
                                 </a>
                             </Link>
                             <Link href={settingsUrl} passHref>

@@ -53,11 +53,12 @@ export function createViewersData(viewers?: number, peakViewers?: number) {
 }
 
 interface MentionedProps {
+    videoId: string;
     mentions?: ChannelCardProps[];
 }
 
 function MentionedChannels(props: MentionedProps) {
-    const { mentions } = props;
+    const { videoId, mentions } = props;
 
     if (!Array.isArray(mentions)) {
         return null;
@@ -76,7 +77,7 @@ function MentionedChannels(props: MentionedProps) {
                     const selectName = mention.en_name || mention.name;
                     const addComma = idx + 1 !== mentions.length;
                     return (
-                        <span key={`mention-${mention.id}`}>
+                        <span key={`mention-${videoId}-${mention.id}`}>
                             {selectName}
                             {addComma && ", "}
                         </span>
@@ -143,7 +144,7 @@ class VideoCard extends React.Component<VideoCardProps, VideoCardState> {
             is_member,
         } = this.props;
         let { thumbnail } = this.props;
-        const { scheduledStartTime, startTime } = timeData;
+        const { scheduledStartTime, startTime, endTime } = timeData;
         const { name, room_id } = channel;
         const ch_id = channel.id;
 
@@ -162,6 +163,7 @@ class VideoCard extends React.Component<VideoCardProps, VideoCardState> {
         const { preferTZ } = this.state;
 
         let properStartTime: Nullable<string> = null;
+        let properEndTime: Nullable<string> = null;
         if (status === "upcoming" && scheduledStartTime) {
             const startTimeTZ = DateTime.fromSeconds(scheduledStartTime, { zone: "UTC" }).setZone(preferTZ);
             properStartTime = startTimeTZ.toFormat("EEE, dd MMM yyyy HH:mm:ss ZZZZ");
@@ -171,6 +173,13 @@ class VideoCard extends React.Component<VideoCardProps, VideoCardState> {
         } else if (status === "live" && startTime) {
             const startTimeTZ = DateTime.fromSeconds(startTime, { zone: "UTC" }).setZone(preferTZ);
             properStartTime = startTimeTZ.toFormat("EEE, dd MMM yyyy HH:mm:ss ZZZZ");
+        } else if (status === "past" && startTime) {
+            const startTimeTZ = DateTime.fromSeconds(startTime, { zone: "UTC" }).setZone(preferTZ);
+            properStartTime = startTimeTZ.toFormat("EEE, dd MMM yyyy HH:mm:ss ZZZZ");
+        }
+        if (status === "past" && endTime) {
+            const endTimeTZ = DateTime.fromSeconds(endTime, { zone: "UTC" }).setZone(preferTZ);
+            properEndTime = endTimeTZ.toFormat("EEE, dd MMM yyyy HH:mm:ss ZZZZ");
         }
 
         const videoInfo = `/video/${platformToShortCode(platform)}-${id}`;
@@ -211,7 +220,12 @@ class VideoCard extends React.Component<VideoCardProps, VideoCardState> {
                             <p>
                                 <span className="font-bold">Start</span>: {properStartTime}
                             </p>
-                            <MentionedChannels mentions={mentions} />
+                            {properEndTime && (
+                                <p>
+                                    <span className="font-bold">Ended</span>: {properEndTime}
+                                </p>
+                            )}
+                            <MentionedChannels videoId={id} mentions={mentions} />
                             {viewersJSX}
                         </div>
                         <div className="rounded-b-lg px-4 py-4 mt-0 flex gap-2">

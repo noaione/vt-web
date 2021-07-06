@@ -28,7 +28,7 @@ export const videosReducer = createSlice({
         bulkAddVideo: (state, action: PayloadAction<VideoCardProps[]>) => {
             let { videos } = state;
             videos = videos.concat(action.payload);
-            videos = videos.filter((i, idx) => videos.indexOf(i) === idx);
+            videos = videos.filter((i, idx) => videos.findIndex((op) => op.id === i.id) === idx);
             state.videos = videos;
         },
         removeVideoById: (state, action: PayloadAction<string>) => {

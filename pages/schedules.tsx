@@ -149,7 +149,12 @@ class SchedulesPage extends React.Component<PropsFromRedux, LivesPageState> {
                     {isLoading ? (
                         <VideosPagesSkeleton />
                     ) : (
-                        <VideosPages enableFreeChat={freeChat} sortedData={sortedBy} timezone={offsetLoc} />
+                        <VideosPages
+                            currentType="schedule"
+                            enableFreeChat={freeChat}
+                            sortedData={sortedBy}
+                            timezone={offsetLoc}
+                        />
                     )}
                 </main>
             </React.Fragment>
