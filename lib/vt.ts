@@ -1,7 +1,7 @@
 import { has } from "lodash";
 
 import fetcher from "./fetcher";
-import { capitalizeLetters, isNone, mapBoolean, Nullable } from "./utils";
+import { capitalizeLetters, mapBoolean, Nullable } from "./utils";
 
 import { getLocalStorageData } from "../components/SettingsComponents/helper";
 
