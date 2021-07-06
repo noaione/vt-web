@@ -1,7 +1,7 @@
 import React from "react";
 
 import { connect, ConnectedProps } from "react-redux";
-import { get, groupBy } from "lodash";
+import { get, groupBy, ValueIteratee } from "lodash";
 import { Link as ScrollTo } from "react-scroll";
 
 import GroupModal from "./GroupModal";
@@ -21,6 +21,7 @@ type PropsFromRedux = ConnectedProps<typeof connector>;
 
 interface InferFrom extends PropsFromRedux {
     groupType: "video" | "channel";
+    sortedBy?: "time" | "group";
 }
 
 interface GroupCallbackData {
@@ -29,9 +30,9 @@ interface GroupCallbackData {
     total: number;
 }
 
-function groupMember<T>(realData: T[]): T[][] {
-    // @ts-ignore
-    const groupedByGroup = groupBy(realData, (o) => o.group);
+// @ts-ignore
+function groupMember<T>(realData: T[], predicate: ValueIteratee<T> = (o: T) => o.group): T[][] {
+    const groupedByGroup = groupBy(realData, predicate);
 
     const sortedGroupData = [];
     Object.keys(groupedByGroup)
