@@ -23,6 +23,7 @@ export default function SettingsPage() {
                 <SettingsComponent.FreeChat />
                 <SettingsComponent.Excluder />
                 <SettingsComponent.Platform />
+                <SettingsComponent.LivesSort />
             </main>
             <footer className="mx-4 border-t-2 border-gray-600">
                 <div className="ml-2 flex flex-col mt-4">
