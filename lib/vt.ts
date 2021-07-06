@@ -254,12 +254,15 @@ export async function ihaAPIQuery<T = any>(
 }
 
 export function filterFreeChat(title: string) {
-    const matched = title.match(/(fr[e]{2}).*(chat)/i);
-    if (isNone(matched)) {
-        // include since it's unmatched
-        return true;
+    const matchEnglish = title.match(/(fr[e]{2}).*(chat)/i);
+    const matchJPKana = title.match(/(フリー?).*(チャッ?ト)/i);
+    if (Array.isArray(matchEnglish) && matchEnglish.length > 0) {
+        return false;
     }
-    return matched.length > 0 ? false : true;
+    if (Array.isArray(matchJPKana) && matchJPKana.length > 0) {
+        return false;
+    }
+    return true;
 }
 
 export function getGroupsAndPlatformsFilters(localStorage: Storage) {
