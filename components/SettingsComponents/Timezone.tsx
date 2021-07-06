@@ -148,11 +148,11 @@ class TimezoneSettings extends React.Component<{}, TimezoneState> {
 
     render() {
         return (
-            <>
-                <h4 className="text-lg font-semibold ml-2">Timezone/Offset</h4>
+            <div className="flex flex-col mx-2">
+                <h4 className="text-lg font-semibold">Timezone/Offset</h4>
                 <div>
                     <select
-                        className="form-select ml-2 w-full md:w-1/2 lg:w-1/3 mt-2 bg-gray-700 rounded-lg border-gray-700 hover:border-gray-400 transition duration-200"
+                        className="form-select w-full md:w-1/2 lg:w-1/3 mt-2 bg-gray-700 rounded-lg border-gray-700 hover:border-gray-400 transition duration-200"
                         value={this.state.selTZ}
                         onChange={(e) => this.setState({ selTZ: e.target.value })}
                         aria-label="timezone"
@@ -162,7 +162,7 @@ class TimezoneSettings extends React.Component<{}, TimezoneState> {
                         })}
                     </select>
                 </div>
-            </>
+            </div>
         );
     }
 }

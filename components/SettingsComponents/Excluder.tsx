@@ -103,7 +103,7 @@ export default class ExcludeComponents extends React.Component<{}, ExcluderState
         }
         return (
             <>
-                <div className="flex flex-col mt-4 gap-2 ml-2">
+                <div className="flex flex-col mt-4 gap-2 mx-2">
                     <div className="flex text-lg font-semibold">Exclude Groups</div>
                     <div className="flex text-sm text-gray-300 -mt-1">
                         This will not affect the Channel and Video Page

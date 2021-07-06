@@ -58,7 +58,7 @@ export default class PlatformComponent extends React.Component<{}, IChecked> {
     render() {
         return (
             <>
-                <div className="flex flex-col mt-4 gap-2 ml-2">
+                <div className="flex flex-col mt-4 gap-2 mx-2">
                     <div className="flex text-lg font-semibold">Include Platform</div>
                     <div className="flex text-sm text-gray-300 -mt-1">
                         This will not affect the Channel and Video Page

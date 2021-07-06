@@ -20,7 +20,7 @@ export default function LivesSortSettings() {
     }, [sortBy]);
 
     return (
-        <div className="flex flex-col mt-4 gap-2 ml-2">
+        <div className="flex flex-col mt-4 gap-2 mx-2">
             <div className="flex text-lg font-semibold">Lives/Upcoming Sorting</div>
             <div className="flex text-sm text-gray-300 -mt-1">
                 Selecting &quot;Group&quot; will sort and group the lives/upcoming video by the Group or

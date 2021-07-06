@@ -7,7 +7,9 @@ import Navbar from "../components/Navbar";
 import SettingsComponent from "../components/SettingsComponents";
 
 export default function SettingsPage() {
-    const commit = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA ?? "";
+    const commit = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA ?? "(Dev Mode)";
+
+    const extraConfig = commit !== "(Dev Mode)" ? { rel: "noreferrer noopener", target: "_blank" } : {};
 
     return (
         <>
@@ -26,7 +28,7 @@ export default function SettingsPage() {
                 <SettingsComponent.LivesSort />
             </main>
             <footer className="mx-4 border-t-2 border-gray-600">
-                <div className="ml-2 flex flex-col mt-4">
+                <div className="mx-2 flex flex-col mt-4">
                     <div>This project is made by N4O#8868</div>
                     <div>
                         Source code:{" "}
@@ -53,15 +55,18 @@ export default function SettingsPage() {
                     </div>
                 </div>
                 {commit && (
-                    <div className="ml-2 flex flex-row mt-2 text-sm text-gray-400">
-                        Commit:{" "}
+                    <div className="ml-2 flex flex-row gap-1 mt-2 text-sm text-gray-400">
+                        <span>Commit:</span>
                         <a
                             className="text-blue-400 hover:text-blue-500 hover:underline transition duration-150"
-                            href={"https://github.com/noaione/vt-web/commit/" + commit}
-                            rel="noreferrer noopener"
-                            target="_blank"
+                            href={
+                                commit === "(Dev Mode)"
+                                    ? "#"
+                                    : `https://github.com/noaione/vt-web/commit/${commit}`
+                            }
+                            {...extraConfig}
                         >
-                            {commit.slice(0, 7)}
+                            {commit === "(Dev Mode)" ? commit : commit.slice(0, 7)}
                         </a>
                     </div>
                 )}
