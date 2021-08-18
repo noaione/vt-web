@@ -77,7 +77,7 @@ function MentionedChannels(props: MentionedProps) {
                     const selectName = mention.en_name || mention.name;
                     const addComma = idx + 1 !== mentions.length;
                     return (
-                        <span key={`mention-${videoId}-${mention.id}`}>
+                        <span key={`mention-${videoId}-${mention.id}-${idx}`}>
                             {selectName}
                             {addComma && ", "}
                         </span>
