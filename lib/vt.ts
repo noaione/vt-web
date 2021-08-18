@@ -9,6 +9,7 @@ export type PlatformType = "youtube" | "bilibili" | "twitch" | "twitcasting" | "
 export type VideoType = "live" | "upcoming" | "past" | "video";
 
 export const GROUPS_NAME_MAP = {
+    anagataid: "Anagata ID",
     animare: "Animare",
     "axel-v": "AXEL-V",
     cattleyarg: "Cattleya Regina Games",
