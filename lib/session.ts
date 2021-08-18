@@ -1,7 +1,6 @@
 import { GetServerSidePropsContext, NextApiRequest } from "next";
 import { Handler, withIronSession } from "next-iron-session";
 import getConfig from "next/config";
-import { NextApiRequestCookies } from "next/dist/next-server/server/api-utils";
 
 import type { IncomingMessage } from "http";
 
@@ -45,7 +44,7 @@ export interface SimpleUser {
 }
 
 interface ExtraRouterContext {
-    cookies: NextApiRequestCookies;
+    cookies: { [key: string]: string };
     session: SessionClass;
     __NEXT_INIT_QUERY?: { [key: string]: string };
 }
