@@ -8,7 +8,7 @@ import VideoCard, { VideoCardProps } from "./VideoCard";
 import { capitalizeLetters } from "../lib/utils";
 import { filterFreeChat, GROUPS_NAME_MAP } from "../lib/vt";
 import { useStoreSelector } from "../lib/store";
-import { selectVideo } from "../lib/slices/videos";
+import { selectAllVideos, selectVideo } from "../lib/slices/videos";
 
 interface GroupingVideoProps {
     data: VideoCardProps[];
@@ -115,11 +115,17 @@ interface PageProps {
     currentType?: CurrentType;
     enableFreeChat?: boolean;
     timezone?: string;
+    showAll?: boolean;
 }
 
 function VideosPagesData(props: PageProps) {
     const { sortedData, currentType, enableFreeChat, timezone } = props;
-    const videos = useStoreSelector(selectVideo);
+    let videos: any;
+    if (props.showAll) {
+        videos = useStoreSelector(selectAllVideos);
+    } else {
+        videos = useStoreSelector(selectVideo);
+    }
 
     if (videos.length < 1) {
         return <div className="text-center pb-8 text-2xl font-light text-gray-300">No ongoing lives</div>;
