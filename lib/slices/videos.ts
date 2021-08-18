@@ -99,6 +99,7 @@ export const videosReducer = createSlice({
 export const { addVideo, removeVideoById, bulkAddVideo, bulkRemoveVideoById, resetState } =
     videosReducer.actions;
 
-export const selectVideo = (state: RootState) => state.videos.videos;
+export const selectAllVideos = (state: RootState) => state.videos.videos;
+export const selectVideo = (state: RootState) => state.videos.filtered;
 
 export default videosReducer.reducer;
