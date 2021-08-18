@@ -27,7 +27,7 @@ export default function SettingsPage() {
                 <SettingsComponent.Platform />
                 <SettingsComponent.LivesSort />
             </main>
-            <footer className="mx-4 border-t-2 border-gray-600">
+            <footer className="mx-4 pb-4 border-t-2 border-gray-600">
                 <div className="mx-2 flex flex-col mt-4">
                     <div>This project is made by N4O#8868</div>
                     <div>
