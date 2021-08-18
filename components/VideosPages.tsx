@@ -128,7 +128,7 @@ function VideosPagesData(props: PageProps) {
     if (sortedData === "time") {
         const sortedByTimeData = groupMember(videos, (o) =>
             determineTimeTitle(o, currentType, timezone || "UTC+09:00")
-        );
+        ).reverse();
 
         return (
             <>

@@ -9,6 +9,7 @@ import Navbar from "../components/Navbar";
 import { VideoCardProps } from "../components/VideoCard";
 import VideosPages from "../components/VideosPages";
 import VideosPagesSkeleton from "../components/VideosPagesSkeleton";
+import { getLocalStorageData } from "../components/SettingsComponents/helper";
 
 import { Nullable, walk } from "../lib/utils";
 import { getGroupsAndPlatformsFilters, ihaAPIQuery } from "../lib/vt";
@@ -117,6 +118,8 @@ class VideosPastPage extends React.Component<PropsFromRedux, LivesPageState> {
     }
 
     async componentDidMount() {
+        const offsetLoc = getLocalStorageData(localStorage, "vtapi.offsetLoc", "UTC+09:00");
+        this.setState({ offsetLoc });
         const extraVars = getGroupsAndPlatformsFilters(localStorage);
         const [videos, pageInfo] = await fetchVideosWithCursor(null, extraVars);
         this.props.pushNewVideo(videos);
