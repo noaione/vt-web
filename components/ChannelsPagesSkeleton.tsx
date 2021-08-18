@@ -2,6 +2,8 @@ import React from "react";
 
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 
+import FilterSkeleton from "./FilterSkeleton";
+
 function SkeletonCard({ isTwitch }: { isTwitch?: boolean }) {
     return (
         <div className="flex rounded-lg">
@@ -38,48 +40,6 @@ function SkeletonCard({ isTwitch }: { isTwitch?: boolean }) {
                 >
                     <Skeleton width={90} height={40} />
                     <Skeleton width={70} height={40} />
-                </div>
-            </div>
-        </div>
-    );
-}
-
-const SkeletonCheckbox = {
-    gap: "0.3rem",
-};
-
-function FilterSkeleton() {
-    return (
-        <div className="my-4">
-            <label className="flex flex-col">
-                <Skeleton width={33} />
-                <div className="block w-full md:w-1/2 lg:w-1/3">
-                    <Skeleton height={45} />
-                </div>
-            </label>
-            <div className="mt-3">
-                <Skeleton width={100} />
-            </div>
-            <div className="mt-1 flex flex-col sm:flex-row" style={{ gap: "0.75rem" }}>
-                <div className="flex flex-row" style={SkeletonCheckbox}>
-                    <Skeleton width={25} height={25} />
-                    <Skeleton width={45} height={25} />
-                </div>
-                <div className="flex flex-row" style={SkeletonCheckbox}>
-                    <Skeleton width={25} height={25} />
-                    <Skeleton width={45} height={25} />
-                </div>
-                <div className="flex flex-row" style={SkeletonCheckbox}>
-                    <Skeleton width={25} height={25} />
-                    <Skeleton width={45} height={25} />
-                </div>
-                <div className="flex flex-row" style={SkeletonCheckbox}>
-                    <Skeleton width={25} height={25} />
-                    <Skeleton width={45} height={25} />
-                </div>
-                <div className="flex flex-row" style={SkeletonCheckbox}>
-                    <Skeleton width={25} height={25} />
-                    <Skeleton width={45} height={25} />
                 </div>
             </div>
         </div>

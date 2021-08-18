@@ -2,6 +2,8 @@ import React from "react";
 
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 
+import FilterSkeleton from "./FilterSkeleton";
+
 function SkeletonCard({ addViewers }: { addViewers?: boolean }) {
     return (
         <div className="flex flex-col bg-gray-900 col-span-1 rounded-lg">
@@ -31,6 +33,7 @@ function SkeletonCard({ addViewers }: { addViewers?: boolean }) {
 export default function VideosPagesSkeleton({ addViewers }: { addViewers?: boolean }) {
     return (
         <SkeletonTheme color="#404040" highlightColor="#525252">
+            <FilterSkeleton />
             <div className="pb-3 mt-2 vtubers-group skeleton">
                 <h2 className="text-white py-3 text-3xl font-bold mb-2">
                     <Skeleton width={120} height={40} />
