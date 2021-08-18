@@ -21,21 +21,24 @@ const initialState: ChannelsState = {
 
 function filterChannelSearch(allData: ChannelCardProps[], searchQuery: string, platformTick: PlatformType[]) {
     searchQuery = searchQuery.toLowerCase();
-    let refiltered = allData.filter((o) => {
-        const { name, en_name } = o;
-        const realEnName = en_name || "";
-        const realJPName = name || "";
-        if (!name && !en_name) {
+    let refiltered = allData;
+    if (searchQuery.trim() !== "") {
+        refiltered = allData.filter((o) => {
+            const { name, en_name } = o;
+            const realEnName = en_name || "";
+            const realJPName = name || "";
+            if (!name && !en_name) {
+                return false;
+            }
+            if (realEnName.toLowerCase().includes(searchQuery)) {
+                return true;
+            }
+            if (realJPName.toLowerCase().includes(searchQuery)) {
+                return true;
+            }
             return false;
-        }
-        if (realEnName.toLowerCase().includes(searchQuery)) {
-            return true;
-        }
-        if (realJPName.toLowerCase().includes(searchQuery)) {
-            return true;
-        }
-        return false;
-    });
+        });
+    }
     if (initialState.platformList.length === platformTick.length) {
         return refiltered;
     }
@@ -143,10 +146,6 @@ export const channelsReducer = createSlice({
             const { platformList } = state;
             const { payload } = action;
             state.currentQuery = payload;
-            if (payload.trim() === "") {
-                state.filtered = state.channels;
-                return;
-            }
             const filteredData = filterChannelSearch(state.channels, payload, platformList);
             state.filtered = filteredData;
         },
