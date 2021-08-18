@@ -20,6 +20,7 @@ const initialState: ChannelsState = {
 };
 
 function filterChannelSearch(allData: ChannelCardProps[], searchQuery: string, platformTick: PlatformType[]) {
+    searchQuery = searchQuery.toLowerCase();
     let refiltered = allData.filter((o) => {
         const { name, en_name } = o;
         const realEnName = en_name || "";
