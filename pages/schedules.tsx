@@ -7,6 +7,7 @@ import { connect, ConnectedProps } from "react-redux";
 import MetadataHead from "../components/MetadataHead";
 import Navbar from "../components/Navbar";
 import { VideoCardProps } from "../components/VideoCard";
+import FiltersComponent from "../components/FiltersComponents";
 import VideosPages from "../components/VideosPages";
 import VideosPagesSkeleton from "../components/VideosPagesSkeleton";
 
@@ -149,12 +150,18 @@ class SchedulesPage extends React.Component<PropsFromRedux, LivesPageState> {
                     {isLoading ? (
                         <VideosPagesSkeleton />
                     ) : (
-                        <VideosPages
-                            currentType="schedule"
-                            enableFreeChat={freeChat}
-                            sortedData={sortedBy}
-                            timezone={offsetLoc}
-                        />
+                        <div className="flex flex-col">
+                            <div className="my-4">
+                                <FiltersComponent.Search.Videos />
+                                <FiltersComponent.Platforms.Videos />
+                            </div>
+                            <VideosPages
+                                currentType="schedule"
+                                enableFreeChat={freeChat}
+                                sortedData={sortedBy}
+                                timezone={offsetLoc}
+                            />
+                        </div>
                     )}
                 </main>
             </React.Fragment>

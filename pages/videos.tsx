@@ -168,6 +168,7 @@ class VideosPastPage extends React.Component<PropsFromRedux, LivesPageState> {
                             sortedData="time"
                             enableFreeChat={freeChat}
                             timezone={offsetLoc}
+                            showAll
                         />
                     </InfiniteScroll>
                 </main>
