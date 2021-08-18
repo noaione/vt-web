@@ -11,11 +11,15 @@ function simpleDebounce<T extends (...args: any) => ReturnType<T>>(fn: T, wait: 
     };
 }
 
-const mapDispatch = {
+const channelsDispatch = {
     searchQuery: (payload: string) => ({ type: "channels/searchQuery", payload }),
 };
-const connector = connect(null, mapDispatch);
-type PropsFromRedux = ConnectedProps<typeof connector>;
+const videosDispatch = {
+    searchQuery: (payload: string) => ({ type: "videos/searchQuery", payload }),
+};
+const channelsConnector = connect(null, channelsDispatch);
+const videosConnector = connect(null, videosDispatch);
+type PropsFromRedux = ConnectedProps<typeof channelsConnector>;
 
 interface SearchBoxState {
     query: string;
@@ -58,4 +62,6 @@ class SearchBoxComponent extends React.Component<PropsFromRedux, SearchBoxState>
     }
 }
 
-export default connector(SearchBoxComponent);
+const ChannelsSearchBoxComponent = channelsConnector(SearchBoxComponent);
+const VideosSearchBoxComponent = videosConnector(SearchBoxComponent);
+export { ChannelsSearchBoxComponent, VideosSearchBoxComponent };

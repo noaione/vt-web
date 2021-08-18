@@ -10,7 +10,7 @@ import ChannelsPages from "../components/ChannelsPages";
 import ChannelsPagesSkeleton from "../components/ChannelsPagesSkeleton";
 import { ChannelCardProps } from "../components/ChannelCard";
 import MetadataHead from "../components/MetadataHead";
-import ChannelsComponent from "../components/ChannelsComponents";
+import FiltersComponent from "../components/FiltersComponents";
 import Navbar from "../components/Navbar";
 
 import { ihaAPIQuery } from "../lib/vt";
@@ -126,8 +126,8 @@ class HomepageChannelsPage extends React.Component<PropsFromRedux, HomepageChann
                     ) : (
                         <div className="flex flex-col">
                             <div className="my-4">
-                                <ChannelsComponent.Search />
-                                <ChannelsComponent.Platforms />
+                                <FiltersComponent.Search.Channels />
+                                <FiltersComponent.Platforms.Channels />
                             </div>
                             <ChannelsPages />
                         </div>
