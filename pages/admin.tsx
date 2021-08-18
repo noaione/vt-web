@@ -5,9 +5,9 @@ import Head from "next/head";
 import LoadingBar from "react-top-loading-bar";
 
 import ChannelsPages from "../components/ChannelsPages";
-import ChannelsComponent from "../components/ChannelsComponents";
 import ChannelsPagesSkeleton from "../components/ChannelsPagesSkeleton";
 import { ChannelCardProps } from "../components/ChannelCard";
+import FiltersComponent from "../components/FiltersComponents";
 import MetadataHead from "../components/MetadataHead";
 import Navbar from "../components/Navbar";
 
@@ -119,8 +119,8 @@ class AdminChannelsPage extends React.Component<PropsFromRedux, AdminChannelsPag
                     ) : (
                         <div className="flex flex-col">
                             <div className="my-4">
-                                <ChannelsComponent.Search />
-                                <ChannelsComponent.Platforms />
+                                <FiltersComponent.Search.Channels />
+                                <FiltersComponent.Platforms.Channels />
                             </div>
                             <ChannelsPages isAdmin />
                         </div>
