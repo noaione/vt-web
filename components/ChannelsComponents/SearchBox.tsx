@@ -1,33 +1,61 @@
-import React, { useState } from "react";
-import { debounce } from "lodash";
-import { useStoreDispatch } from "../../lib/store";
-import { searchQuery as dispatchQuery } from "../../lib/slices/channels";
+import React from "react";
+import { connect, ConnectedProps } from "react-redux";
 
-export default function SearchBoxComponent() {
-    const [searchQuery, setSearchQuery] = useState("");
-    const dispatch = useStoreDispatch();
-
-    function dispatchSearch(value: string) {
-        console.info("Debounced with:", value);
-        dispatch(dispatchQuery(value));
-    }
-
-    const debouncer = debounce(dispatchSearch, 300);
-
-    function filterSearch(text: string) {
-        setSearchQuery(text);
-        debouncer(text);
-    }
-
-    return (
-        <div className="flex flex-col gap-1 ml-2">
-            <div className="text-gray-300 font-semibold">Search</div>
-            <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => filterSearch(e.target.value)}
-                className="form-input w-full md:w-1/2 lg:w-1/3 mt-1 bg-gray-700 rounded-lg border-gray-700 hover:border-gray-400 focus:hover:border-blue-500 transition duration-200"
-            />
-        </div>
-    );
+function simpleDebounce<T extends (...args: any) => ReturnType<T>>(fn: T, wait: number) {
+    let timeoutFunc: NodeJS.Timeout;
+    return (...args: any) => {
+        clearTimeout(timeoutFunc);
+        timeoutFunc = setTimeout(() => {
+            fn(...args);
+        }, wait);
+    };
 }
+
+const mapDispatch = {
+    searchQuery: (payload: string) => ({ type: "channels/searchQuery", payload }),
+};
+const connector = connect(null, mapDispatch);
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+interface SearchBoxState {
+    query: string;
+}
+
+class SearchBoxComponent extends React.Component<PropsFromRedux, SearchBoxState> {
+    debouncer: (...args: any) => void;
+
+    constructor(props: PropsFromRedux) {
+        super(props);
+        this.dispatchActual = this.dispatchActual.bind(this);
+        this.debouncer = simpleDebounce(this.dispatchActual, 300);
+        this.handleChange = this.handleChange.bind(this);
+        this.state = {
+            query: "",
+        };
+    }
+
+    dispatchActual(data: string) {
+        this.props.searchQuery(data);
+    }
+
+    handleChange(query: string) {
+        this.setState({ query });
+        this.debouncer(query);
+    }
+
+    render() {
+        return (
+            <div className="flex flex-col gap-1 ml-2">
+                <div className="text-gray-300 font-semibold">Search</div>
+                <input
+                    type="text"
+                    value={this.state.query}
+                    onChange={(e) => this.handleChange(e.target.value)}
+                    className="form-input w-full md:w-1/2 lg:w-1/3 mt-1 bg-gray-700 rounded-lg border-gray-700 hover:border-gray-400 focus:hover:border-blue-500 transition duration-200"
+                />
+            </div>
+        );
+    }
+}
+
+export default connector(SearchBoxComponent);
