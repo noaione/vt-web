@@ -3,6 +3,7 @@ import React from "react";
 import Head from "next/head";
 
 import { connect, ConnectedProps } from "react-redux";
+import { delay, groupBy } from "lodash";
 import LoadingBar from "react-top-loading-bar";
 
 import ChannelsPages from "../components/ChannelsPages";
@@ -85,8 +86,16 @@ class HomepageChannelsPage extends React.Component<PropsFromRedux, HomepageChann
         }
 
         const loadedData = await getAllChannelsAsync("", 1, setLoadData);
+        const groupedByGroup = groupBy(loadedData, "group");
         this.props.resetState();
-        this.props.startNewData(loadedData);
+        for (const [groupName, groupVals] of Object.entries(groupedByGroup)) {
+            delay(() => {
+                this.props.startNewData(groupVals);
+                console.info(`Loaded ${groupVals.length} channels for group ${groupName}`);
+            }, 250);
+            // this.props.startNewData(groupVals);
+        }
+        // this.props.startNewData(loadedData);
         this.setState({ isLoading: false });
     }
 
