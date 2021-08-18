@@ -47,31 +47,42 @@ export const videosReducer = createSlice({
     initialState,
     reducers: {
         addVideo: (state, action: PayloadAction<VideoCardProps>) => {
-            const { videos } = state;
+            const { videos, platformList, currentQuery } = state;
             const { payload } = action;
             const isExist = videos.findIndex((e) => e.id === payload.id) !== -1;
             if (!isExist) {
                 videos.push(payload);
                 state.videos = videos;
             }
+            const filteredData = filterVideoSearch(videos, currentQuery, platformList);
+            state.filtered = filteredData;
         },
         bulkAddVideo: (state, action: PayloadAction<VideoCardProps[]>) => {
             let { videos } = state;
+            const { platformList, currentQuery } = state;
             videos = videos.concat(action.payload);
             videos = videos.filter((i, idx) => videos.findIndex((op) => op.id === i.id) === idx);
             state.videos = videos;
+            const filteredData = filterVideoSearch(videos, currentQuery, platformList);
+            state.filtered = filteredData;
         },
         removeVideoById: (state, action: PayloadAction<string>) => {
             let { videos } = state;
+            const { platformList, currentQuery } = state;
             const { payload } = action;
             videos = videos.filter((e) => payload !== e.id);
             state.videos = videos;
+            const filteredData = filterVideoSearch(videos, currentQuery, platformList);
+            state.filtered = filteredData;
         },
         bulkRemoveVideoById: (state, action: PayloadAction<string[]>) => {
             let { videos } = state;
+            const { platformList, currentQuery } = state;
             const { payload } = action;
             videos = videos.filter((e) => !payload.includes(e.id));
             state.videos = videos;
+            const filteredData = filterVideoSearch(videos, currentQuery, platformList);
+            state.filtered = filteredData;
         },
         resetState: (state) => {
             state.videos = [];
