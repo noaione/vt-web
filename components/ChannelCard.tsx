@@ -73,6 +73,10 @@ function ChannelCard(props: ChannelCardProps & ExtraCardsProps) {
 
     const borderColor = selectBorderColor(platform);
     const textCol = selectTextColor(platform);
+    let subsFollowName = "Subscribers";
+    if (["twitch", "twitcasting"].includes(platform)) {
+        subsFollowName = "Followers";
+    }
 
     let ihaIco = platform;
     if (ihaIco === "mildom") {
@@ -123,7 +127,8 @@ function ChannelCard(props: ChannelCardProps & ExtraCardsProps) {
                     </div>
                     <div className={"px-4 py-4 text-gray-200 bg-gray-900 border-t " + borderColor}>
                         <p>
-                            <span className="font-bold">Subscribers</span>: {subscriberCount.toLocaleString()}
+                            <span className="font-bold">{subsFollowName}</span>:{" "}
+                            {subscriberCount.toLocaleString()}
                         </p>
                     </div>
                     {isViewCount && (
