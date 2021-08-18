@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { debounce } from "lodash";
 import { useStoreDispatch } from "../../lib/store";
 import { searchQuery as dispatchQuery } from "../../lib/slices/channels";
 
@@ -6,9 +7,16 @@ export default function SearchBoxComponent() {
     const [searchQuery, setSearchQuery] = useState("");
     const dispatch = useStoreDispatch();
 
+    function dispatchSearch(value: string) {
+        console.info("Debounced with:", value);
+        dispatch(dispatchQuery(value));
+    }
+
+    const debouncer = debounce(dispatchSearch, 300);
+
     function filterSearch(text: string) {
         setSearchQuery(text);
-        dispatch(dispatchQuery(text));
+        debouncer(text);
     }
 
     return (
