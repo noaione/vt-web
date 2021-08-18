@@ -70,10 +70,6 @@ export const channelsReducer = createSlice({
                 channels.push(payload);
                 state.channels = channels;
             }
-            if (currentQuery.trim() === "") {
-                state.filtered = channels;
-                return;
-            }
             const filteredData = filterChannelSearch(channels, currentQuery, platformList);
             state.filtered = filteredData;
         },
@@ -83,10 +79,6 @@ export const channelsReducer = createSlice({
             channels = channels.concat(action.payload);
             channels = channels.filter((i, idx) => channels.indexOf(i) === idx);
             state.channels = channels;
-            if (currentQuery.trim() === "") {
-                state.filtered = channels;
-                return;
-            }
             const filteredData = filterChannelSearch(channels, currentQuery, platformList);
             state.filtered = filteredData;
         },
@@ -96,10 +88,6 @@ export const channelsReducer = createSlice({
             const { payload } = action;
             channels = channels.filter((e) => payload !== e.id);
             state.channels = channels;
-            if (currentQuery.trim() === "") {
-                state.filtered = channels;
-                return;
-            }
             const filteredData = filterChannelSearch(channels, currentQuery, platformList);
             state.filtered = filteredData;
         },
@@ -109,10 +97,6 @@ export const channelsReducer = createSlice({
             const { payload } = action;
             channels = channels.filter((e) => !payload.includes(e.id));
             state.channels = channels;
-            if (currentQuery.trim() === "") {
-                state.filtered = channels;
-                return;
-            }
             const filteredData = filterChannelSearch(channels, currentQuery, platformList);
             state.filtered = filteredData;
         },
