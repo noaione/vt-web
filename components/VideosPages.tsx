@@ -40,9 +40,6 @@ export function groupMember(
 
 function GroupVideo(props: GroupingVideoProps) {
     const { data, forceId, group, enableFreeChat, noTitleFormatting } = props;
-    if (forceId === "202405162100") {
-        console.info(data);
-    }
 
     let sortedByTime = sortBy(data, (o) => o.timeData.startTime);
     if (!enableFreeChat) {
