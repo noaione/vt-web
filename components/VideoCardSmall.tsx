@@ -14,7 +14,6 @@ export default class VideoCardSmall extends React.Component<VideoCardProps> {
             id,
             title,
             status,
-            thumbnail,
             timeData,
             platform,
             averageViewers,
@@ -23,9 +22,10 @@ export default class VideoCardSmall extends React.Component<VideoCardProps> {
             channel: { room_id },
             is_premiere,
         } = this.props;
+        let { thumbnail } = this.props;
         const { endTime, publishedAt } = timeData;
 
-        let ihaIco = platform;
+        let ihaIco = platform as string;
         if (ihaIco === "mildom") {
             ihaIco += "_simple";
         }
@@ -39,6 +39,14 @@ export default class VideoCardSmall extends React.Component<VideoCardProps> {
         let endTimeDate = DateTime.fromSeconds(endTime, { zone: "UTC" }).toJSDate();
         if (["mildom", "twitch", "twitcasting"].includes(platform)) {
             endTimeDate = DateTime.fromISO(publishedAt, { zone: "UTC" }).toJSDate();
+        }
+        if (platform === "twitter") {
+            thumbnail = "https://ttvthumb.glitch.me/twtr/" + channel_id;
+        }
+        if (platform === "twitter") {
+            ihaIco = "ihaicon-ex ihaicon-ex-twitter";
+        } else {
+            ihaIco = "ihaicon ihaico-" + ihaIco;
         }
         const viewersJSX = createViewersData(averageViewers, peakViewers);
 
@@ -58,7 +66,7 @@ export default class VideoCardSmall extends React.Component<VideoCardProps> {
                         </div>
                         <div className="mt-2 mx-2 text-gray-200">
                             <p className="text-xs tracking-wide font-bold">
-                                <i className={"mr-2 ihaicon ihaico-" + ihaIco}></i>
+                                <i className={"mr-2 " + ihaIco}></i>
                                 {prettyPlatformName(platform)}
                             </p>
                             <p className="mt-2 text-white text-sm font-semibold">{title}</p>

@@ -71,6 +71,7 @@ export default function ChannelsPagesFunctional(props: PropsChannel) {
                     get(groupedByPlatform, "mildom", []),
                     "publishedAt"
                 ) as ChannelCardProps[];
+                const TWTCards = sortBy(get(groupedByPlatform, "twitter", []), "publishedAt");
 
                 return (
                     <div
@@ -119,6 +120,19 @@ export default function ChannelsPagesFunctional(props: PropsChannel) {
                         {TWCards.length > 0 && (
                             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 items-start mb-2">
                                 {TWCards.map((channel) => {
+                                    return (
+                                        <ChannelCard
+                                            key={`${channel.platform}-${channel.group}-${channel.id}`}
+                                            adminMode={isAdmin}
+                                            {...channel}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        )}
+                        {TWTCards.length > 0 && (
+                            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2 items-start mb-2">
+                                {TWTCards.map((channel) => {
                                     return (
                                         <ChannelCard
                                             key={`${channel.platform}-${channel.group}-${channel.id}`}

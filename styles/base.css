@@ -23,6 +23,10 @@ body {
     @apply text-red-500;
 }
 
+.text-twitter {
+    color: #1D9BF0 !important;
+}
+
 .bg-pl-twitch {
     background-color: #8e42fe !important;
 }
@@ -43,6 +47,10 @@ body {
     @apply bg-red-500;
 }
 
+.bg-pl-twitter {
+    background-color: #1D9BF0 !important;
+}
+
 .border-twitch {
     border-color: #8e42fe !important;
 }
@@ -61,6 +69,10 @@ body {
 
 .border-youtube {
     @apply border-red-500;
+}
+
+.border-twitter {
+    border-color: #1D9BF0 !important;
 }
 
 .dotted-line {

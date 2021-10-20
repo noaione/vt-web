@@ -17,7 +17,7 @@ import { ihaAPIQuery } from "../lib/vt";
 
 const ChannelQuerySchemas = `query VTuberChannel($cursor:String) {
     vtuber {
-        channels(platforms:[youtube,twitch,twitcasting,mildom],cursor:$cursor,limit:100) {
+        channels(platforms:[youtube,twitch,twitcasting,mildom,twitter],cursor:$cursor,limit:100) {
             _total
             items {
                 id

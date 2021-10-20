@@ -5,6 +5,7 @@ import Buttons from "./Buttons";
 import ChannelsComponent from "./ChannelsComponents";
 
 import {
+    fixTwitcastingProfileSize,
     GROUPS_NAME_MAP,
     PlatformType,
     prependChannelURL,
@@ -44,10 +45,11 @@ interface ExtraCardsProps {
 }
 
 function ChannelCard(props: ChannelCardProps & ExtraCardsProps) {
-    const { id, name, image, platform, statistics, is_retired, adminMode } = props;
+    const { id, name, platform, statistics, is_retired, adminMode } = props;
     const { subscriberCount, viewCount } = statistics;
+    let { image } = props;
 
-    let shortCode;
+    let shortCode: string;
     switch (platform) {
         case "youtube":
             shortCode = "yt";
@@ -64,6 +66,9 @@ function ChannelCard(props: ChannelCardProps & ExtraCardsProps) {
         case "mildom":
             shortCode = "md";
             break;
+        case "twitter":
+            shortCode = "tw";
+            break;
         default:
             shortCode = "unk";
             break;
@@ -74,13 +79,22 @@ function ChannelCard(props: ChannelCardProps & ExtraCardsProps) {
     const borderColor = selectBorderColor(platform);
     const textCol = selectTextColor(platform);
     let subsFollowName = "Subscribers";
-    if (["twitch", "twitcasting"].includes(platform)) {
+    if (["twitch", "twitcasting", "twitter"].includes(platform)) {
         subsFollowName = "Followers";
     }
 
-    let ihaIco = platform;
+    let ihaIco = platform as string;
     if (ihaIco === "mildom") {
         ihaIco += "_simple";
+    }
+    if (platform === "twitcasting") {
+        image = fixTwitcastingProfileSize(image);
+    }
+
+    if (platform === "twitter") {
+        ihaIco = "ihaicon-ex ihaicon-ex-twitter";
+    } else {
+        ihaIco = "ihaicon ihaico-" + ihaIco;
     }
 
     return (
@@ -103,7 +117,7 @@ function ChannelCard(props: ChannelCardProps & ExtraCardsProps) {
                     </div>
                     <div className="px-4 py-4 text-gray-200 bg-gray-900">
                         <p className="mt-1 uppercase text-sm tracking-wide font-bold text-center">
-                            <i className={textCol + " mr-2 ihaicon ihaico-" + ihaIco}></i>
+                            <i className={textCol + " mr-2 " + ihaIco}></i>
                             {platform}
                             {is_retired && <span className="text-gray-400 ml-1 text-sm">{"(retired)"}</span>}
                         </p>

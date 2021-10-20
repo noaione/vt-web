@@ -16,7 +16,7 @@ const initialState: VideoState = {
     videos: [],
     filtered: [],
     currentQuery: "",
-    platformList: ["youtube", "bilibili", "twitcasting", "twitch", "mildom"],
+    platformList: ["youtube", "bilibili", "twitcasting", "twitch", "mildom", "twitter"],
 };
 
 function filterVideoSearch(allData: VideoCardProps[], searchQuery: string, platformTick: PlatformType[]) {

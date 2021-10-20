@@ -5,7 +5,7 @@ import { capitalizeLetters, mapBoolean, Nullable } from "./utils";
 
 import { getLocalStorageData } from "../components/SettingsComponents/helper";
 
-export type PlatformType = "youtube" | "bilibili" | "twitch" | "twitcasting" | "mildom";
+export type PlatformType = "youtube" | "bilibili" | "twitch" | "twitcasting" | "mildom" | "twitter";
 export type VideoType = "live" | "upcoming" | "past" | "video";
 
 export const GROUPS_NAME_MAP = {
@@ -51,6 +51,19 @@ export const GROUPS_NAME_MAP = {
     vshojo: "VShojo",
 };
 
+export function fixTwitcastingProfileSize(url: string): string {
+    // https://github.com/ihateani-me/vtscheduler-ts/blob/master/src/controller/twitter.ts#L19
+    // https://imagegw02.twitcasting.tv/image3s/pbs.twimg.com/profile_images/1439902455911759877/2sX3zhd0_bigger.jpg
+    const splitIdx = url.lastIndexOf("_");
+    if (splitIdx < 40) {
+        return url;
+    }
+    const extIdx = url.lastIndexOf(".");
+    const firstPart = url.substring(0, splitIdx);
+    const extension = url.substring(extIdx);
+    return firstPart + extension;
+}
+
 export function selectPlatformColor(platform: PlatformType) {
     switch (platform) {
         case "youtube":
@@ -63,6 +76,8 @@ export function selectPlatformColor(platform: PlatformType) {
             return "#3381ff";
         case "mildom":
             return "#38cce3";
+        case "twitter":
+            return "#1D9BF0";
         default:
             return null;
     }
@@ -80,6 +95,8 @@ export function selectBorderColor(platform: PlatformType) {
             return "border-twcast";
         case "mildom":
             return "border-mildom";
+        case "twitter":
+            return "border-twitter";
         default:
             return "border-gray-300";
     }
@@ -97,6 +114,8 @@ export function selectTextColor(platform: PlatformType) {
             return "text-twcast";
         case "mildom":
             return "text-mildom";
+        case "twitter":
+            return "text-twitter";
         default:
             return "text-gray-300";
     }
@@ -113,6 +132,8 @@ export function prependChannelURL(channelId: string, platform: PlatformType) {
         return `https://twitcasting.tv/${channelId}`;
     } else if (platform === "mildom") {
         return `https://mildom.com/profile/${channelId}`;
+    } else if (platform === "twitter") {
+        return `https://twitter.com/${channelId}`;
     }
 }
 
@@ -127,6 +148,8 @@ export function prependWatchUrl(videoId: string, channelId: string, roomId: stri
         return `https://twitcasting.tv/${channelId}`;
     } else if (platform === "mildom") {
         return `https://mildom.com/${channelId}`;
+    } else if (platform === "twitter") {
+        return `https://twitter.com/i/spaces/${videoId}/peek`;
     }
 }
 
@@ -148,6 +171,8 @@ export function prependVideoURLPage(
             return `https://twitcasting.tv/${channelId}/movie/${videoId}`;
         } else if (platform === "mildom") {
             return `https://mildom.com/playback/${channelId}/${videoId}`;
+        } else if (platform === "twitter") {
+            return `https://twitter.com/i/spaces/${videoId}/peek`;
         }
     }
     return prependWatchUrl(videoId, channelId, roomId, platform);
@@ -159,12 +184,6 @@ export function prettyPlatformName(platform: PlatformType) {
             return "YouTube";
         case "bilibili":
             return "BiliBili";
-        case "twitch":
-            return "Twitch";
-        case "twitcasting":
-            return "Twitcasting";
-        case "mildom":
-            return "Mildom";
         default:
             return capitalizeLetters(platform);
     }
@@ -188,6 +207,9 @@ export function platformToShortCode(platform: PlatformType) {
         case "mildom":
             shortCode = "md";
             break;
+        case "twitter":
+            shortCode = "tw";
+            break;
         default:
             shortCode = "unk";
             break;
@@ -207,6 +229,8 @@ export function shortCodeToPlatform(shortCode: string): Nullable<PlatformType> {
             return "twitcasting";
         case "md":
             return "mildom";
+        case "tw":
+            return "twitter";
         default:
             return null;
     }
@@ -269,7 +293,7 @@ export function filterFreeChat(title: string) {
 export function getGroupsAndPlatformsFilters(localStorage: Storage) {
     const loadedGroups = getLocalStorageData(localStorage, "vtapi.excluded", JSON.stringify([])) as string[];
     const allGroups = Object.keys(GROUPS_NAME_MAP).filter((e) => !loadedGroups.includes(e));
-    let allPlatforms = ["youtube", "twitch", "twitcasting", "bilibili", "mildom"];
+    let allPlatforms = ["youtube", "twitch", "twitcasting", "bilibili", "mildom", "twitter"];
     const platformInclude = getLocalStorageData(
         localStorage,
         "vtapi.platInc",
@@ -279,6 +303,7 @@ export function getGroupsAndPlatformsFilters(localStorage: Storage) {
             md: true,
             b2: true,
             tw: true,
+            twt: true,
         })
     ) as any;
     if (has(platformInclude, "yt")) {
@@ -304,6 +329,11 @@ export function getGroupsAndPlatformsFilters(localStorage: Storage) {
     if (has(platformInclude, "tw")) {
         if (!mapBoolean(platformInclude.tw)) {
             allPlatforms = allPlatforms.filter((e) => e !== "twitcasting");
+        }
+    }
+    if (has(platformInclude, "twt")) {
+        if (!mapBoolean(platformInclude.twt)) {
+            allPlatforms = allPlatforms.filter((e) => e !== "twitter");
         }
     }
     return {

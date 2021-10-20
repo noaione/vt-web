@@ -327,9 +327,12 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
         if (status === "upcoming" && platform === "twitch") {
             thumbnail = "https://ttvthumb.glitch.me/" + channel_id;
         }
+        if (platform === "twitter") {
+            thumbnail = "https://ttvthumb.glitch.me/twtr/" + channel_id;
+        }
 
         const niceName = en_name || name;
-        let ihaIco = platform;
+        let ihaIco = platform as string;
         if (ihaIco === "mildom") {
             ihaIco += "_simple";
         }
@@ -341,6 +344,12 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
             embedId = channel_id;
         } else if (platform !== "youtube" && platform === "bilibili") {
             embedId = room_id;
+        }
+
+        if (platform === "twitter") {
+            ihaIco = "ihaicon-ex ihaicon-ex-twitter";
+        } else {
+            ihaIco = "ihaicon ihaico-" + ihaIco;
         }
 
         return (
@@ -372,11 +381,7 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                             </div>
                             <div className="flex justify-center mt-2">
                                 <p className="mt-1 text-sm tracking-wide font-bold">
-                                    <i
-                                        className={
-                                            selectTextColor(platform) + " mr-2 ihaicon ihaico-" + ihaIco
-                                        }
-                                    />
+                                    <i className={selectTextColor(platform) + " mr-2 " + ihaIco} />
                                     {is_premiere && <i className="mr-2 ihaicon ihaico-play text-blue-400" />}
                                     {is_member && <i className="mr-2 ihaicon ihaico-lock text-yellow-400" />}
                                     {prettyPlatformName(platform)}

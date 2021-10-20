@@ -159,6 +159,9 @@ class VideoCard extends React.Component<VideoCardProps, VideoCardState> {
         if (status === "upcoming" && platform === "twitch") {
             thumbnail = "https://ttvthumb.glitch.me/" + ch_id;
         }
+        if (platform === "twitter") {
+            thumbnail = "https://ttvthumb.glitch.me/twtr/" + ch_id;
+        }
 
         const { preferTZ } = this.state;
 

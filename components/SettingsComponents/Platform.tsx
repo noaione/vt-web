@@ -10,6 +10,7 @@ interface IChecked {
     md: boolean;
     b2: boolean;
     tw: boolean;
+    twt: boolean;
 }
 
 export default class PlatformComponent extends React.Component<{}, IChecked> {
@@ -22,6 +23,7 @@ export default class PlatformComponent extends React.Component<{}, IChecked> {
             md: true,
             b2: true,
             tw: true,
+            twt: true,
         };
     }
 
@@ -29,7 +31,7 @@ export default class PlatformComponent extends React.Component<{}, IChecked> {
         const platformInclude = JSON.parse(
             getLocalStorageData(localStorage, "vtapi.platInc", JSON.stringify(this.state))
         ) as any;
-        let { yt, ttv, md, b2, tw } = this.state;
+        let { yt, ttv, md, b2, tw, twt } = this.state;
         if (has(platformInclude, "yt")) {
             yt = mapBoolean(platformInclude.yt);
         }
@@ -45,7 +47,10 @@ export default class PlatformComponent extends React.Component<{}, IChecked> {
         if (has(platformInclude, "tw")) {
             tw = mapBoolean(platformInclude.tw);
         }
-        this.setState({ yt, ttv, md, b2, tw });
+        if (has(platformInclude, "twt")) {
+            twt = mapBoolean(platformInclude.twt);
+        }
+        this.setState({ yt, ttv, md, b2, tw, twt });
     }
 
     changeData(key: keyof IChecked, value: boolean) {
@@ -103,6 +108,16 @@ export default class PlatformComponent extends React.Component<{}, IChecked> {
                                 aria-label="platform-tw-check"
                             />
                             <span>Twitcasting</span>
+                        </div>
+                        <div className="flex flex-row items-center gap-2">
+                            <input
+                                className="form-checkbox transition duration-150 rounded-sm"
+                                checked={this.state.twt}
+                                type="checkbox"
+                                onChange={(e) => this.changeData("twt", e.target.checked)}
+                                aria-label="platform-twt-check"
+                            />
+                            <span>Twitter</span>
                         </div>
                         <div className="flex flex-row items-center gap-2">
                             <input

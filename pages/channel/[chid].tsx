@@ -18,6 +18,7 @@ import InfoIcon from "../../components/Icon/InfoIcon";
 
 import { capitalizeLetters, isType, Nullable, walk } from "../../lib/utils";
 import {
+    fixTwitcastingProfileSize,
     GROUPS_NAME_MAP,
     platformToShortCode,
     PlatformType,
@@ -168,7 +169,7 @@ function tickFormatter(num: number) {
         { value: 1e18, symbol: "E" },
     ];
     const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-    let i;
+    let i: number;
     for (i = si.length - 1; i > 0; i--) {
         if (num >= si[i].value) {
             break;
@@ -277,20 +278,9 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
     }
 
     render() {
-        const {
-            id,
-            room_id,
-            name,
-            en_name,
-            image,
-            group,
-            statistics,
-            history,
-            platform,
-            is_retired,
-            extraNote,
-        } = this.props.data;
-
+        const { id, room_id, name, en_name, group, statistics, history, platform, is_retired, extraNote } =
+            this.props.data;
+        let { image } = this.props.data;
         let { subscriberCount, viewCount } = statistics;
         subscriberCount = subscriberCount || 0;
         viewCount = viewCount || 0;
@@ -299,6 +289,9 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
         let ihaIco = platform;
         if (ihaIco === "mildom") {
             ihaIco += "_simple";
+        }
+        if (platform === "twitcasting") {
+            image = fixTwitcastingProfileSize(image);
         }
         const orgzName = get(GROUPS_NAME_MAP, group, capitalizeLetters(group));
         const description = `"${niceName}" Channel Information on ${prettyPlatformName(platform)}`;

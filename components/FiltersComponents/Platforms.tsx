@@ -26,7 +26,7 @@ type PropsFromRedux = ConnectedProps<typeof channelsConnector>;
 interface SearchBoxState {
     platformTick: PlatformType[];
 }
-const defaultState: PlatformType[] = ["youtube", "twitcasting", "twitch", "bilibili", "mildom"];
+const defaultState: PlatformType[] = ["youtube", "twitcasting", "twitch", "bilibili", "mildom", "twitter"];
 
 class PlatformsFilterComponent extends React.Component<PropsFromRedux, SearchBoxState> {
     debouncer: (...args: any) => void;
@@ -63,7 +63,7 @@ class PlatformsFilterComponent extends React.Component<PropsFromRedux, SearchBox
             <div className="flex flex-col mt-3 ml-2 gap-1">
                 <div className="text-gray-300 font-semibold">Filter Platform</div>
                 <div className="mt-1 flex flex-col sm:flex-row gap-4">
-                    <div className="flex flex-row gap-2">
+                    <div className="flex flex-row gap-2" title="Toggle YouTube">
                         <i className="ihaicon ihaico-youtube text-youtube text-2xl -mt-1"></i>
                         <Switch
                             checked={platformTick.includes("youtube")}
@@ -80,7 +80,7 @@ class PlatformsFilterComponent extends React.Component<PropsFromRedux, SearchBox
                             />
                         </Switch>
                     </div>
-                    <div className="flex flex-row gap-2">
+                    <div className="flex flex-row gap-2" title="Toggle BiliBili">
                         <i className="ihaicon ihaico-bilibili text-bili2 text-2xl -mt-1"></i>
                         <Switch
                             checked={platformTick.includes("bilibili")}
@@ -97,7 +97,7 @@ class PlatformsFilterComponent extends React.Component<PropsFromRedux, SearchBox
                             />
                         </Switch>
                     </div>
-                    <div className="flex flex-row gap-2">
+                    <div className="flex flex-row gap-2" title="Toggle Twitch">
                         <i className="ihaicon ihaico-twitch text-twitch text-2xl -mt-1"></i>
                         <Switch
                             checked={platformTick.includes("twitch")}
@@ -114,7 +114,7 @@ class PlatformsFilterComponent extends React.Component<PropsFromRedux, SearchBox
                             />
                         </Switch>
                     </div>
-                    <div className="flex flex-row gap-2">
+                    <div className="flex flex-row gap-2" title="Toggle Twitcasting">
                         <i className="ihaicon ihaico-twitcasting text-twcast text-2xl -mt-1"></i>
                         <Switch
                             checked={platformTick.includes("twitcasting")}
@@ -131,7 +131,24 @@ class PlatformsFilterComponent extends React.Component<PropsFromRedux, SearchBox
                             />
                         </Switch>
                     </div>
-                    <div className="flex flex-row gap-2">
+                    <div className="flex flex-row gap-2" title="Toggle Twitter">
+                        <i className="ihaicon-ex ihaicon-ex-twitter text-twitter text-2xl -mt-1"></i>
+                        <Switch
+                            checked={platformTick.includes("twitter")}
+                            onChange={() => this.platformFilter("twitter")}
+                            className={`${
+                                platformTick.includes("twitter") ? "bg-pl-twitter" : "bg-gray-600"
+                            } relative inline-flex items-center h-6 rounded-full w-11`}
+                        >
+                            <span className="sr-only">Enable Twitter</span>
+                            <span
+                                className={`inline-block w-4 h-4 transform transition ease-in-out duration-200 bg-white rounded-full ${
+                                    platformTick.includes("twitter") ? "translate-x-6" : "translate-x-1"
+                                }`}
+                            />
+                        </Switch>
+                    </div>
+                    <div className="flex flex-row gap-2" title="Toggle Mildom">
                         <i className="ihaicon ihaico-mildom_simple text-mildom text-2xl -mt-1"></i>
                         <Switch
                             checked={platformTick.includes("mildom")}

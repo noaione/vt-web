@@ -16,7 +16,7 @@ const initialState: ChannelsState = {
     channels: [],
     filtered: [],
     currentQuery: "",
-    platformList: ["youtube", "bilibili", "twitcasting", "twitch", "mildom"],
+    platformList: ["youtube", "bilibili", "twitcasting", "twitch", "mildom", "twitter"],
 };
 
 function filterChannelSearch(allData: ChannelCardProps[], searchQuery: string, platformTick: PlatformType[]) {
