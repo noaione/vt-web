@@ -17,7 +17,7 @@ import { RootState } from "../lib/store";
 
 const VideoQuerySchemas = `query VTuberLives($cursor:String,$groups:[String],$platform:[PlatformName]) {
     vtuber {
-        videos(cursor:$cursor,groups:$groups,platforms:$platform,limit:30,statuses:[past]) {
+        videos(cursor:$cursor,groups:$groups,platforms:$platform,limit:30,statuses:[past,video]) {
             _total
             items {
                 id

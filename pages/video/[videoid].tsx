@@ -123,9 +123,9 @@ async function QueryFetch(videoId: string, platform: PlatformType, querySchema =
 
 function getPreferedTimezone(localStorage: any) {
     const DEFAULTS = "UTC" + DateTime.local().toFormat("ZZ");
-    const prefer = localStorage.getItem("vtapi-offsetLoc");
+    const prefer = localStorage.getItem("vtapi.offsetLoc");
     if (typeof prefer === "undefined" || prefer === null) {
-        localStorage.setItem("vtapi-offsetLoc", DEFAULTS);
+        localStorage.setItem("vtapi.offsetLoc", DEFAULTS);
         return DEFAULTS;
     }
     return prefer;

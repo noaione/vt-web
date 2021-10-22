@@ -293,8 +293,19 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
         if (platform === "twitcasting") {
             image = fixTwitcastingProfileSize(image);
         }
+        let subsFollowText = "Followers";
+        let subsFollowSmallText = "Follow";
+        if (platform === "youtube") {
+            subsFollowText = "Subscribers";
+            subsFollowSmallText = "Subs";
+        }
         const orgzName = get(GROUPS_NAME_MAP, group, capitalizeLetters(group));
         const description = `"${niceName}" Channel Information on ${prettyPlatformName(platform)}`;
+
+        let showViewCount = true;
+        if (["twitcasting", "twitter"].includes(platform)) {
+            showViewCount = false;
+        }
 
         return (
             <>
@@ -336,36 +347,46 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
                         <h5 className="text-gray-400">{name}</h5>
                         <h6 className="text-gray-400 font-light">Organization: {orgzName}</h6>
                     </div>
-                    <div className="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-4 text-center">
+                    <div
+                        className={`mt-2 grid grid-cols-1 gap-0 ${
+                            showViewCount ? "lg:grid-cols-2 lg:gap-4" : ""
+                        } text-center`}
+                    >
                         <div className="col-span-1 text-white">
-                            Subscribers:
+                            {`${subsFollowText}:`}
                             <CountUp
                                 className="font-bold ml-2"
                                 duration={3}
                                 useEasing
                                 easingFn={outQuinticEasing}
-                                suffix=" Subs"
+                                suffix={" " + subsFollowText}
                                 start={0}
                                 formattingFn={(val) => val.toLocaleString()}
                                 end={subscriberCount}
                             />
                         </div>
-                        <div className="col-span-1 text-white">
-                            Views:
-                            <CountUp
-                                className="font-bold ml-2"
-                                duration={3}
-                                useEasing
-                                easingFn={outQuinticEasing}
-                                suffix=" Views"
-                                start={0}
-                                formattingFn={(val) => val.toLocaleString()}
-                                end={viewCount}
-                            />
-                        </div>
+                        {showViewCount && (
+                            <div className="col-span-1 text-white">
+                                Views:
+                                <CountUp
+                                    className="font-bold ml-2"
+                                    duration={3}
+                                    useEasing
+                                    easingFn={outQuinticEasing}
+                                    suffix=" Views"
+                                    start={0}
+                                    formattingFn={(val) => val.toLocaleString()}
+                                    end={viewCount}
+                                />
+                            </div>
+                        )}
                     </div>
                     <hr className="mt-4" />
-                    <div className="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 justify-center">
+                    <div
+                        className={`mt-2 grid grid-cols-1 gap-2 ${
+                            showViewCount ? "lg:grid-cols-2 lg:gap-4" : ""
+                        } justify-center`}
+                    >
                         <div className="flex justify-center">
                             <ResponsiveContainer width="100%" height={420}>
                                 <AreaChart
@@ -386,8 +407,8 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
                                     <Tooltip formatter={ToolTipFormatter} labelClassName="text-gray-700" />
                                     <Area
                                         type="monotone"
-                                        name="Subs"
-                                        unit=" Subscribers"
+                                        name={subsFollowSmallText}
+                                        unit={` ${subsFollowText}`}
                                         dataKey="data"
                                         stroke="#ff0000"
                                         fillOpacity={1}
@@ -396,36 +417,41 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
-                        <div className="flex justify-center">
-                            <ResponsiveContainer width="100%" height={420}>
-                                <AreaChart
-                                    data={reparseHistory(history.viewsCount)}
-                                    margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
-                                >
-                                    <defs>
-                                        <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#0535DA" stopOpacity={0.8} />
-                                            <stop offset="95%" stopColor="#0535DA" stopOpacity={0} />
-                                        </linearGradient>
-                                    </defs>
-                                    <XAxis dataKey="time" />
-                                    <YAxis
-                                        tickFormatter={tickFormatter}
-                                        domain={["dataMin - 100", "dataMax + 100"]}
-                                    />
-                                    <Tooltip formatter={ToolTipFormatter} labelClassName="text-gray-700" />
-                                    <Area
-                                        type="monotone"
-                                        name="Views"
-                                        unit=" Views"
-                                        dataKey="data"
-                                        stroke="#0535DA"
-                                        fillOpacity={1}
-                                        fill="url(#colorViews)"
-                                    />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </div>
+                        {showViewCount && (
+                            <div className="flex justify-center">
+                                <ResponsiveContainer width="100%" height={420}>
+                                    <AreaChart
+                                        data={reparseHistory(history.viewsCount)}
+                                        margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+                                    >
+                                        <defs>
+                                            <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#0535DA" stopOpacity={0.8} />
+                                                <stop offset="95%" stopColor="#0535DA" stopOpacity={0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <XAxis dataKey="time" />
+                                        <YAxis
+                                            tickFormatter={tickFormatter}
+                                            domain={["dataMin - 100", "dataMax + 100"]}
+                                        />
+                                        <Tooltip
+                                            formatter={ToolTipFormatter}
+                                            labelClassName="text-gray-700"
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            name="Views"
+                                            unit=" Views"
+                                            dataKey="data"
+                                            stroke="#0535DA"
+                                            fillOpacity={1}
+                                            fill="url(#colorViews)"
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
+                        )}
                     </div>
                     <hr className="mt-4" />
                     {typeof extraNote === "string" && extraNote.replace(/\s+/, "").length > 0 && (

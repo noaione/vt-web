@@ -143,7 +143,7 @@ class TimezoneSettings extends React.Component<{}, TimezoneState> {
     }
 
     componentDidUpdate() {
-        localStorage.setItem("vtapi-offsetLoc", this.state.selTZ);
+        localStorage.setItem("vtapi.offsetLoc", this.state.selTZ);
     }
 
     render() {
