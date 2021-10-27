@@ -1,26 +1,18 @@
 import React from "react";
 
-import { connect, ConnectedProps } from "react-redux";
+import { connect } from "react-redux";
 import { get, groupBy, ValueIteratee } from "lodash";
 import { Link as ScrollTo } from "react-scroll";
 
 import GroupModal from "./GroupModal";
 import { CallbackModal } from "./Modal";
 
-import { RootState } from "../lib/store";
 import { capitalizeLetters } from "../lib/utils";
 import { GROUPS_NAME_MAP } from "../lib/vt";
-
-const mapState = (state: RootState) => ({
-    channels: state.channels.channels,
-    videos: state.videos.videos,
-});
-
-const connector = connect(mapState);
-type PropsFromRedux = ConnectedProps<typeof connector>;
+import { ChannelCardProps } from "./ChannelCard";
+import { VideoCardProps } from "./VideoCard";
 
 interface InferFrom extends PropsFromRedux {
-    groupType: "video" | "channel";
     sortedBy?: "time" | "group";
 }
 
@@ -44,11 +36,38 @@ function groupMember<T>(realData: T[], predicate: ValueIteratee<T> = (o: T) => o
     return sortedGroupData;
 }
 
-class GroupButton extends React.Component<InferFrom> {
+interface ChannelRootState {
+    channels: {
+        filtered: ChannelCardProps[];
+    };
+}
+
+interface VideoRootState {
+    videos: {
+        filtered: VideoCardProps[];
+    };
+}
+
+const mapChannelState = (state: ChannelRootState) => ({
+    filtered: state.channels.filtered,
+});
+const mapVideoState = (state: VideoRootState) => ({
+    filtered: state.videos.filtered,
+});
+
+const channelsConnector = connect(mapChannelState, null);
+const videoConnector = connect(mapVideoState, null);
+
+interface PropsFromRedux {
+    filtered: (ChannelCardProps | VideoCardProps)[];
+}
+
+class GroupButtonComponent extends React.Component<InferFrom & PropsFromRedux> {
     modalCb?: CallbackModal;
 
-    constructor(props) {
+    constructor(props: InferFrom & PropsFromRedux) {
         super(props);
+        this.openModal = this.openModal.bind(this);
         this.scrollTop = this.scrollTop.bind(this);
     }
 
@@ -70,12 +89,8 @@ class GroupButton extends React.Component<InferFrom> {
 
     render() {
         const configuredCallback: GroupCallbackData[] = [];
-        let sortedByGroup;
-        if (this.props.groupType === "video") {
-            sortedByGroup = groupMember(this.props.videos);
-        } else if (this.props.groupType === "channel") {
-            sortedByGroup = groupMember(this.props.channels);
-        }
+        console.log(this.props.filtered);
+        const sortedByGroup = groupMember(this.props.filtered);
         sortedByGroup.forEach((items) => {
             const grp = items[0].group;
             configuredCallback.push({
@@ -134,4 +149,12 @@ class GroupButton extends React.Component<InferFrom> {
     }
 }
 
-export default connector(GroupButton);
+const ChannelGroupButton = channelsConnector(GroupButtonComponent);
+const VideoGroupButton = videoConnector(GroupButtonComponent);
+
+const GroupButton = {
+    Channel: ChannelGroupButton,
+    Video: VideoGroupButton,
+};
+
+export default GroupButton;

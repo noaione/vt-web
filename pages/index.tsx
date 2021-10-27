@@ -12,6 +12,7 @@ import { ChannelCardProps } from "../components/ChannelCard";
 import MetadataHead from "../components/MetadataHead";
 import FiltersComponent from "../components/FiltersComponents";
 import Navbar from "../components/Navbar";
+import GroupButton from "../components/GroupButton";
 
 import { ihaAPIQuery } from "../lib/vt";
 
@@ -133,6 +134,7 @@ class HomepageChannelsPage extends React.Component<PropsFromRedux, HomepageChann
                         </div>
                     )}
                 </main>
+                <GroupButton.Channel sortedBy="group" />
             </React.Fragment>
         );
     }

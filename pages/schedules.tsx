@@ -10,6 +10,7 @@ import { VideoCardProps } from "../components/VideoCard";
 import FiltersComponent from "../components/FiltersComponents";
 import VideosPages from "../components/VideosPages";
 import VideosPagesSkeleton from "../components/VideosPagesSkeleton";
+import GroupButton from "../components/GroupButton";
 
 import { mapBoolean } from "../lib/utils";
 import { getGroupsAndPlatformsFilters, ihaAPIQuery } from "../lib/vt";
@@ -164,6 +165,7 @@ class SchedulesPage extends React.Component<PropsFromRedux, LivesPageState> {
                         </div>
                     )}
                 </main>
+                <GroupButton.Video sortedBy={sortedBy} />
             </React.Fragment>
         );
     }
