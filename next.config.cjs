@@ -1,10 +1,8 @@
 module.exports = {
     productionBrowserSourceMaps: true,
-    experimental: {
-        swcLoader: true,
-        swcMinify: true,
-        esmExternals: true,
-    },
+    swcLoader: true,
+    swcMinify: true,
+    esmExternals: true,
     webpack: (config, { dev, isServer, webpack }) => {
         config.plugins.push(
             new webpack.ProvidePlugin({
