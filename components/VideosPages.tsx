@@ -1,11 +1,11 @@
 import React from "react";
 import { get, groupBy, sortBy, ValueIteratee } from "lodash";
-import { DateTime } from "luxon";
 
 import BadgeText from "./Badge";
 import VideoCard, { VideoCardProps } from "./VideoCard";
 
-import { capitalizeLetters } from "../lib/utils";
+import { capitalizeLetters, determineTimeTitle } from "../lib/utils";
+import type { CurrentType } from "../lib/utils";
 import { filterFreeChat, GROUPS_NAME_MAP } from "../lib/vt";
 import { useStoreSelector } from "../lib/store";
 import { selectAllVideos, selectVideo } from "../lib/slices/videos";
@@ -48,10 +48,11 @@ function GroupVideo(props: GroupingVideoProps) {
     if (sortedByTime.length < 1) {
         return null;
     }
+    const groupId = forceId || group;
     const headerTitle = noTitleFormatting ? group : get(GROUPS_NAME_MAP, group, capitalizeLetters(group));
 
     return (
-        <div id={"group-" + forceId || group} className="pb-3 mt-2 vtubers-group">
+        <div id={"group-" + groupId} className="pb-3 mt-2 vtubers-group">
             <h2 className="text-white py-3 text-3xl font-bold mb-2">
                 {headerTitle}
                 <BadgeText className="bg-red-500 text-white ml-3 text-xl">{data.length}</BadgeText>
@@ -63,48 +64,6 @@ function GroupVideo(props: GroupingVideoProps) {
             </div>
         </div>
     );
-}
-
-type CurrentType = "live" | "schedule" | "past";
-
-function determineTimeTitle(
-    o: VideoCardProps,
-    currentType: CurrentType = "live",
-    timeZonePrefer: string = "UTC+09:00",
-    textFormat = "yyyy LL dd HH':'mm"
-) {
-    if (currentType === "past") {
-        const {
-            timeData: { startTime, endTime },
-        } = o;
-        if (typeof endTime === "number") {
-            const d = DateTime.fromSeconds(endTime, { zone: "UTC" }).setZone(timeZonePrefer).startOf("hour");
-            return d.toFormat(textFormat);
-        } else {
-            const d = DateTime.fromSeconds(startTime, { zone: "UTC" })
-                .setZone(timeZonePrefer)
-                .startOf("hour");
-            return d.toFormat(textFormat);
-        }
-    } else if (currentType === "schedule") {
-        const {
-            timeData: { startTime, scheduledStartTime },
-        } = o;
-        if (typeof scheduledStartTime === "number") {
-            const d = DateTime.fromSeconds(scheduledStartTime, { zone: "UTC" }).setZone(timeZonePrefer);
-            return d.toFormat(textFormat);
-        } else {
-            const d = DateTime.fromSeconds(startTime, { zone: "UTC" })
-                .setZone(timeZonePrefer)
-                .startOf("hour");
-            return d.toFormat(textFormat);
-        }
-    }
-    const {
-        timeData: { startTime },
-    } = o;
-    const d = DateTime.fromSeconds(startTime, { zone: "UTC" }).setZone(timeZonePrefer).startOf("hour");
-    return d.toFormat(textFormat);
 }
 
 interface PageProps {
@@ -171,7 +130,8 @@ function VideosPagesData(props: PageProps) {
                 return (
                     <GroupVideo
                         key={`vgroup-${groupData.group}`}
-                        {...groupData}
+                        data={items}
+                        group={items[0].group}
                         enableFreeChat={enableFreeChat}
                     />
                 );

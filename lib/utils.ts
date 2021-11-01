@@ -1,3 +1,6 @@
+import { DateTime } from "luxon";
+import { VideoCardProps } from "../components/VideoCard";
+
 export type Nullable<T> = T | null;
 export type NoneType = null | undefined;
 export type NoneAble<T> = T | NoneType;
@@ -110,4 +113,46 @@ export function durationToText(seconds: number) {
         return `${zeroPad(h)}:${zeroPad(m)}:${zeroPad(s)}`;
     }
     return `${zeroPad(m)}:${zeroPad(s)}`;
+}
+
+export type CurrentType = "live" | "schedule" | "past";
+
+export function determineTimeTitle(
+    o: VideoCardProps,
+    currentType: CurrentType = "live",
+    timeZonePrefer: string = "UTC+09:00",
+    textFormat = "yyyy LL dd HH':'mm"
+) {
+    if (currentType === "past") {
+        const {
+            timeData: { startTime, endTime },
+        } = o;
+        if (typeof endTime === "number") {
+            const d = DateTime.fromSeconds(endTime, { zone: "UTC" }).setZone(timeZonePrefer).startOf("hour");
+            return d.toFormat(textFormat);
+        } else {
+            const d = DateTime.fromSeconds(startTime, { zone: "UTC" })
+                .setZone(timeZonePrefer)
+                .startOf("hour");
+            return d.toFormat(textFormat);
+        }
+    } else if (currentType === "schedule") {
+        const {
+            timeData: { startTime, scheduledStartTime },
+        } = o;
+        if (typeof scheduledStartTime === "number") {
+            const d = DateTime.fromSeconds(scheduledStartTime, { zone: "UTC" }).setZone(timeZonePrefer);
+            return d.toFormat(textFormat);
+        } else {
+            const d = DateTime.fromSeconds(startTime, { zone: "UTC" })
+                .setZone(timeZonePrefer)
+                .startOf("hour");
+            return d.toFormat(textFormat);
+        }
+    }
+    const {
+        timeData: { startTime },
+    } = o;
+    const d = DateTime.fromSeconds(startTime, { zone: "UTC" }).setZone(timeZonePrefer).startOf("hour");
+    return d.toFormat(textFormat);
 }

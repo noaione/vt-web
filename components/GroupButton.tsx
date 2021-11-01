@@ -7,13 +7,15 @@ import { Link as ScrollTo } from "react-scroll";
 import GroupModal from "./GroupModal";
 import { CallbackModal } from "./Modal";
 
-import { capitalizeLetters } from "../lib/utils";
+import { capitalizeLetters, CurrentType, determineTimeTitle } from "../lib/utils";
 import { GROUPS_NAME_MAP } from "../lib/vt";
 import { ChannelCardProps } from "./ChannelCard";
 import { VideoCardProps } from "./VideoCard";
 
 interface InferFrom extends PropsFromRedux {
     sortedBy?: "time" | "group";
+    currentType?: CurrentType;
+    timezone?: string;
 }
 
 interface GroupCallbackData {
@@ -88,17 +90,47 @@ class GroupButtonComponent extends React.Component<InferFrom & PropsFromRedux> {
     }
 
     render() {
+        const sortedBy = this.props.sortedBy || "group";
+        const currentType = this.props.currentType || "live";
+        const { timezone } = this.props;
         const configuredCallback: GroupCallbackData[] = [];
-        console.log(this.props.filtered);
-        const sortedByGroup = groupMember(this.props.filtered);
-        sortedByGroup.forEach((items) => {
-            const grp = items[0].group;
-            configuredCallback.push({
-                id: grp,
-                name: get(GROUPS_NAME_MAP, grp, capitalizeLetters(grp)),
-                total: items.length,
+        if (sortedBy === "time") {
+            const sortedByTimeData = groupMember(this.props.filtered, (o) =>
+                // @ts-ignore
+                determineTimeTitle(o, currentType, timezone || "UTC+09:00")
+            ).reverse();
+            sortedByTimeData.forEach((items) => {
+                const timeFmt = determineTimeTitle(
+                    // @ts-ignore
+                    items[0],
+                    currentType,
+                    timezone || "UTC+09:00",
+                    "yyyyLLddHHmm"
+                );
+                const groupNaming = determineTimeTitle(
+                    // @ts-ignore
+                    items[0],
+                    currentType,
+                    timezone || "UTC+09:00",
+                    "ccc, dd LLL yyyy HH':'mm"
+                );
+                configuredCallback.push({
+                    id: timeFmt,
+                    name: groupNaming,
+                    total: items.length,
+                });
             });
-        });
+        } else {
+            const sortedByGroup = groupMember(this.props.filtered);
+            sortedByGroup.forEach((items) => {
+                const grp = items[0].group;
+                configuredCallback.push({
+                    id: grp,
+                    name: get(GROUPS_NAME_MAP, grp, capitalizeLetters(grp)),
+                    total: items.length,
+                });
+            });
+        }
         return (
             <>
                 <GroupModal onMounted={(cb) => (this.modalCb = cb)}>

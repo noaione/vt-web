@@ -165,7 +165,12 @@ class SchedulesPage extends React.Component<PropsFromRedux, LivesPageState> {
                         </div>
                     )}
                 </main>
-                <GroupButton.Video sortedBy={sortedBy} />
+                <GroupButton.Video
+                    key={`vgroup-btn-by-${sortedBy}`}
+                    sortedBy={sortedBy}
+                    currentType="schedule"
+                    timezone={offsetLoc}
+                />
             </React.Fragment>
         );
     }

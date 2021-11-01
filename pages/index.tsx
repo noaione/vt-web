@@ -134,7 +134,7 @@ class HomepageChannelsPage extends React.Component<PropsFromRedux, HomepageChann
                         </div>
                     )}
                 </main>
-                <GroupButton.Channel sortedBy="group" />
+                <GroupButton.Channel key="group-btn-by-group" sortedBy="group" />
             </React.Fragment>
         );
     }
