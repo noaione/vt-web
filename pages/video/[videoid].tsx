@@ -3,7 +3,7 @@ import Head from "next/head";
 import { NextPageContext } from "next";
 
 import ReactTooltip from "react-tooltip";
-import { find, get } from "lodash";
+import { find, get, sortBy } from "lodash";
 import { DateTime } from "luxon";
 
 import MetadataHead from "../../components/MetadataHead";
@@ -352,6 +352,11 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
             ihaIco = "ihaicon ihaico-" + ihaIco;
         }
 
+        let sortedMentionByName: ChannelCardProps[] = [];
+        if (Array.isArray(mentions) && mentions.length > 0) {
+            sortedMentionByName = sortBy(mentions, (o) => o.en_name || o.name);
+        }
+
         return (
             <>
                 <Head>
@@ -416,7 +421,7 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                                     />
                                 </div>
                             </div>
-                            {Array.isArray(mentions) && mentions.length > 0 && (
+                            {sortedMentionByName.length > 0 && (
                                 <div className="flex flex-col">
                                     <p className="lg:text-center mt-4">
                                         <span
@@ -428,7 +433,7 @@ export default class VideoPageInfo extends React.Component<VideoPageInfoProps, V
                                     </p>
                                     <ReactTooltip place="top" type="info" effect="solid" />
                                     <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 lg:justify-center items-center text-center gap-2">
-                                        {mentions.map((channel) => {
+                                        {sortedMentionByName.map((channel) => {
                                             const { id, platform, group, image } = channel;
                                             const niceName = channel.en_name || channel.name;
                                             const orgzName = get(

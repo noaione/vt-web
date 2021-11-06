@@ -17,6 +17,7 @@ import {
     selectTextColor,
     VideoType,
 } from "../lib/vt";
+import { sortBy } from "lodash";
 
 function getPreferedTimezone(localStorage) {
     const DEFAULTS = "UTC" + DateTime.local().toFormat("ZZ");
@@ -67,13 +68,15 @@ function MentionedChannels(props: MentionedProps) {
         return null;
     }
 
+    const sortedByName = sortBy(mentions, (o) => o.en_name || o.name);
+
     return (
         <>
             <p>
                 <span className="font-bold dotted-line" data-tip="This might not be accurate!">
                     Collabing with
                 </span>{" "}
-                {mentions.map((mention, idx) => {
+                {sortedByName.map((mention, idx) => {
                     const selectName = mention.en_name || mention.name;
                     const addComma = idx + 1 !== mentions.length;
                     return (
