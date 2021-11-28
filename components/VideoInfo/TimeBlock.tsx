@@ -40,6 +40,12 @@ interface Locale {
 
 export default function TimeVideoInfoBlock(props: TokiProps & Locale) {
     const { status, startTime, scheduledStartTime, endTime, publishedAt, isPremiere, duration, tz } = props;
+
+    let rightSideText = isPremiere ? "Video" : "Stream";
+    rightSideText += " Duration";
+    if (status === "upcoming" && !isPremiere) {
+        rightSideText = "Streaming in";
+    }
     return (
         <div
             className={`grid ${
@@ -91,7 +97,13 @@ export default function TimeVideoInfoBlock(props: TokiProps & Locale) {
                         </div>
                         <div className="font-light text-2xl mt-1 justify-center text-center">
                             {status === "upcoming" ? (
-                                <>{isPremiere ? <span>{durationToText(duration)}</span> : <span>N/A</span>}</>
+                                <>
+                                    {isPremiere ? (
+                                        <span>{durationToText(duration)}</span>
+                                    ) : (
+                                        <TimeTicker startTime={scheduledStartTime} raw reversed />
+                                    )}
+                                </>
                             ) : (
                                 <>
                                     {status === "live" ? (
@@ -103,7 +115,7 @@ export default function TimeVideoInfoBlock(props: TokiProps & Locale) {
                             )}
                         </div>
                         <div className="font-semibold text-sm mt-1 justify-center text-center text-gray-300">
-                            {isPremiere ? "Video" : "Stream"} Duration
+                            {rightSideText}
                         </div>
                     </div>
                 </>

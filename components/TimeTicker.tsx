@@ -13,6 +13,7 @@ interface TimeTickerProps {
     startTime?: Nullable<number>;
     currentTimeSeconds?: Nullable<number>;
     raw?: boolean;
+    reversed?: boolean;
 }
 
 interface TimeTickerState {
@@ -50,23 +51,34 @@ export default class TimeTicker extends React.Component<TimeTickerProps, TimeTic
     }
 
     render() {
-        const { startTime, raw } = this.props;
+        const { startTime, raw, reversed } = this.props;
         const { currentTime } = this.state;
         if (!isNumber(startTime)) {
             return null;
         }
 
+        let duration = currentTime - startTime;
+        let elapsedText = "Elapsed";
+        let overrideText: string | null = null;
+        if (reversed) {
+            duration = startTime - currentTime;
+            elapsedText = "In";
+            overrideText = "00:00";
+        }
+        let durationText = durationToText(duration);
+        if (typeof overrideText === "string" && duration <= 0 && reversed) {
+            durationText = overrideText;
+        }
+
         if (raw) {
-            return <span>{durationToText(currentTime - startTime)}</span>;
+            return <span>{durationText}</span>;
         }
 
         return (
             <div className="flex flex-row justify-center items-center">
                 <ClockIcon />
-                <span className="ml-1 text-gray-400 font-bold">Elapsed</span>
-                <span className="ml-1 text-gray-400 font-medium">
-                    {durationToText(currentTime - startTime)}
-                </span>
+                <span className="ml-1 text-gray-400 font-bold">{elapsedText}</span>
+                <span className="ml-1 text-gray-400 font-medium">{durationText}</span>
             </div>
         );
     }
