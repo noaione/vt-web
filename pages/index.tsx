@@ -89,6 +89,7 @@ class HomepageChannelsPage extends React.Component<PropsFromRedux, HomepageChann
         const loadedData = await getAllChannelsAsync("", 1, setLoadData);
         const groupedByGroup = groupBy(loadedData, "group");
         this.props.resetState();
+        console.log("groupedByGroup", loadedData);
         for (const [groupName, groupVals] of Object.entries(groupedByGroup)) {
             delay(() => {
                 this.props.startNewData(groupVals);
