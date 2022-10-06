@@ -111,6 +111,9 @@ function ChannelCard(props: ChannelCardProps & ExtraCardsProps) {
                                     className={`w-full object-cover object-center rounded-t-lg ${
                                         is_retired && "opacity-50"
                                     }`}
+                                    onError={(e) => {
+                                        e.currentTarget.src = "https://avatars.githubusercontent.com/u/73813619?s=200&v=4";
+                                    }}
                                 />
                             </a>
                         </Link>

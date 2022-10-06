@@ -334,6 +334,9 @@ export default class ChannelPageInfo extends React.Component<ChannelPageInfoProp
                                     className={"rounded-full mx-auto h-64 " + borderName}
                                     src={image}
                                     loading="lazy"
+                                    onError={(e) => {
+                                        e.currentTarget.src = "https://avatars.githubusercontent.com/u/73813619?s=200&v=4";
+                                    }}
                                 />
                             </a>
                         </div>
